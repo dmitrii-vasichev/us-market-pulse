@@ -15,13 +15,13 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <header className="sticky top-0 z-50 bg-[#1A1D27] border-b border-white/[0.06]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-accent-blue flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#2DD4A8]/10 flex items-center justify-center">
               <svg
-                className="w-4 h-4 text-white"
+                className="w-4 h-4 text-[#2DD4A8]"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2.5}
@@ -34,7 +34,7 @@ export default function Header() {
                 />
               </svg>
             </div>
-            <span className="text-lg font-bold text-text-primary">
+            <span className="text-lg font-bold text-[#E8ECF1]">
               US Market Pulse
             </span>
           </Link>
@@ -52,8 +52,8 @@ export default function Header() {
                   href={tab.href}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                     isActive
-                      ? "bg-accent-blue/10 text-accent-blue"
-                      : "text-text-secondary hover:text-text-primary hover:bg-gray-50"
+                      ? "bg-[#2DD4A8]/10 text-[#2DD4A8]"
+                      : "text-[#8B93A7] hover:text-[#E8ECF1] hover:bg-[#252A3A]"
                   }`}
                 >
                   {tab.label}
@@ -64,7 +64,7 @@ export default function Header() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-lg text-text-secondary hover:bg-gray-50"
+            className="md:hidden p-2 rounded-lg text-[#8B93A7] hover:bg-[#252A3A]"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
@@ -80,7 +80,7 @@ export default function Header() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <nav className="md:hidden pb-3 border-t border-gray-100">
+          <nav className="md:hidden pb-3 border-t border-white/[0.06]">
             {tabs.map((tab) => {
               const isActive =
                 tab.href === "/"
@@ -93,8 +93,8 @@ export default function Header() {
                   onClick={() => setMobileOpen(false)}
                   className={`block px-4 py-2.5 rounded-lg text-sm font-medium mt-1 ${
                     isActive
-                      ? "bg-accent-blue/10 text-accent-blue"
-                      : "text-text-secondary hover:text-text-primary hover:bg-gray-50"
+                      ? "bg-[#2DD4A8]/10 text-[#2DD4A8]"
+                      : "text-[#8B93A7] hover:text-[#E8ECF1] hover:bg-[#252A3A]"
                   }`}
                 >
                   {tab.label}
