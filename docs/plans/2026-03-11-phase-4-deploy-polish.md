@@ -7,7 +7,7 @@
 
 ---
 
-## Task 1: Loading skeletons for all data-fetching components
+## Task 1: Loading skeletons for all data-fetching components — #45
 
 **Description:** Add animated skeleton placeholders that display while API data is loading. Create a reusable `ChartCardSkeleton` component and `KpiStripSkeleton`. Use Tailwind `animate-pulse` for consistency with existing design.
 
@@ -31,7 +31,7 @@
 
 ---
 
-## Task 2: Error boundaries and error states
+## Task 2: Error boundaries and error states — #46
 
 **Description:** Add Next.js `error.tsx` files for each route segment and a global `not-found.tsx`. Add inline error state for individual chart components that fail to load data (show friendly message instead of crashing the whole page).
 
@@ -52,7 +52,7 @@
 
 ---
 
-## Task 3: OG meta tags + favicon + SEO
+## Task 3: OG meta tags + favicon + SEO — #47
 
 **Description:** Add comprehensive Open Graph and Twitter Card meta tags to layout.tsx. Add favicon, apple-touch-icon, theme-color. Add JSON-LD structured data for the dashboard.
 
@@ -76,7 +76,7 @@
 
 ---
 
-## Task 4: Vercel deployment configuration
+## Task 4: Vercel deployment configuration — #48
 
 **Description:** Configure Next.js for Vercel deployment. Add environment variables config, API rewrites to proxy backend calls, and proper build settings.
 
@@ -98,7 +98,7 @@
 
 ---
 
-## Task 5: Comprehensive README
+## Task 5: Comprehensive README — #49
 
 **Description:** Write a professional README.md with project overview, screenshots, tech stack, architecture diagram (text-based), setup instructions, and deployment guide. This is the portfolio showpiece — should be polished.
 
@@ -121,7 +121,7 @@
 
 ---
 
-## Task 6: Frontend tests for Phase 3 + Phase 4 components
+## Task 6: Frontend tests for Phase 3 + Phase 4 components — #50
 
 **Description:** Close open issue #43 (Phase 3 tests) and add tests for new Phase 4 components (skeletons, error boundaries). Ensure all existing tests still pass.
 
@@ -149,7 +149,7 @@
 
 ---
 
-## Task 7: Lighthouse audit + performance fixes
+## Task 7: Lighthouse audit + performance fixes — #51
 
 **Description:** Run Lighthouse audit on the deployed app. Fix any critical issues: performance, accessibility, best practices, SEO. Target scores: Performance 90+, Accessibility 90+, SEO 95+.
 
@@ -173,7 +173,7 @@
 
 ---
 
-## Task 8: End-to-end pipeline test + cleanup
+## Task 8: End-to-end pipeline test + cleanup — #52
 
 **Description:** Verify the full data pipeline works: GitHub Actions → FRED API → PostgreSQL → FastAPI → Next.js frontend. Close any remaining open issues from previous phases. Clean up workflow state.
 
