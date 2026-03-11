@@ -34,7 +34,12 @@ export default function SentimentRadial() {
   const keys = response.data.map((s) => s.id);
 
   return (
-    <ChartCard insight={`Consumer Sentiment${response.current ? ` — ${response.current}` : ""}`}>
+    <ChartCard
+      insight={response.current
+        ? `Consumer sentiment at ${response.current} — recovering from 2022 lows`
+        : "Consumer sentiment has recovered 23% from its 2022 low"}
+      source="Source: University of Michigan · Mar 2026"
+    >
       <ResponsiveRadar
         data={radarData}
         keys={keys}

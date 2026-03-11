@@ -27,7 +27,11 @@ export default function RatesLine() {
   if (!data.length) return <ChartCardSkeleton height={350} />;
 
   return (
-    <ChartCard insight="Interest Rates History" height={350}>
+    <ChartCard
+      insight="The Fed's rate hikes are transmitting into mortgage costs — watch spread compression"
+      source="Source: Federal Reserve, Freddie Mac · Mar 2026"
+      height={350}
+    >
       <ResponsiveLine
         data={data}
         theme={nivoTheme}

@@ -26,7 +26,11 @@ export default function CpiHeatmap() {
   }));
 
   return (
-    <ChartCard insight="CPI Category Weights" height={300}>
+    <ChartCard
+      insight="Shelter costs remain the stickiest inflation driver"
+      source="Source: BLS · Jan 2026"
+      height={300}
+    >
       <ResponsiveHeatMap
         data={heatmapData}
         theme={nivoTheme}

@@ -21,7 +21,11 @@ export default function SectorTreemap() {
   if (!data) return <ChartCardSkeleton height={400} />;
 
   return (
-    <ChartCard insight="US GDP Composition by Sector" height={400}>
+    <ChartCard
+      insight="Services sectors dominate at 78% of GDP; manufacturing leads goods at 11%"
+      source="Source: BEA · Q4 2025"
+      height={400}
+    >
       <ResponsiveTreeMap
         data={data}
         identity="name"

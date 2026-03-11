@@ -21,7 +21,10 @@ export default function StateScatter() {
   if (!data.length) return <ChartCardSkeleton />;
 
   return (
-    <ChartCard insight="State GDP per Capita vs Unemployment">
+    <ChartCard
+      insight="High-wage states show lower unemployment — but the gap is narrowing"
+      source="Source: BEA, BLS · 2024"
+    >
       <ResponsiveScatterPlot
         data={data}
         theme={nivoTheme}

@@ -31,8 +31,18 @@ export default function Sp500Area() {
     },
   ];
 
+  const latest = sampled[sampled.length - 1];
+  const first = sampled[0];
+  const ytdReturn =
+    latest && first && first.value
+      ? (((latest.value - first.value) / first.value) * 100).toFixed(1)
+      : null;
+  const insight = ytdReturn
+    ? `S&P 500 returned ${ytdReturn}% YTD — back to pre-2022 highs despite rate headwinds`
+    : "S&P 500 has returned to pre-2022 highs despite rate headwinds";
+
   return (
-    <ChartCard insight="S&P 500 Index" height={350}>
+    <ChartCard insight={insight} source="Source: S&P · Mar 2026" height={350}>
       <ResponsiveLine
         data={lineData}
         theme={nivoTheme}
