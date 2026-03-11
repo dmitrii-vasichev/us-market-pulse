@@ -1,11 +1,11 @@
 {
   "project_name": "us-market-pulse",
-  "work_type": "new_project",
+  "work_type": "redesign",
   "created_at": "2026-03-11T08:35:00Z",
-  "current_step": 7,
-  "current_step_name": "review",
-  "current_phase": 4,
-  "status": "completed",
+  "current_step": 6,
+  "current_step_name": "implementation",
+  "current_phase": "redesign-1",
+  "status": "active",
   "history": [
     {"step": 0, "action": "completed", "timestamp": "2026-03-11T08:35:00Z", "details": "Project initialized, GitHub connected"},
     {"step": 1, "action": "completed", "timestamp": "2026-03-11T08:35:00Z", "details": "PRD imported from user (pre-approved v2 FINAL)"},
@@ -26,13 +26,34 @@
     {"step": 4, "action": "completed", "timestamp": "2026-03-11T20:10:00Z", "details": "Phase 4 plan: 8 tasks [approved]"},
     {"step": 5, "action": "completed", "timestamp": "2026-03-11T20:10:00Z", "details": "8 issues created (#45-#52), added to project board #6"},
     {"step": 6, "action": "completed", "timestamp": "2026-03-11T22:00:00Z", "details": "Phase 4: 8/8 tasks implemented, PRs #53,#55,#56,#57,#58,#59,#61 merged"},
-    {"step": 7, "action": "completed", "timestamp": "2026-03-11T23:00:00Z", "details": "Phase 4 complete. All 4 phases done. Project deployed to Vercel. E2E pipeline verified."}
+    {"step": 7, "action": "completed", "timestamp": "2026-03-11T23:00:00Z", "details": "Phase 4 complete. All 4 phases done. Project deployed to Vercel. E2E pipeline verified."},
+    {"step": 1, "action": "completed", "timestamp": "2026-03-11T23:30:00Z", "details": "Redesign PRD: docs/prd-redesign.md — pre-approved by user"},
+    {"step": 2, "action": "completed", "timestamp": "2026-03-11T23:31:00Z", "details": "Redesign Design Brief: docs/design-brief-redesign.md — extracted from PRD"},
+    {"step": 3, "action": "completed", "timestamp": "2026-03-11T23:32:00Z", "details": "Redesign phasing: 3 phases — Phase 1: design system, Phase 2: storytelling, Phase 3: animations"},
+    {"step": 4, "action": "completed", "timestamp": "2026-03-11T23:33:00Z", "details": "Redesign Phase 1 plan: 8 tasks [approved by user]"},
+    {"step": 5, "action": "started", "timestamp": "2026-03-11T23:34:00Z", "details": "Creating redesign Phase 1 issues"},
+    {"step": 5, "action": "completed", "timestamp": "2026-03-11T23:40:00Z", "details": "8 issues created: #68 T1, #69 T2, #70 T3, #71 T4, #72 T5, #73 T6, #74 T7, #75 T8 — added to project board #6"}
   ],
+  "redesign": {
+    "phases": [
+      {"number": 1, "name": "Design System", "status": "issues-in-progress"},
+      {"number": 2, "name": "Storytelling Layer", "status": "pending"},
+      {"number": 3, "name": "Animations & Polish", "status": "pending"}
+    ]
+  },
   "artifacts": {
     "prd_file": "docs/prd-us-market-pulse.md",
+    "prd_redesign_file": "docs/prd-redesign.md",
     "design_brief_file": "docs/design-brief.md",
-    "plan_files": ["docs/plans/2026-03-11-phase-1-backend-data.md", "docs/plans/2026-03-11-phase-2-frontend-shell-tab1.md", "docs/plans/2026-03-11-phase-3-tab2-tab3.md", "docs/plans/2026-03-11-phase-4-deploy-polish.md"],
-    "issue_numbers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 45, 46, 47, 48, 49, 50, 51, 52],
+    "design_brief_redesign_file": "docs/design-brief-redesign.md",
+    "plan_files": [
+      "docs/plans/2026-03-11-phase-1-backend-data.md",
+      "docs/plans/2026-03-11-phase-2-frontend-shell-tab1.md",
+      "docs/plans/2026-03-11-phase-3-tab2-tab3.md",
+      "docs/plans/2026-03-11-phase-4-deploy-polish.md",
+      "docs/plans/2026-03-11-redesign-phase-1-design-system.md"
+    ],
+    "issue_numbers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 45, 46, 47, 48, 49, 50, 51, 52, 68, 69, 70, 71, 72, 73, 74, 75],
     "pr_numbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 32, 44, 53, 55, 56, 57, 58, 59, 61],
     "project_board_number": 6,
     "deployment_url": "https://us-market-pulse-kappa.vercel.app",

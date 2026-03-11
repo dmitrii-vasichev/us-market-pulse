@@ -1,25 +1,61 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #F9FAFB;
-  --color-foreground: #111827;
-  --color-card: #FFFFFF;
-  --color-card-border: #F3F4F6;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
-  --color-text-muted: #9CA3AF;
-  --color-accent-blue: #3B82F6;
-  --color-accent-green: #10B981;
-  --color-accent-red: #EF4444;
-  --color-accent-amber: #F59E0B;
-  --color-accent-purple: #8B5CF6;
-  --color-accent-pink: #EC4899;
-  --color-accent-orange: #F97316;
-  --font-sans: var(--font-dm-sans);
+  /* Backgrounds */
+  --color-bg-primary:     #0F1117;
+  --color-bg-card:        #1A1D27;
+  --color-bg-card-hover:  #22263A;
+  --color-bg-elevated:    #252A3A;
+
+  /* Text */
+  --color-text-primary:   #E8ECF1;
+  --color-text-secondary: #8B93A7;
+  --color-text-muted:     #555D73;
+
+  /* Data colors */
+  --color-data-teal:   #2DD4A8;
+  --color-data-coral:  #F97066;
+  --color-data-amber:  #F5B731;
+  --color-data-blue:   #60A5FA;
+  --color-data-purple: #A78BFA;
+  --color-data-slate:  #94A3B8;
+
+  /* Status */
+  --color-positive: #2DD4A8;
+  --color-negative: #F97066;
+  --color-neutral:  #94A3B8;
+
+  /* Fonts */
+  --font-sans:    var(--font-dm-sans);
+  --font-display: var(--font-instrument-serif);
+  --font-mono:    var(--font-jetbrains-mono);
+}
+
+/* Native CSS custom properties for direct var() usage */
+:root {
+  --bg-primary:     #0F1117;
+  --bg-card:        #1A1D27;
+  --bg-card-hover:  #22263A;
+  --bg-elevated:    #252A3A;
+
+  --text-primary:   #E8ECF1;
+  --text-secondary: #8B93A7;
+  --text-muted:     #555D73;
+
+  --data-teal:   #2DD4A8;
+  --data-coral:  #F97066;
+  --data-amber:  #F5B731;
+  --data-blue:   #60A5FA;
+  --data-purple: #A78BFA;
+  --data-slate:  #94A3B8;
+
+  --positive: #2DD4A8;
+  --negative: #F97066;
+  --neutral:  #94A3B8;
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
