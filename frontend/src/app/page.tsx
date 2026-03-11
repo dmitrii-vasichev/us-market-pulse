@@ -54,15 +54,15 @@ export default function OverviewPage() {
       <KpiStrip />
       <NarrativeHeaderOverview />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* First 2 charts: eager (above fold) */}
-        <div className="animate-fade-in-up animate-delay-200"><LazyChartWrapper eager><GdpWaterfall /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-250"><LazyChartWrapper eager><GdpQuarterly /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-200"><LazyChartWrapper eager><GdpWaterfall /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-250"><LazyChartWrapper eager><GdpQuarterly /></LazyChartWrapper></div>
         {/* Below fold: lazy */}
-        <div className="animate-fade-in-up animate-delay-300"><LazyChartWrapper height={820}><CpiCalendar /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper><EconomicFunnel /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-300"><LazyChartWrapper height={220}><BulletTargets /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper><GdpWaffle /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-300"><LazyChartWrapper height={820}><CpiCalendar /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-350"><LazyChartWrapper><EconomicFunnel /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-300"><LazyChartWrapper height={220}><BulletTargets /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-350"><LazyChartWrapper><GdpWaffle /></LazyChartWrapper></div>
       </div>
 
       <KeyTakeaways

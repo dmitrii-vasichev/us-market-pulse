@@ -46,16 +46,16 @@ export default function LaborPage() {
   return (
     <div className="space-y-6">
       <NarrativeHeaderLabor />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* First chart: eager (above fold) */}
-        <div className="lg:col-span-2 animate-fade-in-up animate-delay-100">
+        <div className="h-full lg:col-span-2 animate-fade-in-up animate-delay-100">
           <LazyChartWrapper eager height={400}><UnemploymentBump /></LazyChartWrapper>
         </div>
         {/* Below fold: lazy */}
-        <div className="animate-fade-in-up animate-delay-200"><LazyChartWrapper height={300}><CpiHeatmap /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-250"><LazyChartWrapper><StateScatter /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-300"><LazyChartWrapper><EconomicFunnel /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper height={200}><CpiCalendar /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-200"><LazyChartWrapper height={300}><CpiHeatmap /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-250"><LazyChartWrapper><StateScatter /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-300"><LazyChartWrapper><EconomicFunnel /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-350"><LazyChartWrapper height={200}><CpiCalendar /></LazyChartWrapper></div>
       </div>
 
       <KeyTakeaways takeaways={laborTakeaways} />

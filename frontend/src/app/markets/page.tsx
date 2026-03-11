@@ -46,16 +46,16 @@ export default function MarketsPage() {
   return (
     <div className="space-y-6">
       <NarrativeHeaderMarkets />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* First chart: eager (above fold) */}
-        <div className="lg:col-span-2 animate-fade-in-up animate-delay-100">
+        <div className="h-full lg:col-span-2 animate-fade-in-up animate-delay-100">
           <LazyChartWrapper eager height={350}><RatesLine /></LazyChartWrapper>
         </div>
         {/* Below fold: lazy */}
-        <div className="animate-fade-in-up animate-delay-200"><LazyChartWrapper height={400}><SectorTreemap /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-250"><LazyChartWrapper><SentimentRadial /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-300"><LazyChartWrapper height={350}><Sp500Area /></LazyChartWrapper></div>
-        <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper><GdpWaffle /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-200"><LazyChartWrapper height={400}><SectorTreemap /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-250"><LazyChartWrapper><SentimentRadial /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-300"><LazyChartWrapper height={350}><Sp500Area /></LazyChartWrapper></div>
+        <div className="h-full animate-fade-in-up animate-delay-350"><LazyChartWrapper><GdpWaffle /></LazyChartWrapper></div>
       </div>
 
       <KeyTakeaways takeaways={marketsTakeaways} />
