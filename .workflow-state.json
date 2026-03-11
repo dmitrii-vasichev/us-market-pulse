@@ -2,53 +2,233 @@
   "project_name": "us-market-pulse",
   "work_type": "redesign",
   "created_at": "2026-03-11T08:35:00Z",
-  "current_step": 6,
-  "current_step_name": "implementation",
-  "current_phase": "redesign-1",
+  "current_step": 7,
+  "current_step_name": "review",
+  "current_phase": "redesign-3",
   "status": "active",
   "history": [
-    {"step": 0, "action": "completed", "timestamp": "2026-03-11T08:35:00Z", "details": "Project initialized, GitHub connected"},
-    {"step": 1, "action": "completed", "timestamp": "2026-03-11T08:35:00Z", "details": "PRD imported from user (pre-approved v2 FINAL)"},
-    {"step": 2, "action": "completed", "timestamp": "2026-03-11T08:36:00Z", "details": "Design brief extracted from PRD"},
-    {"step": 3, "action": "completed", "timestamp": "2026-03-11T08:37:00Z", "details": "Phasing: 4 phases defined"},
-    {"step": 4, "action": "completed", "timestamp": "2026-03-11T08:38:00Z", "details": "Phase 1 plan: 10 tasks"},
-    {"step": 5, "action": "completed", "timestamp": "2026-03-11T08:39:00Z", "details": "10 issues created (#1-#10), project board #6"},
-    {"step": 6, "action": "completed", "timestamp": "2026-03-11T09:30:00Z", "details": "Phase 1 implemented: 10 tasks, 45 tests, 9 PRs"},
-    {"step": 7, "action": "completed", "timestamp": "2026-03-11T09:35:00Z", "details": "Phase 1 merged to main"},
-    {"step": 4, "action": "completed", "timestamp": "2026-03-11T16:00:00Z", "details": "Phase 2 plan: 10 tasks"},
-    {"step": 5, "action": "completed", "timestamp": "2026-03-11T16:01:00Z", "details": "Phase 2 issues created"},
-    {"step": 6, "action": "completed", "timestamp": "2026-03-11T18:00:00Z", "details": "Phase 2 implemented"},
-    {"step": 7, "action": "completed", "timestamp": "2026-03-11T18:05:00Z", "details": "Phase 2 merged to main"},
-    {"step": 4, "action": "completed", "timestamp": "2026-03-11T18:10:00Z", "details": "Phase 3 plan: 11 tasks"},
-    {"step": 5, "action": "completed", "timestamp": "2026-03-11T18:11:00Z", "details": "Phase 3 issues created"},
-    {"step": 6, "action": "completed", "timestamp": "2026-03-11T20:00:00Z", "details": "Phase 3 implemented"},
-    {"step": 7, "action": "completed", "timestamp": "2026-03-11T20:05:00Z", "details": "Phase 3 merged to main"},
-    {"step": 4, "action": "completed", "timestamp": "2026-03-11T20:10:00Z", "details": "Phase 4 plan: 8 tasks [approved]"},
-    {"step": 5, "action": "completed", "timestamp": "2026-03-11T20:10:00Z", "details": "8 issues created (#45-#52), added to project board #6"},
-    {"step": 6, "action": "completed", "timestamp": "2026-03-11T22:00:00Z", "details": "Phase 4: 8/8 tasks implemented, PRs #53,#55,#56,#57,#58,#59,#61 merged"},
-    {"step": 7, "action": "completed", "timestamp": "2026-03-11T23:00:00Z", "details": "Phase 4 complete. All 4 phases done. Project deployed to Vercel. E2E pipeline verified."},
-    {"step": 1, "action": "completed", "timestamp": "2026-03-11T23:30:00Z", "details": "Redesign PRD: docs/prd-redesign.md — pre-approved by user"},
-    {"step": 2, "action": "completed", "timestamp": "2026-03-11T23:31:00Z", "details": "Redesign Design Brief: docs/design-brief-redesign.md — extracted from PRD"},
-    {"step": 3, "action": "completed", "timestamp": "2026-03-11T23:32:00Z", "details": "Redesign phasing: 3 phases — Phase 1: design system, Phase 2: storytelling, Phase 3: animations"},
-    {"step": 4, "action": "completed", "timestamp": "2026-03-11T23:33:00Z", "details": "Redesign Phase 1 plan: 8 tasks [approved by user]"},
-    {"step": 5, "action": "started", "timestamp": "2026-03-11T23:34:00Z", "details": "Creating redesign Phase 1 issues"},
-    {"step": 5, "action": "completed", "timestamp": "2026-03-11T23:40:00Z", "details": "8 issues created: #68 T1, #69 T2, #70 T3, #71 T4, #72 T5, #73 T6, #74 T7, #75 T8 — added to project board #6"},
-    {"step": 6, "action": "completed", "timestamp": "2026-03-11T00:00:00Z", "details": "Redesign Phase 1: 8 tasks implemented, PRs #76-#82 merged to main"},
-    {"step": 7, "action": "completed", "timestamp": "2026-03-11T00:00:00Z", "details": "Redesign Phase 1 complete. Dark Editorial Finance design system applied."},
-    {"step": 5, "action": "completed", "timestamp": "2026-03-11T19:00:00Z", "details": "8 issues created: #84 T1, #85 T2, #86 T3, #87 T4, #88 T5, #89 T6, #90 T7, #91 T8 — added to project board #6"},
-    {"step": 6, "action": "completed", "timestamp": "2026-03-11T21:00:00Z", "details": "Redesign Phase 2: 8 tasks implemented, PRs #92-#99 merged to main"},
-    {"step": 7, "action": "completed", "timestamp": "2026-03-11T21:30:00Z", "details": "Redesign Phase 2 complete. Storytelling layer: NarrativeHeader, KeyTakeaways, ContextualSidebar, insight titles, KPI micro-context."},
-    {"step": 4, "action": "completed", "timestamp": "2026-03-11T22:00:00Z", "details": "Redesign Phase 3 plan: 8 tasks [approved by user]"},
-    {"step": 5, "action": "completed", "timestamp": "2026-03-11T22:05:00Z", "details": "8 issues created: #101 T1, #102 T2, #103 T3, #104 T4, #105 T5, #106 T6, #107 T7, #108 T8 — added to project board #6"}
+    {
+      "step": 0,
+      "action": "completed",
+      "timestamp": "2026-03-11T08:35:00Z",
+      "details": "Project initialized, GitHub connected"
+    },
+    {
+      "step": 1,
+      "action": "completed",
+      "timestamp": "2026-03-11T08:35:00Z",
+      "details": "PRD imported from user (pre-approved v2 FINAL)"
+    },
+    {
+      "step": 2,
+      "action": "completed",
+      "timestamp": "2026-03-11T08:36:00Z",
+      "details": "Design brief extracted from PRD"
+    },
+    {
+      "step": 3,
+      "action": "completed",
+      "timestamp": "2026-03-11T08:37:00Z",
+      "details": "Phasing: 4 phases defined"
+    },
+    {
+      "step": 4,
+      "action": "completed",
+      "timestamp": "2026-03-11T08:38:00Z",
+      "details": "Phase 1 plan: 10 tasks"
+    },
+    {
+      "step": 5,
+      "action": "completed",
+      "timestamp": "2026-03-11T08:39:00Z",
+      "details": "10 issues created (#1-#10), project board #6"
+    },
+    {
+      "step": 6,
+      "action": "completed",
+      "timestamp": "2026-03-11T09:30:00Z",
+      "details": "Phase 1 implemented: 10 tasks, 45 tests, 9 PRs"
+    },
+    {
+      "step": 7,
+      "action": "completed",
+      "timestamp": "2026-03-11T09:35:00Z",
+      "details": "Phase 1 merged to main"
+    },
+    {
+      "step": 4,
+      "action": "completed",
+      "timestamp": "2026-03-11T16:00:00Z",
+      "details": "Phase 2 plan: 10 tasks"
+    },
+    {
+      "step": 5,
+      "action": "completed",
+      "timestamp": "2026-03-11T16:01:00Z",
+      "details": "Phase 2 issues created"
+    },
+    {
+      "step": 6,
+      "action": "completed",
+      "timestamp": "2026-03-11T18:00:00Z",
+      "details": "Phase 2 implemented"
+    },
+    {
+      "step": 7,
+      "action": "completed",
+      "timestamp": "2026-03-11T18:05:00Z",
+      "details": "Phase 2 merged to main"
+    },
+    {
+      "step": 4,
+      "action": "completed",
+      "timestamp": "2026-03-11T18:10:00Z",
+      "details": "Phase 3 plan: 11 tasks"
+    },
+    {
+      "step": 5,
+      "action": "completed",
+      "timestamp": "2026-03-11T18:11:00Z",
+      "details": "Phase 3 issues created"
+    },
+    {
+      "step": 6,
+      "action": "completed",
+      "timestamp": "2026-03-11T20:00:00Z",
+      "details": "Phase 3 implemented"
+    },
+    {
+      "step": 7,
+      "action": "completed",
+      "timestamp": "2026-03-11T20:05:00Z",
+      "details": "Phase 3 merged to main"
+    },
+    {
+      "step": 4,
+      "action": "completed",
+      "timestamp": "2026-03-11T20:10:00Z",
+      "details": "Phase 4 plan: 8 tasks [approved]"
+    },
+    {
+      "step": 5,
+      "action": "completed",
+      "timestamp": "2026-03-11T20:10:00Z",
+      "details": "8 issues created (#45-#52), added to project board #6"
+    },
+    {
+      "step": 6,
+      "action": "completed",
+      "timestamp": "2026-03-11T22:00:00Z",
+      "details": "Phase 4: 8/8 tasks implemented, PRs #53,#55,#56,#57,#58,#59,#61 merged"
+    },
+    {
+      "step": 7,
+      "action": "completed",
+      "timestamp": "2026-03-11T23:00:00Z",
+      "details": "Phase 4 complete. All 4 phases done. Project deployed to Vercel. E2E pipeline verified."
+    },
+    {
+      "step": 1,
+      "action": "completed",
+      "timestamp": "2026-03-11T23:30:00Z",
+      "details": "Redesign PRD: docs/prd-redesign.md \u2014 pre-approved by user"
+    },
+    {
+      "step": 2,
+      "action": "completed",
+      "timestamp": "2026-03-11T23:31:00Z",
+      "details": "Redesign Design Brief: docs/design-brief-redesign.md \u2014 extracted from PRD"
+    },
+    {
+      "step": 3,
+      "action": "completed",
+      "timestamp": "2026-03-11T23:32:00Z",
+      "details": "Redesign phasing: 3 phases \u2014 Phase 1: design system, Phase 2: storytelling, Phase 3: animations"
+    },
+    {
+      "step": 4,
+      "action": "completed",
+      "timestamp": "2026-03-11T23:33:00Z",
+      "details": "Redesign Phase 1 plan: 8 tasks [approved by user]"
+    },
+    {
+      "step": 5,
+      "action": "started",
+      "timestamp": "2026-03-11T23:34:00Z",
+      "details": "Creating redesign Phase 1 issues"
+    },
+    {
+      "step": 5,
+      "action": "completed",
+      "timestamp": "2026-03-11T23:40:00Z",
+      "details": "8 issues created: #68 T1, #69 T2, #70 T3, #71 T4, #72 T5, #73 T6, #74 T7, #75 T8 \u2014 added to project board #6"
+    },
+    {
+      "step": 6,
+      "action": "completed",
+      "timestamp": "2026-03-11T00:00:00Z",
+      "details": "Redesign Phase 1: 8 tasks implemented, PRs #76-#82 merged to main"
+    },
+    {
+      "step": 7,
+      "action": "completed",
+      "timestamp": "2026-03-11T00:00:00Z",
+      "details": "Redesign Phase 1 complete. Dark Editorial Finance design system applied."
+    },
+    {
+      "step": 5,
+      "action": "completed",
+      "timestamp": "2026-03-11T19:00:00Z",
+      "details": "8 issues created: #84 T1, #85 T2, #86 T3, #87 T4, #88 T5, #89 T6, #90 T7, #91 T8 \u2014 added to project board #6"
+    },
+    {
+      "step": 6,
+      "action": "completed",
+      "timestamp": "2026-03-11T21:00:00Z",
+      "details": "Redesign Phase 2: 8 tasks implemented, PRs #92-#99 merged to main"
+    },
+    {
+      "step": 7,
+      "action": "completed",
+      "timestamp": "2026-03-11T21:30:00Z",
+      "details": "Redesign Phase 2 complete. Storytelling layer: NarrativeHeader, KeyTakeaways, ContextualSidebar, insight titles, KPI micro-context."
+    },
+    {
+      "step": 4,
+      "action": "completed",
+      "timestamp": "2026-03-11T22:00:00Z",
+      "details": "Redesign Phase 3 plan: 8 tasks [approved by user]"
+    },
+    {
+      "step": 5,
+      "action": "completed",
+      "timestamp": "2026-03-11T22:05:00Z",
+      "details": "8 issues created: #101 T1, #102 T2, #103 T3, #104 T4, #105 T5, #106 T6, #107 T7, #108 T8 \u2014 added to project board #6"
+    },
+    {
+      "step": 6,
+      "action": "completed",
+      "timestamp": "2026-03-11T22:30:00Z",
+      "details": "Redesign Phase 3: 8/8 tasks implemented, PRs #109-#116 merged to main"
+    }
   ],
-  "current_step": 6,
-  "current_step_name": "implementation",
-  "current_phase": "redesign-3",
   "redesign": {
     "phases": [
-      {"number": 1, "name": "Design System", "status": "complete"},
-      {"number": 2, "name": "Storytelling Layer", "status": "complete"},
-      {"number": 3, "name": "Animations & Polish", "status": "in_progress"}
+      {
+        "number": 1,
+        "name": "Design System",
+        "status": "complete"
+      },
+      {
+        "number": 2,
+        "name": "Storytelling Layer",
+        "status": "complete"
+      },
+      {
+        "number": 3,
+        "name": "Animations & Polish",
+        "status": "complete"
+      }
     ]
   },
   "artifacts": {
@@ -65,8 +245,87 @@
       "docs/plans/2026-03-11-redesign-phase-2-storytelling.md",
       "docs/plans/2026-03-11-redesign-phase-3-animations-polish.md"
     ],
-    "issue_numbers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 45, 46, 47, 48, 49, 50, 51, 52, 68, 69, 70, 71, 72, 73, 74, 75, 84, 85, 86, 87, 88, 89, 90, 91, 101, 102, 103, 104, 105, 106, 107, 108],
-    "pr_numbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 32, 44, 53, 55, 56, 57, 58, 59, 61, 76, 77, 78, 79, 80, 81, 82, 92, 93, 94, 95, 96, 97, 98, 99],
+    "issue_numbers": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      20,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108
+    ],
+    "pr_numbers": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      21,
+      32,
+      44,
+      53,
+      55,
+      56,
+      57,
+      58,
+      59,
+      61,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99
+    ],
     "project_board_number": 6,
     "deployment_url": "https://us-market-pulse-kappa.vercel.app",
     "backend_url": "https://backend-production-abef2.up.railway.app"
