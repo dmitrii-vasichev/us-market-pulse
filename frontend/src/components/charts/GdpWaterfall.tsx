@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
+import type { BarCustomLayerProps } from "@nivo/bar";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { GdpComponentsResponse } from "@/lib/types";
@@ -9,6 +10,33 @@ import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 import ContextualSidebar from "../ContextualSidebar";
+
+type BarDatum = { id: string; value: number; color: string };
+
+// Annotation: callout on Net Exports bar
+// Hidden on mobile (innerWidth < 400 ~ viewport < 640px)
+function NetExportsAnnotation({ bars, innerWidth }: BarCustomLayerProps<BarDatum>) {
+  if (innerWidth < 400) return null;
+
+  const netExportsBar = bars.find(
+    (b) => typeof b.data.id === "string" && b.data.id.toLowerCase().includes("net export"),
+  );
+  if (!netExportsBar) return null;
+
+  const x = netExportsBar.x + netExportsBar.width / 2;
+  // For negative bars, y is at zero line, height extends down
+  const barBottom = netExportsBar.y + netExportsBar.height;
+  const lineEndY = barBottom + 20;
+
+  return (
+    <g>
+      <line x1={x} y1={barBottom + 2} x2={x} y2={lineEndY} stroke="#555D73" strokeWidth={1} />
+      <text x={x} y={lineEndY + 12} textAnchor="middle" fontSize={11} fill="#555D73">
+        First drag in 3 quarters
+      </text>
+    </g>
+  );
+}
 
 export default function GdpWaterfall() {
   const [data, setData] = useState<GdpComponentsResponse | null>(null);
@@ -21,7 +49,7 @@ export default function GdpWaterfall() {
   if (error) return <ChartErrorFallback title="GDP Components" />;
   if (!data) return <ChartCardSkeleton />;
 
-  const barData = data.components.map((c) => ({
+  const barData: BarDatum[] = data.components.map((c) => ({
     id: c.label,
     value: c.value,
     color: c.value >= 0 ? chartColors.teal : chartColors.coral,
@@ -68,6 +96,7 @@ export default function GdpWaterfall() {
           labelTextColor="#FFFFFF"
           animate={true}
           enableGridY={true}
+          layers={["grid", "axes", "bars", "markers", "legends", NetExportsAnnotation]}
         />
       </ChartCard>
       <ContextualSidebar content="While consumers drove growth, the negative net exports contribution reflects import demand outpacing exports — typical of an accelerating domestic economy. Watch this spread as global demand shifts in 2026." />
