@@ -31,7 +31,8 @@ export default function BulletTargets() {
     .filter((k) => targets[k.key])
     .map((k) => {
       const t = targets[k.key];
-      const actual = k.format === "trillions" ? k.change_percent : k.current_value;
+      // GDP: use change_percent (QoQ % growth); CPI: use change_percent (YoY %); others: current_value is already in %
+      const actual = k.format === "trillions" || k.format === "percent_change" ? k.change_percent : k.current_value;
       return {
         id: k.label,
         ranges: [0, t.max * 0.5, t.max * 0.75, t.max],
@@ -44,7 +45,7 @@ export default function BulletTargets() {
   const fedRate = kpis.find((k) => k.key === "fed_rate");
   const insight =
     cpi && fedRate
-      ? `Fed hits rate target; inflation at ${cpi.current_value.toFixed(1)}% — ${Math.round((cpi.current_value / 2 - 1) * 100)}% above 2% goal`
+      ? `Fed hits rate target; inflation at ${cpi.change_percent.toFixed(1)}% — ${Math.round((cpi.change_percent / 2 - 1) * 100)}% above 2% goal`
       : "Fed hits rate target; inflation still 35% above 2% goal";
 
   return (

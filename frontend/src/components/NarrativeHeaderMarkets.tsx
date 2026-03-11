@@ -17,7 +17,7 @@ export default function NarrativeHeaderMarkets() {
 
   const narrative =
     fedRate && cpi
-      ? `The Federal Reserve held its target rate at ${fedRate.current_value.toFixed(2)}% at its latest FOMC meeting, signaling confidence in the disinflation trajectory. With inflation at ${cpi.current_value.toFixed(1)}%, markets are pricing in 2 rate cuts in H1 2026 as the Fed approaches its 2% target.`
+      ? `The Federal Reserve held its target rate at ${fedRate.current_value.toFixed(2)}% at its latest FOMC meeting, signaling confidence in the disinflation trajectory. With inflation at ${cpi.change_percent.toFixed(1)}%, markets are pricing in 2 rate cuts in H1 2026 as the Fed approaches its 2% target.`
       : "The Federal Reserve held its target rate steady, signaling confidence in the disinflation trajectory. Markets are pricing in rate cuts in H1 2026.";
 
   return (

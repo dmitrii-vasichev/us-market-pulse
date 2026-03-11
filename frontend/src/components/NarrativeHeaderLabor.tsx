@@ -23,7 +23,7 @@ export default function NarrativeHeaderLabor() {
 
   const narrative =
     unemployment && cpi
-      ? `The US labor market remains resilient, with unemployment ${direction} at ${unemployment.current_value.toFixed(1)}%. Inflation at ${cpi.current_value.toFixed(1)}% YoY is ${cpi.current_value > 3 ? "squeezing" : "moderately affecting"} real purchasing power, though wage growth is outpacing CPI for the first time since 2021.`
+      ? `The US labor market remains resilient, with unemployment ${direction} at ${unemployment.current_value.toFixed(1)}%. Inflation at ${cpi.change_percent.toFixed(1)}% YoY is ${cpi.change_percent > 3 ? "squeezing" : "moderately affecting"} real purchasing power, though wage growth is outpacing CPI for the first time since 2021.`
       : "The US labor market remains resilient with historically low unemployment. Wage growth is outpacing inflation for the first time since 2021, improving real purchasing power.";
 
   return (
