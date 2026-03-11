@@ -14,10 +14,7 @@ export default function NarrativeHeader({
       <p className="text-[11px] font-semibold uppercase tracking-widest text-[#555D73] mb-3">
         {sectionLabel}
       </p>
-      <p
-        className="text-[15px] leading-relaxed text-[#C8D0DC]"
-        style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
-      >
+      <p className="text-[15px] leading-relaxed text-[#C8D0DC]">
         {narrative}
       </p>
       <p className="text-[10px] text-[#555D73] mt-3">
