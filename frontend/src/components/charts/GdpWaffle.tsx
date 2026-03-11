@@ -45,7 +45,7 @@ export default function GdpWaffle() {
         margin={{ top: 10, right: 120, bottom: 10, left: 10 }}
         borderRadius={3}
         borderWidth={1}
-        borderColor="#FFFFFF"
+        borderColor="#1A1D27"
         animate={true}
         legends={[
           {

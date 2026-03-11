@@ -48,7 +48,7 @@ export default function BulletTargets() {
         margin={{ top: 10, right: 30, bottom: 10, left: 120 }}
         spacing={30}
         titleOffsetX={-110}
-        measureColors={[chartColors.blue]}
+        measureColors={[chartColors.teal]}
         markerColors={[chartColors.coral]}
         rangeColors={["rgba(255,255,255,0.04)", "rgba(255,255,255,0.07)", "rgba(255,255,255,0.10)", "rgba(255,255,255,0.14)"]}
         animate={true}
