@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { SeriesDataResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function Sp500Area() {
   const [data, setData] = useState<SeriesDataResponse | null>(null);
@@ -15,7 +16,7 @@ export default function Sp500Area() {
     api.getSeriesData("SP500").then(setData).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="S&P 500" height={350}><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="S&P 500" height={350} />;
   if (!data) return <ChartCard title="S&P 500" height={350}><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   // Downsample for performance (take every Nth point)

@@ -5,6 +5,7 @@ import { ResponsiveBump } from "@nivo/bump";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 interface BumpData {
   id: string;
@@ -20,7 +21,7 @@ export default function UnemploymentBump() {
     api.getLaborRanking().then((d) => setData(d.data as unknown as BumpData[])).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="Unemployment Ranking" height={400}><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="Unemployment Ranking" height={400} />;
   if (!data.length) return <ChartCard title="Unemployment Ranking" height={400}><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   return (

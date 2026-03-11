@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme } from "@/lib/nivo-theme";
 import type { CpiCalendarItem } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function CpiCalendar() {
   const [data, setData] = useState<CpiCalendarItem[]>([]);
@@ -15,7 +16,7 @@ export default function CpiCalendar() {
     api.getCpiCalendar().then((d) => setData(d.data)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="CPI Inflation Calendar" height={200}><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="CPI Inflation Calendar" height={200} />;
   if (!data.length) return <ChartCard title="CPI Inflation Calendar" height={200}><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   const years = data.map((d) => new Date(d.day).getFullYear());

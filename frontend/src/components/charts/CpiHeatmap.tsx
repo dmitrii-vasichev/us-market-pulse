@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme } from "@/lib/nivo-theme";
 import type { CpiCategory } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function CpiHeatmap() {
   const [data, setData] = useState<CpiCategory[]>([]);
@@ -15,7 +16,7 @@ export default function CpiHeatmap() {
     api.getCpiCategories().then((d) => setData(d.categories)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="CPI by Category" height={300}><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="CPI by Category" height={300} />;
   if (!data.length) return <ChartCard title="CPI by Category" height={300}><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   const heatmapData = data.map((cat) => ({

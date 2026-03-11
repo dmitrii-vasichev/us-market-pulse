@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
 import type { TreeNode } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 function flattenTree(node: TreeNode): { id: string; label: string; value: number }[] {
   if (node.children) {
@@ -28,7 +29,7 @@ export default function GdpWaffle() {
     api.getSectorsGdp().then((d) => setData(flattenTree(d.tree))).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="GDP by Sector"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="GDP by Sector" />;
   if (!data.length) return <ChartCard title="GDP by Sector"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   return (

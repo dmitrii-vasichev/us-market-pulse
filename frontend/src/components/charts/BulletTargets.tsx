@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { KpiItem } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 const targets: Record<string, { target: number; max: number }> = {
   gdp: { target: 3.0, max: 5.0 },
@@ -22,7 +23,7 @@ export default function BulletTargets() {
     api.getKpiSummary().then((d) => setKpis(d.kpis)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="KPI Targets" height={220}><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="KPI Targets" height={220} />;
   if (!kpis.length) return <ChartCard title="KPI Targets" height={220}><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   const bulletData = kpis

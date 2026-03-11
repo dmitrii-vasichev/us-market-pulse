@@ -7,6 +7,7 @@ import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
 import { formatLargeNumber } from "@/lib/formatters";
 import type { FunnelStage } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function EconomicFunnel() {
   const [data, setData] = useState<FunnelStage[]>([]);
@@ -16,7 +17,7 @@ export default function EconomicFunnel() {
     api.getLaborFunnel().then((d) => setData(d.stages)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="Economic Funnel"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="Economic Funnel" />;
   if (!data.length) return <ChartCard title="Economic Funnel"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   const funnelData = data.map((s) => ({

@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { GdpComponentsResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function GdpWaterfall() {
   const [data, setData] = useState<GdpComponentsResponse | null>(null);
@@ -15,7 +16,7 @@ export default function GdpWaterfall() {
     api.getGdpComponents().then(setData).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="GDP Components"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="GDP Components" />;
   if (!data) return <ChartCard title="GDP Components"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   const barData = data.components.map((c) => ({

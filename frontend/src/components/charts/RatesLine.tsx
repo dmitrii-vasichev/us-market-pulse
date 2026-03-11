@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { RateSeries } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 const seriesColors: Record<string, string> = {
   "Fed Funds Rate": chartColors.blue,
@@ -21,7 +22,7 @@ export default function RatesLine() {
     api.getRatesHistory().then((d) => setData(d.series)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="Interest Rates" height={350}><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="Interest Rates" height={350} />;
   if (!data.length) return <ChartCard title="Interest Rates" height={350}><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   return (

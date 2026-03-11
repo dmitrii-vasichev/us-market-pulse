@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
 import type { TreeNode } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function SectorTreemap() {
   const [data, setData] = useState<TreeNode | null>(null);
@@ -15,7 +16,7 @@ export default function SectorTreemap() {
     api.getSectorsGdp().then((d) => setData(d.tree)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="GDP by Sector" height={400}><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="GDP by Sector" height={400} />;
   if (!data) return <ChartCard title="GDP by Sector" height={400}><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
 
   return (
