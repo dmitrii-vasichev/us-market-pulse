@@ -25,7 +25,7 @@ export default function KpiStrip() {
 
   if (error) {
     return (
-      <div className="text-center py-4 text-accent-red text-sm">
+      <div className="text-center py-4 text-[#F97066] text-sm">
         Failed to load KPI data
       </div>
     );
