@@ -40,6 +40,7 @@ export default function GdpWaterfall() {
   return (
     <ChartCard
       insight={insight}
+      description="While overall GDP grew, the composition shifted notably: consumers led growth, while net exports dragged — the first negative contribution in 3 quarters."
       source="Source: BEA · Q4 2025"
     >
       <ResponsiveBar

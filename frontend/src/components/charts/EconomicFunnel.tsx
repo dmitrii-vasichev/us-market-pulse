@@ -35,7 +35,11 @@ export default function EconomicFunnel() {
       : "$31.5T economy supports 160M jobs at $197/hr GDP per worker";
 
   return (
-    <ChartCard insight={insight} source="Source: BEA, BLS · Q4 2025">
+    <ChartCard
+      insight={insight}
+      description="Consumer spending accounts for ~70% of US GDP. Each $1 of GDP flows through GNI to compensation, supporting the entire employed workforce."
+      source="Source: BEA, BLS · Q4 2025"
+    >
       <ResponsiveFunnel
         data={funnelData}
         theme={nivoTheme}
