@@ -88,7 +88,7 @@ describe("UnemploymentBump", () => {
       render(<UnemploymentBump />);
     });
     await waitFor(() => {
-      expect(screen.getByText("Failed to load")).toBeTruthy();
+      expect(screen.getByText("Failed to load data")).toBeTruthy();
     });
   });
 });
