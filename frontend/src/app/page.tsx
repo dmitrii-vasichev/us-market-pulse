@@ -46,12 +46,12 @@ export default function OverviewPage() {
       <NarrativeHeaderOverview />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <GdpWaterfall />
-        <GdpQuarterly />
-        <CpiCalendar />
-        <EconomicFunnel />
-        <BulletTargets />
-        <GdpWaffle />
+        <div className="animate-fade-in-up animate-delay-200"><GdpWaterfall /></div>
+        <div className="animate-fade-in-up animate-delay-250"><GdpQuarterly /></div>
+        <div className="animate-fade-in-up animate-delay-300"><CpiCalendar /></div>
+        <div className="animate-fade-in-up animate-delay-350"><EconomicFunnel /></div>
+        <div className="animate-fade-in-up animate-delay-300"><BulletTargets /></div>
+        <div className="animate-fade-in-up animate-delay-350"><GdpWaffle /></div>
       </div>
 
       <KeyTakeaways takeaways={overviewTakeaways} />

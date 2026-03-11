@@ -46,13 +46,13 @@ export default function MarketsPage() {
     <div className="space-y-6">
       <NarrativeHeaderMarkets />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 animate-fade-in-up animate-delay-100">
           <RatesLine />
         </div>
-        <SectorTreemap />
-        <SentimentRadial />
-        <Sp500Area />
-        <GdpWaffle />
+        <div className="animate-fade-in-up animate-delay-200"><SectorTreemap /></div>
+        <div className="animate-fade-in-up animate-delay-250"><SentimentRadial /></div>
+        <div className="animate-fade-in-up animate-delay-300"><Sp500Area /></div>
+        <div className="animate-fade-in-up animate-delay-350"><GdpWaffle /></div>
       </div>
 
       <KeyTakeaways takeaways={marketsTakeaways} />

@@ -50,14 +50,17 @@ export default function KpiStrip() {
     );
   }
 
+  const delays = ["animate-delay-0", "animate-delay-50", "animate-delay-100", "animate-delay-150"];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {kpis.map((kpi) => (
-        <KpiCard
-          key={kpi.key}
-          kpi={kpi}
-          microContext={buildMicroContext(kpi, kpis)}
-        />
+      {kpis.map((kpi, i) => (
+        <div key={kpi.key} className={`animate-fade-in-up ${delays[i] ?? "animate-delay-150"}`}>
+          <KpiCard
+            kpi={kpi}
+            microContext={buildMicroContext(kpi, kpis)}
+          />
+        </div>
       ))}
     </div>
   );

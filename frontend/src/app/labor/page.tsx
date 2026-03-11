@@ -46,13 +46,13 @@ export default function LaborPage() {
     <div className="space-y-6">
       <NarrativeHeaderLabor />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 animate-fade-in-up animate-delay-100">
           <UnemploymentBump />
         </div>
-        <CpiHeatmap />
-        <StateScatter />
-        <EconomicFunnel />
-        <CpiCalendar />
+        <div className="animate-fade-in-up animate-delay-200"><CpiHeatmap /></div>
+        <div className="animate-fade-in-up animate-delay-250"><StateScatter /></div>
+        <div className="animate-fade-in-up animate-delay-300"><EconomicFunnel /></div>
+        <div className="animate-fade-in-up animate-delay-350"><CpiCalendar /></div>
       </div>
 
       <KeyTakeaways takeaways={laborTakeaways} />
