@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
+import type { BarCustomLayerProps } from "@nivo/bar";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import { formatQuarter } from "@/lib/formatters";
@@ -9,6 +10,35 @@ import type { GdpQuarterlyItem } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
+
+type BarDatum = { quarter: string; value: number; color: string };
+
+// Annotation: callout on Q1 2025 contraction bar
+function Q1ContractionAnnotation({ bars, innerWidth }: BarCustomLayerProps<BarDatum>) {
+  if (innerWidth < 400) return null;
+
+  const q1Bar = bars.find(
+    (b) => (b.data as unknown as BarDatum).quarter === "Q1 2025",
+  );
+  if (!q1Bar) return null;
+
+  const x = q1Bar.x + q1Bar.width / 2;
+  // For negative bars, y is at zero line, height extends downward
+  const barBottom = q1Bar.y + q1Bar.height;
+  const lineEndY = barBottom + 20;
+
+  return (
+    <g>
+      <line x1={x} y1={barBottom + 2} x2={x} y2={lineEndY} stroke="#555D73" strokeWidth={1} />
+      <text x={x} y={lineEndY + 11} textAnchor="middle" fontSize={11} fill="#555D73">
+        Contraction driven by
+      </text>
+      <text x={x} y={lineEndY + 24} textAnchor="middle" fontSize={11} fill="#555D73">
+        inventory drawdown
+      </text>
+    </g>
+  );
+}
 
 export default function GdpQuarterly() {
   const [data, setData] = useState<GdpQuarterlyItem[]>([]);
@@ -21,7 +51,7 @@ export default function GdpQuarterly() {
   if (error) return <ChartErrorFallback title="Quarterly GDP Growth" />;
   if (!data.length) return <ChartCardSkeleton />;
 
-  const barData = data.map((d) => ({
+  const barData: BarDatum[] = data.map((d) => ({
     quarter: formatQuarter(d.quarter),
     value: d.value,
     color: d.value >= 0 ? chartColors.teal : chartColors.coral,
@@ -62,6 +92,7 @@ export default function GdpQuarterly() {
         labelTextColor="#FFFFFF"
         animate={true}
         enableGridY={true}
+        layers={["grid", "axes", "bars", "markers", "legends", Q1ContractionAnnotation]}
       />
     </ChartCard>
   );
