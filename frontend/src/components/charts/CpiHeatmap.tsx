@@ -26,7 +26,7 @@ export default function CpiHeatmap() {
   }));
 
   return (
-    <ChartCard title="CPI Category Weights" height={300}>
+    <ChartCard insight="CPI Category Weights" height={300}>
       <ResponsiveHeatMap
         data={heatmapData}
         theme={nivoTheme}

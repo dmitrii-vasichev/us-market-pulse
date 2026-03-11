@@ -32,7 +32,7 @@ export default function Sp500Area() {
   ];
 
   return (
-    <ChartCard title="S&P 500 Index" height={350}>
+    <ChartCard insight="S&P 500 Index" height={350}>
       <ResponsiveLine
         data={lineData}
         theme={nivoTheme}

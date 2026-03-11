@@ -34,7 +34,7 @@ export default function GdpWaffle() {
   if (!data.length) return <ChartCardSkeleton />;
 
   return (
-    <ChartCard title="GDP Composition by Sector">
+    <ChartCard insight="GDP Composition by Sector">
       <ResponsiveWaffle
         data={data}
         total={100}

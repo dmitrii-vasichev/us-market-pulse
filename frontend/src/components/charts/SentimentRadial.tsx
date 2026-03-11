@@ -34,7 +34,7 @@ export default function SentimentRadial() {
   const keys = response.data.map((s) => s.id);
 
   return (
-    <ChartCard title={`Consumer Sentiment${response.current ? ` — ${response.current}` : ""}`}>
+    <ChartCard insight={`Consumer Sentiment${response.current ? ` — ${response.current}` : ""}`}>
       <ResponsiveRadar
         data={radarData}
         keys={keys}

@@ -41,7 +41,7 @@ export default function BulletTargets() {
     });
 
   return (
-    <ChartCard title="KPI vs Target" height={220}>
+    <ChartCard insight="KPI vs Target" height={220}>
       <ResponsiveBullet
         data={bulletData}
         theme={nivoTheme}

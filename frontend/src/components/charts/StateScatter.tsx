@@ -21,7 +21,7 @@ export default function StateScatter() {
   if (!data.length) return <ChartCardSkeleton />;
 
   return (
-    <ChartCard title="State GDP per Capita vs Unemployment">
+    <ChartCard insight="State GDP per Capita vs Unemployment">
       <ResponsiveScatterPlot
         data={data}
         theme={nivoTheme}
