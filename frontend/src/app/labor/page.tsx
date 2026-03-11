@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
+import LazyChartWrapper from "@/components/LazyChartWrapper";
 
 const NarrativeHeaderLabor = dynamic(
   () => import("@/components/NarrativeHeaderLabor"),
@@ -46,13 +47,15 @@ export default function LaborPage() {
     <div className="space-y-6">
       <NarrativeHeaderLabor />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* First chart: eager (above fold) */}
         <div className="lg:col-span-2 animate-fade-in-up animate-delay-100">
-          <UnemploymentBump />
+          <LazyChartWrapper eager height={400}><UnemploymentBump /></LazyChartWrapper>
         </div>
-        <div className="animate-fade-in-up animate-delay-200"><CpiHeatmap /></div>
-        <div className="animate-fade-in-up animate-delay-250"><StateScatter /></div>
-        <div className="animate-fade-in-up animate-delay-300"><EconomicFunnel /></div>
-        <div className="animate-fade-in-up animate-delay-350"><CpiCalendar /></div>
+        {/* Below fold: lazy */}
+        <div className="animate-fade-in-up animate-delay-200"><LazyChartWrapper height={300}><CpiHeatmap /></LazyChartWrapper></div>
+        <div className="animate-fade-in-up animate-delay-250"><LazyChartWrapper><StateScatter /></LazyChartWrapper></div>
+        <div className="animate-fade-in-up animate-delay-300"><LazyChartWrapper><EconomicFunnel /></LazyChartWrapper></div>
+        <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper height={200}><CpiCalendar /></LazyChartWrapper></div>
       </div>
 
       <KeyTakeaways takeaways={laborTakeaways} />

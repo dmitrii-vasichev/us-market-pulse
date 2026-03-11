@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import KpiStrip from "@/components/KpiStrip";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
+import LazyChartWrapper from "@/components/LazyChartWrapper";
 
 const NarrativeHeaderOverview = dynamic(
   () => import("@/components/NarrativeHeaderOverview"),
@@ -46,12 +47,14 @@ export default function OverviewPage() {
       <NarrativeHeaderOverview />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="animate-fade-in-up animate-delay-200"><GdpWaterfall /></div>
-        <div className="animate-fade-in-up animate-delay-250"><GdpQuarterly /></div>
-        <div className="animate-fade-in-up animate-delay-300"><CpiCalendar /></div>
-        <div className="animate-fade-in-up animate-delay-350"><EconomicFunnel /></div>
-        <div className="animate-fade-in-up animate-delay-300"><BulletTargets /></div>
-        <div className="animate-fade-in-up animate-delay-350"><GdpWaffle /></div>
+        {/* First 2 charts: eager (above fold) */}
+        <div className="animate-fade-in-up animate-delay-200"><LazyChartWrapper eager><GdpWaterfall /></LazyChartWrapper></div>
+        <div className="animate-fade-in-up animate-delay-250"><LazyChartWrapper eager><GdpQuarterly /></LazyChartWrapper></div>
+        {/* Below fold: lazy */}
+        <div className="animate-fade-in-up animate-delay-300"><LazyChartWrapper height={820}><CpiCalendar /></LazyChartWrapper></div>
+        <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper><EconomicFunnel /></LazyChartWrapper></div>
+        <div className="animate-fade-in-up animate-delay-300"><LazyChartWrapper height={220}><BulletTargets /></LazyChartWrapper></div>
+        <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper><GdpWaffle /></LazyChartWrapper></div>
       </div>
 
       <KeyTakeaways takeaways={overviewTakeaways} />
