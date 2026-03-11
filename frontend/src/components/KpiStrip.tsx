@@ -15,7 +15,7 @@ function buildMicroContext(kpi: KpiItem, kpis: KpiItem[]): string {
     case "cpi":
       return `Above Fed's 2% target \u00b7 Core CPI at ${(kpi.current_value * 0.85).toFixed(1)}%`;
     case "unemployment":
-      return `U-3 rate \u00b7 Below historical avg of 5.7%`;
+      return `\u2191 from ${kpi.previous_value.toFixed(1)}% prior \u00b7 below hist. avg 5.7%`;
     case "fed_rate":
       return cpi
         ? `Target ${kpi.current_value.toFixed(2)}\u2013${(kpi.current_value + 0.25).toFixed(2)}% \u00b7 \u2190 responding to ${cpi.current_value.toFixed(1)}% inflation`
