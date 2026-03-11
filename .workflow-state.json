@@ -36,13 +36,13 @@
     {"step": 6, "action": "completed", "timestamp": "2026-03-11T00:00:00Z", "details": "Redesign Phase 1: 8 tasks implemented, PRs #76-#82 merged to main"},
     {"step": 7, "action": "completed", "timestamp": "2026-03-11T00:00:00Z", "details": "Redesign Phase 1 complete. Dark Editorial Finance design system applied."}
   ],
-  "current_step": 4,
-  "current_step_name": "planning",
+  "current_step": 6,
+  "current_step_name": "implementation",
   "current_phase": "redesign-2",
   "redesign": {
     "phases": [
       {"number": 1, "name": "Design System", "status": "complete"},
-      {"number": 2, "name": "Storytelling Layer", "status": "pending"},
+      {"number": 2, "name": "Storytelling Layer", "status": "in_progress"},
       {"number": 3, "name": "Animations & Polish", "status": "pending"}
     ]
   },
@@ -56,9 +56,10 @@
       "docs/plans/2026-03-11-phase-2-frontend-shell-tab1.md",
       "docs/plans/2026-03-11-phase-3-tab2-tab3.md",
       "docs/plans/2026-03-11-phase-4-deploy-polish.md",
-      "docs/plans/2026-03-11-redesign-phase-1-design-system.md"
+      "docs/plans/2026-03-11-redesign-phase-1-design-system.md",
+      "docs/plans/2026-03-11-redesign-phase-2-storytelling.md"
     ],
-    "issue_numbers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 45, 46, 47, 48, 49, 50, 51, 52, 68, 69, 70, 71, 72, 73, 74, 75],
+    "issue_numbers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 45, 46, 47, 48, 49, 50, 51, 52, 68, 69, 70, 71, 72, 73, 74, 75, 84, 85, 86, 87, 88, 89, 90, 91],
     "pr_numbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 32, 44, 53, 55, 56, 57, 58, 59, 61, 76, 77, 78, 79, 80, 81, 82],
     "project_board_number": 6,
     "deployment_url": "https://us-market-pulse-kappa.vercel.app",
