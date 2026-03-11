@@ -1,11 +1,13 @@
 interface KeyTakeawaysProps {
   title?: string;
   takeaways: string[];
+  footer?: React.ReactNode;
 }
 
 export default function KeyTakeaways({
   title = "Key Takeaways",
   takeaways,
+  footer,
 }: KeyTakeawaysProps) {
   return (
     <div className="bg-[#1A1D27] rounded-2xl border border-white/[0.06] border-t-2 border-t-[#2DD4A8] shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
@@ -22,6 +24,11 @@ export default function KeyTakeaways({
           </li>
         ))}
       </ol>
+      {footer && (
+        <div className="mt-4 flex justify-end">
+          {footer}
+        </div>
+      )}
     </div>
   );
 }
