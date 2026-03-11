@@ -12,7 +12,7 @@ const GdpQuarterly = dynamic(
 );
 const CpiCalendar = dynamic(
   () => import("@/components/charts/CpiCalendar"),
-  { loading: () => <ChartCardSkeleton height={200} /> },
+  { loading: () => <ChartCardSkeleton height={820} /> },
 );
 const EconomicFunnel = dynamic(
   () => import("@/components/charts/EconomicFunnel"),

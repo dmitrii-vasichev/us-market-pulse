@@ -21,11 +21,14 @@ export default function CpiCalendar() {
   if (!data.length) return <ChartCardSkeleton height={200} />;
 
   const years = data.map((d) => new Date(d.day).getFullYear());
+  const uniqueYears = [...new Set(years)];
   const from = `${Math.min(...years)}-01-01`;
   const to = `${Math.max(...years)}-12-31`;
+  // ~130px per year row + 40px for margins/legend
+  const height = uniqueYears.length * 130 + 40;
 
   return (
-    <ChartCard title="CPI Inflation (YoY %)" height={200}>
+    <ChartCard title="CPI Inflation (YoY %)" height={height}>
       <ResponsiveCalendar
         data={data}
         from={from}
