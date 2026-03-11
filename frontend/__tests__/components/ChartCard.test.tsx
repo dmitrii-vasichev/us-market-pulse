@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import ChartCard from "@/components/ChartCard";
 
 describe("ChartCard", () => {
@@ -46,5 +46,66 @@ describe("ChartCard", () => {
       </ChartCard>
     );
     expect(screen.queryByText(/Source:/)).toBeNull();
+  });
+
+  it("does not render ? button when contextualNote is not provided", () => {
+    render(
+      <ChartCard insight="Test">
+        <div>chart</div>
+      </ChartCard>
+    );
+    expect(screen.queryByRole("button", { name: /what this means/i })).toBeNull();
+  });
+
+  it("renders ? button when contextualNote is provided", () => {
+    render(
+      <ChartCard insight="Test" contextualNote="Some economic context here.">
+        <div>chart</div>
+      </ChartCard>
+    );
+    expect(screen.getByRole("button", { name: /what this means/i })).toBeTruthy();
+  });
+
+  it("tooltip is hidden by default", () => {
+    render(
+      <ChartCard insight="Test" contextualNote="Some economic context here.">
+        <div>chart</div>
+      </ChartCard>
+    );
+    expect(screen.queryByRole("tooltip")).toBeNull();
+  });
+
+  it("opens tooltip on ? button click", () => {
+    render(
+      <ChartCard insight="Test" contextualNote="Some economic context here.">
+        <div>chart</div>
+      </ChartCard>
+    );
+    fireEvent.click(screen.getByRole("button", { name: /what this means/i }));
+    expect(screen.getByRole("tooltip")).toBeTruthy();
+    expect(screen.getByText("Some economic context here.")).toBeTruthy();
+  });
+
+  it("closes tooltip on second click", () => {
+    render(
+      <ChartCard insight="Test" contextualNote="Some economic context here.">
+        <div>chart</div>
+      </ChartCard>
+    );
+    const btn = screen.getByRole("button", { name: /what this means/i });
+    fireEvent.click(btn);
+    fireEvent.click(btn);
+    expect(screen.queryByRole("tooltip")).toBeNull();
+  });
+
+  it("closes tooltip on Escape key", () => {
+    render(
+      <ChartCard insight="Test" contextualNote="Some economic context here.">
+        <div>chart</div>
+      </ChartCard>
+    );
+    fireEvent.click(screen.getByRole("button", { name: /what this means/i }));
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("tooltip")).toBeNull();
   });
 });
