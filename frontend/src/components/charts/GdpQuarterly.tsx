@@ -27,8 +27,16 @@ export default function GdpQuarterly() {
     color: d.value >= 0 ? chartColors.teal : chartColors.coral,
   }));
 
+  const sorted = [...data].sort((a, b) => b.value - a.value);
+  const peak = sorted[0];
+  const latest = data[data.length - 1];
+  const insight =
+    peak && latest && peak.quarter !== latest.quarter
+      ? `Growth decelerated sharply after ${formatQuarter(peak.quarter)}'s ${peak.value.toFixed(1)}% surge`
+      : "Quarterly GDP Growth (%)";
+
   return (
-    <ChartCard insight="Quarterly GDP Growth (%)">
+    <ChartCard insight={insight} source="Source: BEA · Q4 2025">
       <ResponsiveBar
         data={barData}
         keys={["value"]}

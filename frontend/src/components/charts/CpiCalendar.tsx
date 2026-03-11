@@ -28,7 +28,11 @@ export default function CpiCalendar() {
   const height = uniqueYears.length * 130 + 40;
 
   return (
-    <ChartCard insight="CPI Inflation (YoY %)" height={height}>
+    <ChartCard
+      insight="Inflation has stayed above the Fed's 2% target since mid-2024"
+      source="Source: BLS · Jan 2026"
+      height={height}
+    >
       <ResponsiveCalendar
         data={data}
         from={from}

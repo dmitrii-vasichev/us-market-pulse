@@ -26,8 +26,22 @@ export default function GdpWaterfall() {
     color: c.value >= 0 ? chartColors.teal : chartColors.coral,
   }));
 
+  const consumer = data.components.find((c) =>
+    c.label.toLowerCase().includes("consumer") || c.label.toLowerCase().includes("personal"),
+  );
+  const consumerShare =
+    consumer && data.total_growth !== 0
+      ? Math.round((consumer.value / data.total_growth) * 100)
+      : null;
+  const insight = consumerShare !== null
+    ? `Consumer spending drove ${consumerShare}% of Q4 growth (${data.total_growth}% total)`
+    : "Consumer spending drove nearly half of Q4 growth";
+
   return (
-    <ChartCard insight={`GDP Growth Components \u2014 ${data.total_growth}% Total`}>
+    <ChartCard
+      insight={insight}
+      source="Source: BEA · Q4 2025"
+    >
       <ResponsiveBar
         data={barData}
         keys={["value"]}

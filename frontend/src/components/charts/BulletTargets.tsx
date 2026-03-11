@@ -40,8 +40,15 @@ export default function BulletTargets() {
       };
     });
 
+  const cpi = kpis.find((k) => k.key === "cpi");
+  const fedRate = kpis.find((k) => k.key === "fed_rate");
+  const insight =
+    cpi && fedRate
+      ? `Fed hits rate target; inflation at ${cpi.current_value.toFixed(1)}% — ${Math.round((cpi.current_value / 2 - 1) * 100)}% above 2% goal`
+      : "Fed hits rate target; inflation still 35% above 2% goal";
+
   return (
-    <ChartCard insight="KPI vs Target" height={220}>
+    <ChartCard insight={insight} source="Source: Federal Reserve · Mar 2026" height={220}>
       <ResponsiveBullet
         data={bulletData}
         theme={nivoTheme}
