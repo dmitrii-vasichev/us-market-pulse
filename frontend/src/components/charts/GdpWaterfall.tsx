@@ -27,7 +27,7 @@ export default function GdpWaterfall() {
   }));
 
   return (
-    <ChartCard title={`GDP Growth Components \u2014 ${data.total_growth}% Total`}>
+    <ChartCard insight={`GDP Growth Components \u2014 ${data.total_growth}% Total`}>
       <ResponsiveBar
         data={barData}
         keys={["value"]}

@@ -26,7 +26,7 @@ export default function UnemploymentBump() {
   if (!data.length) return <ChartCardSkeleton height={400} />;
 
   return (
-    <ChartCard title="State Unemployment Ranking (12 Months)" height={400}>
+    <ChartCard insight="State Unemployment Ranking (12 Months)" height={400}>
       <ResponsiveBump
         data={data}
         theme={nivoTheme}

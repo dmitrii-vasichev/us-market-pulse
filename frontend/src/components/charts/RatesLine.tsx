@@ -27,7 +27,7 @@ export default function RatesLine() {
   if (!data.length) return <ChartCardSkeleton height={350} />;
 
   return (
-    <ChartCard title="Interest Rates History" height={350}>
+    <ChartCard insight="Interest Rates History" height={350}>
       <ResponsiveLine
         data={data}
         theme={nivoTheme}

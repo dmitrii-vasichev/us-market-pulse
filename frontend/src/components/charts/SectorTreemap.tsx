@@ -21,7 +21,7 @@ export default function SectorTreemap() {
   if (!data) return <ChartCardSkeleton height={400} />;
 
   return (
-    <ChartCard title="US GDP Composition by Sector" height={400}>
+    <ChartCard insight="US GDP Composition by Sector" height={400}>
       <ResponsiveTreeMap
         data={data}
         identity="name"

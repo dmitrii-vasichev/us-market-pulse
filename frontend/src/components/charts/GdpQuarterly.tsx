@@ -28,7 +28,7 @@ export default function GdpQuarterly() {
   }));
 
   return (
-    <ChartCard title="Quarterly GDP Growth (%)">
+    <ChartCard insight="Quarterly GDP Growth (%)">
       <ResponsiveBar
         data={barData}
         keys={["value"]}

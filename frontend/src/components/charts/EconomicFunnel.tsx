@@ -28,7 +28,7 @@ export default function EconomicFunnel() {
   }));
 
   return (
-    <ChartCard title="Economic Funnel \u2014 GDP to Employment">
+    <ChartCard insight="Economic Funnel \u2014 GDP to Employment">
       <ResponsiveFunnel
         data={funnelData}
         theme={nivoTheme}

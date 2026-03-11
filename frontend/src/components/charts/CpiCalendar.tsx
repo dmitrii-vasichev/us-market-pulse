@@ -28,7 +28,7 @@ export default function CpiCalendar() {
   const height = uniqueYears.length * 130 + 40;
 
   return (
-    <ChartCard title="CPI Inflation (YoY %)" height={height}>
+    <ChartCard insight="CPI Inflation (YoY %)" height={height}>
       <ResponsiveCalendar
         data={data}
         from={from}
