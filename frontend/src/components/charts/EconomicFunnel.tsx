@@ -7,6 +7,7 @@ import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
 import { formatLargeNumber } from "@/lib/formatters";
 import type { FunnelStage } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartCardSkeleton from "../ChartCardSkeleton";
 
 export default function EconomicFunnel() {
   const [data, setData] = useState<FunnelStage[]>([]);
@@ -17,7 +18,7 @@ export default function EconomicFunnel() {
   }, []);
 
   if (error) return <ChartCard title="Economic Funnel"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
-  if (!data.length) return <ChartCard title="Economic Funnel"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
+  if (!data.length) return <ChartCardSkeleton />;
 
   const funnelData = data.map((s) => ({
     id: s.label,

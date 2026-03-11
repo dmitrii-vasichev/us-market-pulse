@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { SentimentRadialResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartCardSkeleton from "../ChartCardSkeleton";
 
 export default function SentimentRadial() {
   const [response, setResponse] = useState<SentimentRadialResponse | null>(null);
@@ -16,7 +17,7 @@ export default function SentimentRadial() {
   }, []);
 
   if (error) return <ChartCard title="Consumer Sentiment"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
-  if (!response || !response.data.length) return <ChartCard title="Consumer Sentiment"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
+  if (!response || !response.data.length) return <ChartCardSkeleton />;
 
   // Transform to radar format
   const radarData = response.data[0]?.data.map((_, i) => {

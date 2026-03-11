@@ -7,6 +7,7 @@ import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import { formatQuarter } from "@/lib/formatters";
 import type { GdpQuarterlyItem } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartCardSkeleton from "../ChartCardSkeleton";
 
 export default function GdpQuarterly() {
   const [data, setData] = useState<GdpQuarterlyItem[]>([]);
@@ -17,7 +18,7 @@ export default function GdpQuarterly() {
   }, []);
 
   if (error) return <ChartCard title="Quarterly GDP Growth"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
-  if (!data.length) return <ChartCard title="Quarterly GDP Growth"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
+  if (!data.length) return <ChartCardSkeleton />;
 
   const barData = data.map((d) => ({
     quarter: formatQuarter(d.quarter),
