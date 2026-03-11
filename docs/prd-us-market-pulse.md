@@ -506,34 +506,37 @@ us-market-pulse/
 
 ---
 
-## 11. Implementation Phases
+## 11. Implementation Phases (Revised)
 
-### Phase 1: Backend + Data (Day 1)
-1. Init repo, FastAPI structure
-2. PostgreSQL on Railway, migrations
-3. FRED API key registration
-4. `seed_metadata.py` — 16 series
-5. `data_collector.py` — FRED fetch + upsert
-6. `backfill.py` — 5 years
-7. KPI calculator + all API endpoints
+### Phase 1: Backend Foundation + Data Pipeline
+1. FastAPI project structure, config, DB connection
+2. PostgreSQL schema on Railway (migrations)
+3. Seed metadata script (16 FRED series)
+4. FRED data collector + backfill (5 years)
+5. KPI calculator service
+6. All API endpoints (16 endpoints)
+7. Backend tests
 8. Deploy backend to Railway
 
-### Phase 2: Frontend + Charts (Day 2-3)
-1. Next.js + Tailwind + Nivo packages install
-2. Create `theme.ts` with Nivo theme matching design system
-3. Layout with sticky header, DM Sans font, tab navigation
-4. Tab 1: KpiStrip, GdpWaterfall, GdpQuarterly, BulletTargets, CpiCalendar, EconomicFunnel, GdpWaffle
-5. Tab 2: UnemploymentBump, LaborComposed, CpiHeatmap, StateScatter, DataTable
-6. Tab 3: RatesLine, SectorTreemap, SentimentRadial, HousingComposed, Sp500Area, DataTable
-7. Mobile responsive
+### Phase 2: Frontend Shell + Tab 1 (Overview)
+1. Next.js + Tailwind + Nivo packages + DM Sans font
+2. Nivo theme, API client, types, formatters
+3. Layout: sticky header, tab navigation, footer
+4. KPI Strip with sparklines
+5. Tab 1 charts: GdpWaterfall, GdpQuarterly, BulletTargets, CpiCalendar, EconomicFunnel, GdpWaffle
 
-### Phase 3: Deploy + Polish (Day 3-4)
+### Phase 3: Tab 2 + Tab 3 (All Remaining Charts)
+1. Tab 2: UnemploymentBump, LaborComposed, CpiHeatmap, StateScatter, DataTable
+2. Tab 3: RatesLine, SectorTreemap, SentimentRadial, HousingComposed, Sp500Area, DataTable
+3. Mobile responsive
+
+### Phase 4: Deploy + Polish
 1. Vercel deploy
-2. GitHub Actions cron
-3. Full pipeline test
-4. Open Graph meta tags (screenshot as preview)
-5. README with screenshot, architecture, tech stack
-6. Lighthouse audit, loading skeletons, error states
+2. GitHub Actions cron (daily data collection)
+3. Full pipeline test (end-to-end)
+4. OG meta tags, README with screenshots
+5. Loading skeletons, error states
+6. Lighthouse audit
 
 ---
 
