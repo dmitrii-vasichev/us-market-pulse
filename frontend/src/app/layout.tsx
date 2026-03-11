@@ -10,7 +10,7 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://us-market-pulse.vercel.app";
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://us-market-pulse-kappa.vercel.app").trim();
 
 export const metadata: Metadata = {
   title: {

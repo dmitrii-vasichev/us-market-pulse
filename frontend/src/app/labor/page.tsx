@@ -1,8 +1,33 @@
-import UnemploymentBump from "@/components/charts/UnemploymentBump";
-import CpiHeatmap from "@/components/charts/CpiHeatmap";
-import StateScatter from "@/components/charts/StateScatter";
-import EconomicFunnel from "@/components/charts/EconomicFunnel";
-import CpiCalendar from "@/components/charts/CpiCalendar";
+import type { Metadata } from "next";
+import dynamic from "next/dynamic";
+import ChartCardSkeleton from "@/components/ChartCardSkeleton";
+
+export const metadata: Metadata = {
+  title: "Labor & Economy",
+  description:
+    "US labor market data: unemployment trends, CPI inflation heatmap, state-level statistics, and economic funnel analysis.",
+};
+
+const UnemploymentBump = dynamic(
+  () => import("@/components/charts/UnemploymentBump"),
+  { loading: () => <ChartCardSkeleton height={400} /> },
+);
+const CpiHeatmap = dynamic(
+  () => import("@/components/charts/CpiHeatmap"),
+  { loading: () => <ChartCardSkeleton /> },
+);
+const StateScatter = dynamic(
+  () => import("@/components/charts/StateScatter"),
+  { loading: () => <ChartCardSkeleton /> },
+);
+const EconomicFunnel = dynamic(
+  () => import("@/components/charts/EconomicFunnel"),
+  { loading: () => <ChartCardSkeleton /> },
+);
+const CpiCalendar = dynamic(
+  () => import("@/components/charts/CpiCalendar"),
+  { loading: () => <ChartCardSkeleton height={200} /> },
+);
 
 export default function LaborPage() {
   return (
