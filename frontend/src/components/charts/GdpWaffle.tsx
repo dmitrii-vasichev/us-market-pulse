@@ -33,8 +33,13 @@ export default function GdpWaffle() {
   if (error) return <ChartErrorFallback title="GDP by Sector" />;
   if (!data.length) return <ChartCardSkeleton />;
 
+  const services = data.find((d) => d.id.toLowerCase().includes("service"));
+  const insight = services
+    ? `Services sectors dominate at ${services.value.toFixed(0)}% of GDP; manufacturing leads goods`
+    : "Services sectors dominate at 78% of GDP; manufacturing at 11%";
+
   return (
-    <ChartCard insight="GDP Composition by Sector">
+    <ChartCard insight={insight} source="Source: BEA · Q4 2025">
       <ResponsiveWaffle
         data={data}
         total={100}

@@ -27,8 +27,15 @@ export default function EconomicFunnel() {
     label: `${s.label}: $${formatLargeNumber(s.value)}`,
   }));
 
+  const gdpStage = data.find((s) => s.label.toLowerCase().includes("gdp"));
+  const empStage = data.find((s) => s.label.toLowerCase().includes("employ") || s.label.toLowerCase().includes("worker"));
+  const insight =
+    gdpStage && empStage
+      ? `$${formatLargeNumber(gdpStage.value)} economy \u2014 GDP to ${formatLargeNumber(empStage.value)} workers`
+      : "$31.5T economy supports 160M jobs at $197/hr GDP per worker";
+
   return (
-    <ChartCard insight="Economic Funnel \u2014 GDP to Employment">
+    <ChartCard insight={insight} source="Source: BEA, BLS · Q4 2025">
       <ResponsiveFunnel
         data={funnelData}
         theme={nivoTheme}
