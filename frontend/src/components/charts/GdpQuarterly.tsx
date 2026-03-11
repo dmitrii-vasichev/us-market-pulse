@@ -8,6 +8,7 @@ import { formatQuarter } from "@/lib/formatters";
 import type { GdpQuarterlyItem } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function GdpQuarterly() {
   const [data, setData] = useState<GdpQuarterlyItem[]>([]);
@@ -17,7 +18,7 @@ export default function GdpQuarterly() {
     api.getGdpQuarterly().then((d) => setData(d.data)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="Quarterly GDP Growth"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="Quarterly GDP Growth" />;
   if (!data.length) return <ChartCardSkeleton />;
 
   const barData = data.map((d) => ({
