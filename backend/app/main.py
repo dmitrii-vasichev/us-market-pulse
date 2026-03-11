@@ -5,6 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.db.database import close_pool, get_pool
+from app.api.v1.kpi import router as kpi_router
+from app.api.v1.series import router as series_router
+from app.api.v1.meta import router as meta_router
 
 
 @asynccontextmanager
@@ -28,6 +31,11 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
+
+app.include_router(kpi_router)
+app.include_router(series_router)
+app.include_router(meta_router)
 
 
 @app.get("/health")
