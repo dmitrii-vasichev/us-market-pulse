@@ -1,0 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ResponsiveFunnel } from "@nivo/funnel";
+import { api } from "@/lib/api";
+import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
+import { formatLargeNumber } from "@/lib/formatters";
+import type { FunnelStage } from "@/lib/types";
+import ChartCard from "../ChartCard";
+
+export default function EconomicFunnel() {
+  const [data, setData] = useState<FunnelStage[]>([]);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    api.getLaborFunnel().then((d) => setData(d.stages)).catch(() => setError(true));
+  }, []);
+
+  if (error) return <ChartCard title="Economic Funnel"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (!data.length) return <ChartCard title="Economic Funnel"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
+
+  const funnelData = data.map((s) => ({
+    id: s.label,
+    value: s.value,
+    label: `${s.label}: $${formatLargeNumber(s.value)}`,
+  }));
+
+  return (
+    <ChartCard title="Economic Funnel \u2014 GDP to Employment">
+      <ResponsiveFunnel
+        data={funnelData}
+        theme={nivoTheme}
+        colors={colorScheme}
+        margin={{ top: 10, right: 20, bottom: 10, left: 20 }}
+        valueFormat={(v) => `$${formatLargeNumber(v)}`}
+        labelColor="#FFFFFF"
+        borderWidth={0}
+        animate={true}
+      />
+    </ChartCard>
+  );
+}

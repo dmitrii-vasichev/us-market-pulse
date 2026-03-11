@@ -1,0 +1,54 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ResponsiveBar } from "@nivo/bar";
+import { api } from "@/lib/api";
+import { nivoTheme, chartColors } from "@/lib/nivo-theme";
+import { formatQuarter } from "@/lib/formatters";
+import type { GdpQuarterlyItem } from "@/lib/types";
+import ChartCard from "../ChartCard";
+
+export default function GdpQuarterly() {
+  const [data, setData] = useState<GdpQuarterlyItem[]>([]);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    api.getGdpQuarterly().then((d) => setData(d.data)).catch(() => setError(true));
+  }, []);
+
+  if (error) return <ChartCard title="Quarterly GDP Growth"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (!data.length) return <ChartCard title="Quarterly GDP Growth"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
+
+  const barData = data.map((d) => ({
+    quarter: formatQuarter(d.quarter),
+    value: d.value,
+    color: d.value >= 0 ? chartColors.blue : chartColors.red,
+  }));
+
+  return (
+    <ChartCard title="Quarterly GDP Growth (%)">
+      <ResponsiveBar
+        data={barData}
+        keys={["value"]}
+        indexBy="quarter"
+        theme={nivoTheme}
+        colors={({ data }) => (data as { color: string }).color}
+        margin={{ top: 10, right: 20, bottom: 40, left: 50 }}
+        padding={0.3}
+        axisBottom={{
+          tickSize: 0,
+          tickPadding: 8,
+        }}
+        axisLeft={{
+          tickSize: 0,
+          tickPadding: 8,
+          format: (v) => `${v}%`,
+        }}
+        labelFormat={(v) => `${Number(v).toFixed(1)}%`}
+        labelTextColor="#FFFFFF"
+        animate={true}
+        enableGridY={true}
+      />
+    </ChartCard>
+  );
+}
