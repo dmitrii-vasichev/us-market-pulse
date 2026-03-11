@@ -9,23 +9,55 @@ import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 
+const WINDOW_SIZE = 3;
+
+function CpiTooltip({ day, value }: { day: string; value: number }) {
+  return (
+    <div
+      style={{
+        background: "#1A1F2E",
+        border: "1px solid #2A2F3E",
+        borderRadius: 6,
+        padding: "6px 10px",
+        fontSize: 12,
+        color: "#E8ECF4",
+        fontFamily: "DM Sans, sans-serif",
+      }}
+    >
+      <span style={{ color: "#6B7280" }}>{day}: </span>
+      <strong>CPI MoM: {value.toFixed(2)}%</strong>
+    </div>
+  );
+}
+
 export default function CpiCalendar() {
   const [data, setData] = useState<CpiCalendarItem[]>([]);
   const [error, setError] = useState(false);
+  const [windowEnd, setWindowEnd] = useState<number | null>(null);
 
   useEffect(() => {
-    api.getCpiCalendar().then((d) => setData(d.data)).catch(() => setError(true));
+    api.getCpiCalendar().then((d) => {
+      setData(d.data);
+      const years = d.data.map((item) => new Date(item.day).getFullYear());
+      const maxYear = Math.max(...years);
+      setWindowEnd(maxYear);
+    }).catch(() => setError(true));
   }, []);
 
   if (error) return <ChartErrorFallback title="CPI Inflation Calendar" height={200} />;
-  if (!data.length) return <ChartCardSkeleton height={200} />;
+  if (!data.length || windowEnd === null) return <ChartCardSkeleton height={200} />;
 
-  const years = data.map((d) => new Date(d.day).getFullYear());
-  const uniqueYears = [...new Set(years)];
-  const from = `${Math.min(...years)}-01-01`;
-  const to = `${Math.max(...years)}-12-31`;
-  // ~130px per year row + 40px for margins/legend
-  const height = uniqueYears.length * 130 + 40;
+  const allYears = [...new Set(data.map((d) => new Date(d.day).getFullYear()))].sort();
+  const minYear = allYears[0];
+  const maxYear = allYears[allYears.length - 1];
+
+  const windowStart = windowEnd - WINDOW_SIZE + 1;
+  const canPrev = windowStart > minYear;
+  const canNext = windowEnd < maxYear;
+
+  const from = `${windowStart}-01-01`;
+  const to = `${windowEnd}-12-31`;
+  const height = WINDOW_SIZE * 130 + 40;
 
   return (
     <ChartCard
@@ -33,6 +65,60 @@ export default function CpiCalendar() {
       source="Source: BLS · Jan 2026"
       height={height}
     >
+      {/* Year navigation */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          gap: 4,
+          marginBottom: 4,
+          paddingRight: 10,
+        }}
+      >
+        <button
+          onClick={() => canPrev && setWindowEnd(windowEnd - WINDOW_SIZE)}
+          disabled={!canPrev}
+          aria-label="Previous years"
+          style={{
+            background: "none",
+            border: "none",
+            cursor: canPrev ? "pointer" : "default",
+            color: canPrev ? "#6B7280" : "#2A2F3E",
+            padding: "2px 4px",
+            display: "flex",
+            alignItems: "center",
+            transition: "color 0.15s",
+          }}
+          onMouseEnter={(e) => { if (canPrev) (e.currentTarget as HTMLButtonElement).style.color = "#E8ECF4"; }}
+          onMouseLeave={(e) => { if (canPrev) (e.currentTarget as HTMLButtonElement).style.color = "#6B7280"; }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 11L5 7L9 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+        <span style={{ fontSize: 11, color: "#6B7280", fontFamily: "DM Sans, sans-serif", minWidth: 64, textAlign: "center" }}>
+          {windowStart}–{windowEnd}
+        </span>
+        <button
+          onClick={() => canNext && setWindowEnd(Math.min(windowEnd + WINDOW_SIZE, maxYear))}
+          disabled={!canNext}
+          aria-label="Next years"
+          style={{
+            background: "none",
+            border: "none",
+            cursor: canNext ? "pointer" : "default",
+            color: canNext ? "#6B7280" : "#2A2F3E",
+            padding: "2px 4px",
+            display: "flex",
+            alignItems: "center",
+            transition: "color 0.15s",
+          }}
+          onMouseEnter={(e) => { if (canNext) (e.currentTarget as HTMLButtonElement).style.color = "#E8ECF4"; }}
+          onMouseLeave={(e) => { if (canNext) (e.currentTarget as HTMLButtonElement).style.color = "#6B7280"; }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
+
       <ResponsiveCalendar
         data={data}
         from={from}
@@ -45,6 +131,7 @@ export default function CpiCalendar() {
         dayBorderWidth={1}
         dayBorderColor="#0F1117"
         theme={nivoTheme}
+        tooltip={({ day, value }) => <CpiTooltip day={day} value={Number(value)} />}
       />
     </ChartCard>
   );
