@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,6 +12,7 @@ const tabs = [
 
 export default function Header() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
@@ -37,7 +39,8 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="flex gap-1">
+          {/* Desktop nav */}
+          <nav className="hidden md:flex gap-1">
             {tabs.map((tab) => {
               const isActive =
                 tab.href === "/"
@@ -58,7 +61,48 @@ export default function Header() {
               );
             })}
           </nav>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden p-2 rounded-lg text-text-secondary hover:bg-gray-50"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              {mobileOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <nav className="md:hidden pb-3 border-t border-gray-100">
+            {tabs.map((tab) => {
+              const isActive =
+                tab.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(tab.href);
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block px-4 py-2.5 rounded-lg text-sm font-medium mt-1 ${
+                    isActive
+                      ? "bg-accent-blue/10 text-accent-blue"
+                      : "text-text-secondary hover:text-text-primary hover:bg-gray-50"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
       </div>
     </header>
   );
