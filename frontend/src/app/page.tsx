@@ -3,6 +3,10 @@ import KpiStrip from "@/components/KpiStrip";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
 
+const NarrativeHeaderOverview = dynamic(
+  () => import("@/components/NarrativeHeaderOverview"),
+);
+
 const GdpWaterfall = dynamic(
   () => import("@/components/charts/GdpWaterfall"),
   { loading: () => <ChartCardSkeleton /> },
@@ -39,6 +43,7 @@ export default function OverviewPage() {
   return (
     <div className="space-y-6">
       <KpiStrip />
+      <NarrativeHeaderOverview />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <GdpWaterfall />

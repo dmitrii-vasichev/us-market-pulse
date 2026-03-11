@@ -3,6 +3,10 @@ import dynamic from "next/dynamic";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
 
+const NarrativeHeaderLabor = dynamic(
+  () => import("@/components/NarrativeHeaderLabor"),
+);
+
 export const metadata: Metadata = {
   title: "Labor & Economy",
   description:
@@ -40,6 +44,7 @@ const laborTakeaways = [
 export default function LaborPage() {
   return (
     <div className="space-y-6">
+      <NarrativeHeaderLabor />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="lg:col-span-2">
           <UnemploymentBump />
