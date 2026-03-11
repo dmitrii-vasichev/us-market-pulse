@@ -69,6 +69,7 @@ export default function StateScatter() {
             </div>
           );
         }}
+        useMesh={false}
         animate={true}
       />
     </ChartCard>
