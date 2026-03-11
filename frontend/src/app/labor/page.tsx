@@ -1,8 +1,21 @@
+import UnemploymentBump from "@/components/charts/UnemploymentBump";
+import CpiHeatmap from "@/components/charts/CpiHeatmap";
+import StateScatter from "@/components/charts/StateScatter";
+import EconomicFunnel from "@/components/charts/EconomicFunnel";
+import CpiCalendar from "@/components/charts/CpiCalendar";
+
 export default function LaborPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Labor & Economy</h1>
-      <p className="text-text-secondary mt-2">Coming in Phase 3.</p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="lg:col-span-2">
+          <UnemploymentBump />
+        </div>
+        <CpiHeatmap />
+        <StateScatter />
+        <EconomicFunnel />
+        <CpiCalendar />
+      </div>
     </div>
   );
 }

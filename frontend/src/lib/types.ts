@@ -146,6 +146,14 @@ export interface SentimentRadialResponse {
   current: number | null;
 }
 
+// Series (generic)
+export interface SeriesDataResponse {
+  series_id: string;
+  title: string;
+  units: string;
+  data: { date: string; value: number }[];
+}
+
 // Overview (combined)
 export interface OverviewResponse {
   kpis: KpiItem[];

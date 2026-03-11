@@ -1,0 +1,67 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ResponsiveRadar } from "@nivo/radar";
+import { api } from "@/lib/api";
+import { nivoTheme, chartColors } from "@/lib/nivo-theme";
+import type { SentimentRadialResponse } from "@/lib/types";
+import ChartCard from "../ChartCard";
+
+export default function SentimentRadial() {
+  const [response, setResponse] = useState<SentimentRadialResponse | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    api.getSentimentRadial().then(setResponse).catch(() => setError(true));
+  }, []);
+
+  if (error) return <ChartCard title="Consumer Sentiment"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (!response || !response.data.length) return <ChartCard title="Consumer Sentiment"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
+
+  // Transform to radar format
+  const radarData = response.data[0]?.data.map((_, i) => {
+    const point: Record<string, string | number> = {
+      metric: response.data[0].data[i].x,
+    };
+    response.data.forEach((series) => {
+      point[series.id] = series.data[i]?.y || 0;
+    });
+    return point;
+  }) || [];
+
+  const keys = response.data.map((s) => s.id);
+
+  return (
+    <ChartCard title={`Consumer Sentiment${response.current ? ` — ${response.current}` : ""}`}>
+      <ResponsiveRadar
+        data={radarData}
+        keys={keys}
+        indexBy="metric"
+        theme={nivoTheme}
+        colors={[chartColors.blue, chartColors.green, chartColors.amber]}
+        margin={{ top: 40, right: 60, bottom: 40, left: 60 }}
+        borderWidth={2}
+        borderColor={{ from: "color" }}
+        dotSize={8}
+        dotColor={{ theme: "background" }}
+        dotBorderWidth={2}
+        dotBorderColor={{ from: "color" }}
+        fillOpacity={0.15}
+        blendMode="multiply"
+        animate={true}
+        legends={[
+          {
+            anchor: "top-left",
+            direction: "column",
+            translateX: -50,
+            translateY: -30,
+            itemWidth: 100,
+            itemHeight: 16,
+            symbolSize: 10,
+            symbolShape: "circle",
+          },
+        ]}
+      />
+    </ChartCard>
+  );
+}

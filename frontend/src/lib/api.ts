@@ -35,6 +35,7 @@ export const api = {
   getSectorsGdp: () => fetchApi<SectorsGdpResponse>("/api/v1/sectors/gdp"),
   getSentimentRadial: () => fetchApi<SentimentRadialResponse>("/api/v1/sentiment/radial"),
   getOverview: () => fetchApi<OverviewResponse>("/api/v1/overview"),
+  getSeriesData: (id: string) => fetchApi<SeriesDataResponse>(`/api/v1/series/${id}`),
 };
 
 // Re-export types for convenience
@@ -51,4 +52,5 @@ import type {
   SectorsGdpResponse,
   SentimentRadialResponse,
   OverviewResponse,
+  SeriesDataResponse,
 } from "./types";
