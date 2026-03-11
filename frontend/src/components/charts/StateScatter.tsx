@@ -20,6 +20,17 @@ export default function StateScatter() {
   if (error) return <ChartErrorFallback title="States Comparison" />;
   if (!data.length) return <ChartCardSkeleton />;
 
+  // Normalize bubble sizes to a bounded pixel range to avoid invisible large hit areas
+  const allSizes = data.flatMap((g) => g.data.map((pt) => (pt as { size?: number }).size ?? 1));
+  const minSize = Math.min(...allSizes);
+  const maxSize = Math.max(...allSizes);
+  const MIN_RADIUS = 8;
+  const MAX_RADIUS = 34;
+  const normalizeSize = (s: number) =>
+    minSize === maxSize
+      ? (MIN_RADIUS + MAX_RADIUS) / 2
+      : MIN_RADIUS + ((s - minSize) / (maxSize - minSize)) * (MAX_RADIUS - MIN_RADIUS);
+
   return (
     <ChartCard
       insight="High-wage states show lower unemployment — but the gap is narrowing"
@@ -28,10 +39,10 @@ export default function StateScatter() {
       <ResponsiveScatterPlot
         data={data}
         theme={nivoTheme}
-        margin={{ top: 20, right: 20, bottom: 50, left: 70 }}
+        margin={{ top: 70, right: 20, bottom: 50, left: 70 }}
         xScale={{ type: "linear", min: "auto", max: "auto" }}
         yScale={{ type: "linear", min: "auto", max: "auto" }}
-        nodeSize={(d) => (d.data as { size?: number }).size || 10}
+        nodeSize={(d) => normalizeSize((d.data as { size?: number }).size ?? 1)}
         colors={[chartColors.blue]}
         axisBottom={{
           tickSize: 0,
