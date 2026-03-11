@@ -34,8 +34,10 @@ export default function ChartCard({
           </p>
         )}
       </div>
-      <div style={{ height }} className="relative">
-        {children}
+      <div className="overflow-x-auto -mx-1">
+        <div style={{ height, minWidth: "280px" }} className="relative px-1">
+          {children}
+        </div>
       </div>
       {source && (
         <p className="text-[10px] text-[#555D73] mt-3">

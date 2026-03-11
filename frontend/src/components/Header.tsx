@@ -64,7 +64,7 @@ export default function Header() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-lg text-[#8B93A7] hover:bg-[#252A3A]"
+            className="md:hidden p-2.5 rounded-lg text-[#8B93A7] hover:bg-[#252A3A] min-h-[44px] min-w-[44px] flex items-center justify-center"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
