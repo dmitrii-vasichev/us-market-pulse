@@ -9,6 +9,7 @@ import type { FunnelStage } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
+import ContextualSidebar from "../ContextualSidebar";
 
 export default function EconomicFunnel() {
   const [data, setData] = useState<FunnelStage[]>([]);
@@ -35,21 +36,24 @@ export default function EconomicFunnel() {
       : "$31.5T economy supports 160M jobs at $197/hr GDP per worker";
 
   return (
-    <ChartCard
-      insight={insight}
-      description="Consumer spending accounts for ~70% of US GDP. Each $1 of GDP flows through GNI to compensation, supporting the entire employed workforce."
-      source="Source: BEA, BLS · Q4 2025"
-    >
-      <ResponsiveFunnel
-        data={funnelData}
-        theme={nivoTheme}
-        colors={colorScheme}
-        margin={{ top: 10, right: 20, bottom: 10, left: 20 }}
-        valueFormat={(v) => `$${formatLargeNumber(v)}`}
-        labelColor="#FFFFFF"
-        borderWidth={0}
-        animate={true}
-      />
-    </ChartCard>
+    <div>
+      <ChartCard
+        insight={insight}
+        description="Consumer spending accounts for ~70% of US GDP. Each $1 of GDP flows through GNI to compensation, supporting the entire employed workforce."
+        source="Source: BEA, BLS · Q4 2025"
+      >
+        <ResponsiveFunnel
+          data={funnelData}
+          theme={nivoTheme}
+          colors={colorScheme}
+          margin={{ top: 10, right: 20, bottom: 10, left: 20 }}
+          valueFormat={(v) => `$${formatLargeNumber(v)}`}
+          labelColor="#FFFFFF"
+          borderWidth={0}
+          animate={true}
+        />
+      </ChartCard>
+      <ContextualSidebar content="Each dollar of GDP flows through GNI (capturing domestic income) to employee compensation — about $0.62 per dollar. The remaining share goes to corporate profits, depreciation, and taxes, ultimately funding investment and government services." />
+    </div>
   );
 }
