@@ -2,12 +2,22 @@
 
 import asyncio
 import os
+import ssl
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 import asyncpg
 import httpx
+
+
+def _get_ssl(url: str):
+    if "railway" in url or "proxy.rlwy.net" in url:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    return None
 
 FRED_BASE_URL = "https://api.stlouisfed.org/fred/series/observations"
 FETCH_LIMIT = 30  # Latest N observations per series
@@ -56,7 +66,7 @@ async def upsert_observations(
         if obs.get("value") in (None, "", "."):
             continue
         try:
-            records.append((series_id, obs["date"], float(obs["value"])))
+            records.append((series_id, date.fromisoformat(obs["date"]), float(obs["value"])))
         except (ValueError, KeyError):
             continue
 
@@ -120,7 +130,7 @@ async def collect(
         print("ERROR: FRED_API_KEY not set")
         sys.exit(1)
 
-    conn = await asyncpg.connect(db_url)
+    conn = await asyncpg.connect(db_url, ssl=_get_ssl(db_url))
     start_time = time.time()
     total_records = 0
     series_ok = 0

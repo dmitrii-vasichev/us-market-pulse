@@ -2,9 +2,19 @@
 
 import asyncio
 import os
+import ssl
 import sys
 
 import asyncpg
+
+
+def _get_ssl(url: str):
+    if "railway" in url or "proxy.rlwy.net" in url:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    return None
 
 # Allow running from project root or scripts/
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
@@ -179,7 +189,7 @@ async def seed(database_url: str | None = None) -> int:
         print("ERROR: DATABASE_URL not set")
         sys.exit(1)
 
-    conn = await asyncpg.connect(url)
+    conn = await asyncpg.connect(url, ssl=_get_ssl(url))
     try:
         count = 0
         for s in SERIES:

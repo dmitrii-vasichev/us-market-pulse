@@ -1,6 +1,7 @@
 """Run database migrations."""
 
 import asyncio
+import ssl
 from pathlib import Path
 
 import asyncpg
@@ -10,8 +11,19 @@ from app.config import settings
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
 
+def _get_ssl_context(url: str):
+    """Create SSL context for external DB connections."""
+    if "railway" in url or "proxy.rlwy.net" in url:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    return None
+
+
 async def run_migrations() -> None:
-    conn = await asyncpg.connect(settings.asyncpg_url)
+    ssl_ctx = _get_ssl_context(settings.asyncpg_url)
+    conn = await asyncpg.connect(settings.asyncpg_url, ssl=ssl_ctx)
     try:
         # Create migrations tracking table
         await conn.execute("""
