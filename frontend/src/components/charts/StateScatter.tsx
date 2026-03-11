@@ -7,6 +7,7 @@ import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { StatesGroup } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function StateScatter() {
   const [data, setData] = useState<StatesGroup[]>([]);
@@ -16,7 +17,7 @@ export default function StateScatter() {
     api.getStatesComparison().then((d) => setData(d.data)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="States Comparison"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="States Comparison" />;
   if (!data.length) return <ChartCardSkeleton />;
 
   return (

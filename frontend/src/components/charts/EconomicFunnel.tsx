@@ -8,6 +8,7 @@ import { formatLargeNumber } from "@/lib/formatters";
 import type { FunnelStage } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
+import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function EconomicFunnel() {
   const [data, setData] = useState<FunnelStage[]>([]);
@@ -17,7 +18,7 @@ export default function EconomicFunnel() {
     api.getLaborFunnel().then((d) => setData(d.stages)).catch(() => setError(true));
   }, []);
 
-  if (error) return <ChartCard title="Economic Funnel"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
+  if (error) return <ChartErrorFallback title="Economic Funnel" />;
   if (!data.length) return <ChartCardSkeleton />;
 
   const funnelData = data.map((s) => ({
