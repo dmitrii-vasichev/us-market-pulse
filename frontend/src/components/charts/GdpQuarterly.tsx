@@ -36,7 +36,11 @@ export default function GdpQuarterly() {
       : "Quarterly GDP Growth (%)";
 
   return (
-    <ChartCard insight={insight} source="Source: BEA · Q4 2025">
+    <ChartCard
+      insight={insight}
+      description="Q1 2025 marked a contraction driven by inventory drawdown. The subsequent recovery was unusually strong, setting a high baseline for Q4 comparisons."
+      source="Source: BEA · Q4 2025"
+    >
       <ResponsiveBar
         data={barData}
         keys={["value"]}

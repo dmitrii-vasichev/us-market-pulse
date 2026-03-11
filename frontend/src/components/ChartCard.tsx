@@ -1,6 +1,7 @@
 interface ChartCardProps {
   insight: string;
   subtitle?: string;
+  description?: string;
   source?: string;
   height?: number;
   children: React.ReactNode;
@@ -9,6 +10,7 @@ interface ChartCardProps {
 export default function ChartCard({
   insight,
   subtitle,
+  description,
   source,
   height = 300,
   children,
@@ -24,6 +26,11 @@ export default function ChartCard({
         <h3 className="text-[14px] font-medium text-[#E8ECF1] leading-snug">
           {insight}
         </h3>
+        {description && (
+          <p className="text-[12px] text-[#8B93A7] leading-relaxed mt-1.5 line-clamp-2 md:line-clamp-none">
+            {description}
+          </p>
+        )}
       </div>
       <div style={{ height }} className="relative">
         {children}
