@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
 
 export const metadata: Metadata = {
@@ -29,6 +30,13 @@ const CpiCalendar = dynamic(
   { loading: () => <ChartCardSkeleton height={200} /> },
 );
 
+const laborTakeaways = [
+  "Unemployment at 4.4% remains historically low — below the 5.7% post-2000 average.",
+  "Wage growth is outpacing inflation for the first time since 2021, boosting real purchasing power.",
+  "Labor force participation at 62.6% is still 1.2pp below pre-pandemic levels.",
+  "State-level divergence is widening — top 10 states average 3.1% vs bottom 10 at 5.8%.",
+];
+
 export default function LaborPage() {
   return (
     <div className="space-y-6">
@@ -41,6 +49,8 @@ export default function LaborPage() {
         <EconomicFunnel />
         <CpiCalendar />
       </div>
+
+      <KeyTakeaways takeaways={laborTakeaways} />
     </div>
   );
 }
