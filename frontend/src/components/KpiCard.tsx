@@ -20,7 +20,7 @@ export default function KpiCard({ kpi, microContext }: KpiCardProps) {
   const animatedValue = useCountUp(kpi.current_value, 1200);
 
   return (
-    <div className="bg-[#1A1D27] rounded-2xl border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:bg-[#22263A]">
+    <div className="bg-[#1A1D27] rounded-2xl border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:bg-[#22263A] h-full flex flex-col">
       <p className="text-[10px] font-semibold uppercase tracking-widest text-[#555D73] mb-2">
         {kpi.label}
       </p>

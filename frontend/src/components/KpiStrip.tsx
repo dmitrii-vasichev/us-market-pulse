@@ -55,7 +55,7 @@ export default function KpiStrip() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {kpis.map((kpi, i) => (
-        <div key={kpi.key} className={`animate-fade-in-up ${delays[i] ?? "animate-delay-150"}`}>
+        <div key={kpi.key} className={`animate-fade-in-up h-full ${delays[i] ?? "animate-delay-150"}`}>
           <KpiCard
             kpi={kpi}
             microContext={buildMicroContext(kpi, kpis)}
