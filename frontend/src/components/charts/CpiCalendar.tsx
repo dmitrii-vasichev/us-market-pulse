@@ -38,7 +38,7 @@ export default function CpiCalendar() {
   useEffect(() => {
     api.getCpiCalendar().then((d) => {
       setData(d.data);
-      const years = d.data.map((item) => new Date(item.day).getFullYear());
+      const years = d.data.map((item) => parseInt(item.day.split("-")[0], 10));
       const maxYear = Math.max(...years);
       setWindowEnd(maxYear);
     }).catch(() => setError(true));
@@ -47,7 +47,13 @@ export default function CpiCalendar() {
   if (error) return <ChartErrorFallback title="CPI Inflation Calendar" height={200} />;
   if (!data.length || windowEnd === null) return <ChartCardSkeleton height={200} />;
 
-  const allYears = [...new Set(data.map((d) => new Date(d.day).getFullYear()))].sort();
+  // Parse day strings in local time to avoid UTC midnight → prev-day timezone shift
+  const localYear = (day: string) => {
+    const [y] = day.split("-").map(Number);
+    return y;
+  };
+
+  const allYears = [...new Set(data.map((d) => localYear(d.day)))].sort((a, b) => a - b);
   const minYear = allYears[0];
   const maxYear = allYears[allYears.length - 1];
 
@@ -56,12 +62,13 @@ export default function CpiCalendar() {
   const canNext = windowEnd < maxYear;
 
   const visibleData = data.filter((d) => {
-    const year = new Date(d.day).getFullYear();
+    const year = localYear(d.day);
     return year >= windowStart && year <= windowEnd;
   });
 
-  const from = `${windowStart}-01-01`;
-  const to = `${windowEnd}-12-31`;
+  // Use Date constructor with (year, month, day) to stay in local time — avoids UTC parsing
+  const from = new Date(windowStart, 0, 1);
+  const to = new Date(windowEnd, 11, 31);
   const height = WINDOW_SIZE * 130 + 40;
 
   return (
