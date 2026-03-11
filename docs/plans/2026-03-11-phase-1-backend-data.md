@@ -4,6 +4,20 @@
 **Phase:** 1 of 4
 **Goal:** Fully functional backend with all API endpoints serving real economic data from PostgreSQL.
 
+## GitHub Issues
+| Task | Issue | Title |
+|------|-------|-------|
+| 1 | #1 | FastAPI project scaffold + config |
+| 2 | #2 | PostgreSQL schema + migration script |
+| 3 | #3 | Seed metadata script (16 FRED series) |
+| 4 | #4 | FRED data collector |
+| 5 | #5 | Backfill script (5 years of history) |
+| 6 | #6 | KPI calculator service |
+| 7 | #7 | API endpoints — core (KPI, series, meta) |
+| 8 | #8 | API endpoints — specialized (GDP, CPI, labor, rates, sectors) |
+| 9 | #9 | Backend test suite |
+| 10 | #10 | Deploy backend to Railway |
+
 ---
 
 ## Task 1: FastAPI Project Scaffold + Config
