@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import KpiStrip from "@/components/KpiStrip";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
 import LazyChartWrapper from "@/components/LazyChartWrapper";
+
+export const metadata: Metadata = {
+  title: "Overview — GDP, Inflation & Labor Market",
+  description:
+    "US economic overview: GDP growth, CPI inflation, unemployment rate, and Federal Reserve interest rates. Interactive charts updated daily.",
+};
 
 const NarrativeHeaderOverview = dynamic(
   () => import("@/components/NarrativeHeaderOverview"),

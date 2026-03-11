@@ -9,18 +9,21 @@ const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   subsets: ["latin"],
   weight: "400",
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://us-market-pulse-kappa.vercel.app").trim();
@@ -46,6 +49,9 @@ export const metadata: Metadata = {
     title: "US Market Pulse — Economy & Market Dashboard",
     description:
       "Interactive dashboard with 14+ chart types visualizing US economic indicators.",
+  },
+  alternates: {
+    canonical: siteUrl,
   },
   other: {
     "theme-color": "#2DD4A8",
