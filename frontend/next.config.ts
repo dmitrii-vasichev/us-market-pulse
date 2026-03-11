@@ -3,7 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Proxy API calls in production to avoid CORS issues
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiUrl =
+      process.env.API_PROXY_URL || process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return [];
 
     return [
