@@ -65,18 +65,18 @@ export default function OverviewPage() {
         <div className="animate-fade-in-up animate-delay-350"><LazyChartWrapper><GdpWaffle /></LazyChartWrapper></div>
       </div>
 
-      {/* Cross-reference link to Labor page */}
-      <div className="flex items-center justify-end">
-        <Link
-          href="/labor"
-          className="inline-flex items-center gap-1.5 text-[13px] text-[#2DD4A8] hover:text-[#E8ECF1] transition-colors duration-200 group"
-        >
-          See Labor &amp; Economy for employment impact
-          <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
-        </Link>
-      </div>
-
-      <KeyTakeaways takeaways={overviewTakeaways} />
+      <KeyTakeaways
+        takeaways={overviewTakeaways}
+        footer={
+          <Link
+            href="/labor"
+            className="inline-flex items-center gap-1.5 text-[13px] text-[#2DD4A8] hover:text-[#E8ECF1] transition-colors duration-200 group"
+          >
+            See Labor &amp; Economy for employment impact
+            <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
+          </Link>
+        }
+      />
     </div>
   );
 }
