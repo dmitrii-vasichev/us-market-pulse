@@ -33,13 +33,13 @@ export default function CpiCalendar() {
         data={data}
         from={from}
         to={to}
-        emptyColor="#F3F4F6"
-        colors={["#10B981", "#A7F3D0", "#FDE68A", "#FBBF24", "#F59E0B", "#EF4444"]}
+        emptyColor="#252A3A"
+        colors={["#1d4037", "#2DD4A8", "#F5B731", "#F97066", "#c0392b", "#8e1a14"]}
         margin={{ top: 10, right: 10, bottom: 10, left: 30 }}
         yearSpacing={40}
-        monthBorderColor="#FFFFFF"
+        monthBorderColor="#0F1117"
         dayBorderWidth={1}
-        dayBorderColor="#FFFFFF"
+        dayBorderColor="#0F1117"
         theme={nivoTheme}
       />
     </ChartCard>

@@ -33,7 +33,7 @@ export default function SectorTreemap() {
         labelTextColor={{ from: "color", modifiers: [["darker", 2.5]] }}
         parentLabelTextColor={{ from: "color", modifiers: [["darker", 3]] }}
         borderWidth={2}
-        borderColor="#FFFFFF"
+        borderColor="#1A1D27"
         animate={true}
       />
     </ChartCard>

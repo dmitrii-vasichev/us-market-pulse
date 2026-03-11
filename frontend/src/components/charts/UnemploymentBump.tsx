@@ -31,7 +31,7 @@ export default function UnemploymentBump() {
         data={data}
         theme={nivoTheme}
         colors={({ id }) =>
-          id === "Colorado" ? chartColors.blue : "#D1D5DB"
+          id === "Colorado" ? chartColors.teal : "#3A4055"
         }
         lineWidth={2}
         activeLineWidth={4}

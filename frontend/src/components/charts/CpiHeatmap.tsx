@@ -45,8 +45,8 @@ export default function CpiHeatmap() {
         }}
         borderRadius={4}
         borderWidth={2}
-        borderColor="#FFFFFF"
-        labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+        borderColor="#1A1D27"
+        labelTextColor={{ from: "color", modifiers: [["darker", 3]] }}
         animate={true}
       />
     </ChartCard>

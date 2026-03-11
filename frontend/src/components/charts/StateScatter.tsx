@@ -48,7 +48,7 @@ export default function StateScatter() {
         tooltip={({ node }) => {
           const d = node.data as { label?: string; x: number; y: number };
           return (
-            <div className="bg-white px-3 py-2 rounded-xl shadow-md border border-gray-100 text-xs">
+            <div className="bg-[#252A3A] px-3 py-2 rounded-xl shadow-md border border-white/[0.08] text-xs text-[#E8ECF1]">
               <strong>{d.label || "State"}</strong>
               <br />
               Unemployment: {d.x}% | GDP/cap: ${(d.y / 1000).toFixed(0)}K
