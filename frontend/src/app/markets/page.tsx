@@ -3,6 +3,10 @@ import dynamic from "next/dynamic";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
 
+const NarrativeHeaderMarkets = dynamic(
+  () => import("@/components/NarrativeHeaderMarkets"),
+);
+
 export const metadata: Metadata = {
   title: "Markets & Sectors",
   description:
@@ -40,6 +44,7 @@ const marketsTakeaways = [
 export default function MarketsPage() {
   return (
     <div className="space-y-6">
+      <NarrativeHeaderMarkets />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="lg:col-span-2">
           <RatesLine />
