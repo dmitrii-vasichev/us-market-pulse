@@ -1,10 +1,31 @@
+import dynamic from "next/dynamic";
 import KpiStrip from "@/components/KpiStrip";
-import GdpWaterfall from "@/components/charts/GdpWaterfall";
-import GdpQuarterly from "@/components/charts/GdpQuarterly";
-import CpiCalendar from "@/components/charts/CpiCalendar";
-import EconomicFunnel from "@/components/charts/EconomicFunnel";
-import BulletTargets from "@/components/charts/BulletTargets";
-import GdpWaffle from "@/components/charts/GdpWaffle";
+import ChartCardSkeleton from "@/components/ChartCardSkeleton";
+
+const GdpWaterfall = dynamic(
+  () => import("@/components/charts/GdpWaterfall"),
+  { loading: () => <ChartCardSkeleton /> },
+);
+const GdpQuarterly = dynamic(
+  () => import("@/components/charts/GdpQuarterly"),
+  { loading: () => <ChartCardSkeleton /> },
+);
+const CpiCalendar = dynamic(
+  () => import("@/components/charts/CpiCalendar"),
+  { loading: () => <ChartCardSkeleton height={200} /> },
+);
+const EconomicFunnel = dynamic(
+  () => import("@/components/charts/EconomicFunnel"),
+  { loading: () => <ChartCardSkeleton /> },
+);
+const BulletTargets = dynamic(
+  () => import("@/components/charts/BulletTargets"),
+  { loading: () => <ChartCardSkeleton height={220} /> },
+);
+const GdpWaffle = dynamic(
+  () => import("@/components/charts/GdpWaffle"),
+  { loading: () => <ChartCardSkeleton /> },
+);
 
 export default function OverviewPage() {
   return (
