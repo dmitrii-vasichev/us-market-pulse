@@ -48,7 +48,7 @@ export default function ChartCard({
   }, [tooltipOpen]);
 
   return (
-    <div className={`bg-[#1A1D27] rounded-2xl border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:bg-[#22263A]${animationClass ? ` animate-fade-in-up ${animationClass}` : ""}`}>
+    <div className={`h-full flex flex-col bg-[#1A1D27] rounded-2xl border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:bg-[#22263A]${animationClass ? ` animate-fade-in-up ${animationClass}` : ""}`}>
       <div className="mb-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -88,8 +88,8 @@ export default function ChartCard({
           </p>
         )}
       </div>
-      <div className="overflow-x-auto -mx-1">
-        <div style={{ height, minWidth: "280px" }} className="relative px-1">
+      <div className="flex-1 min-h-0 overflow-x-auto -mx-1">
+        <div style={{ minHeight: height, minWidth: "280px" }} className="relative px-1 h-full">
           {children}
         </div>
       </div>

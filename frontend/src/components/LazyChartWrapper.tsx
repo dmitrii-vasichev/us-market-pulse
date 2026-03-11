@@ -25,7 +25,7 @@ export default function LazyChartWrapper({
   if (eager) return <>{children}</>;
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="h-full">
       {inView ? children : <ChartCardSkeleton height={height} />}
     </div>
   );
