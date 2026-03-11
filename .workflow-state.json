@@ -5,6 +5,7 @@
   "current_step": 7,
   "current_step_name": "review",
   "current_phase": 4,
+  "status": "completed",
   "history": [
     {"step": 0, "action": "completed", "timestamp": "2026-03-11T08:35:00Z", "details": "Project initialized, GitHub connected"},
     {"step": 1, "action": "completed", "timestamp": "2026-03-11T08:35:00Z", "details": "PRD imported from user (pre-approved v2 FINAL)"},
@@ -24,15 +25,17 @@
     {"step": 7, "action": "completed", "timestamp": "2026-03-11T20:05:00Z", "details": "Phase 3 merged to main"},
     {"step": 4, "action": "completed", "timestamp": "2026-03-11T20:10:00Z", "details": "Phase 4 plan: 8 tasks [approved]"},
     {"step": 5, "action": "completed", "timestamp": "2026-03-11T20:10:00Z", "details": "8 issues created (#45-#52), added to project board #6"},
-    {"step": 6, "action": "completed", "timestamp": "2026-03-11T22:00:00Z", "details": "Phase 4: 6/8 tasks implemented, PRs #53,#55,#56,#57,#58,#59 merged. Tasks #51 (Lighthouse) and #52 (E2E pipeline) deferred — require Vercel deployment"},
-    {"step": 7, "action": "in_progress", "timestamp": "2026-03-11T22:30:00Z", "details": "Phase 4: 6 PRs merged, verification passed (lint+build+34 tests). Tasks #51, #52 pending deployment"}
+    {"step": 6, "action": "completed", "timestamp": "2026-03-11T22:00:00Z", "details": "Phase 4: 8/8 tasks implemented, PRs #53,#55,#56,#57,#58,#59,#61 merged"},
+    {"step": 7, "action": "completed", "timestamp": "2026-03-11T23:00:00Z", "details": "Phase 4 complete. All 4 phases done. Project deployed to Vercel. E2E pipeline verified."}
   ],
   "artifacts": {
     "prd_file": "docs/prd-us-market-pulse.md",
     "design_brief_file": "docs/design-brief.md",
     "plan_files": ["docs/plans/2026-03-11-phase-1-backend-data.md", "docs/plans/2026-03-11-phase-2-frontend-shell-tab1.md", "docs/plans/2026-03-11-phase-3-tab2-tab3.md", "docs/plans/2026-03-11-phase-4-deploy-polish.md"],
     "issue_numbers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 45, 46, 47, 48, 49, 50, 51, 52],
-    "pr_numbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 32, 44, 53, 55, 56, 57, 58, 59],
-    "project_board_number": 6
+    "pr_numbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 32, 44, 53, 55, 56, 57, 58, 59, 61],
+    "project_board_number": 6,
+    "deployment_url": "https://us-market-pulse-kappa.vercel.app",
+    "backend_url": "https://backend-production-abef2.up.railway.app"
   }
 }
