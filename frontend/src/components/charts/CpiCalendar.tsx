@@ -55,6 +55,11 @@ export default function CpiCalendar() {
   const canPrev = windowStart > minYear;
   const canNext = windowEnd < maxYear;
 
+  const visibleData = data.filter((d) => {
+    const year = new Date(d.day).getFullYear();
+    return year >= windowStart && year <= windowEnd;
+  });
+
   const from = `${windowStart}-01-01`;
   const to = `${windowEnd}-12-31`;
   const height = WINDOW_SIZE * 130 + 40;
@@ -120,7 +125,7 @@ export default function CpiCalendar() {
       </div>
 
       <ResponsiveCalendar
-        data={data}
+        data={visibleData}
         from={from}
         to={to}
         emptyColor="#252A3A"
