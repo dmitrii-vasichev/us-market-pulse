@@ -8,6 +8,7 @@ import type { GdpComponentsResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
+import ContextualSidebar from "../ContextualSidebar";
 
 export default function GdpWaterfall() {
   const [data, setData] = useState<GdpComponentsResponse | null>(null);
@@ -38,35 +39,38 @@ export default function GdpWaterfall() {
     : "Consumer spending drove nearly half of Q4 growth";
 
   return (
-    <ChartCard
-      insight={insight}
-      description="While overall GDP grew, the composition shifted notably: consumers led growth, while net exports dragged — the first negative contribution in 3 quarters."
-      source="Source: BEA · Q4 2025"
-    >
-      <ResponsiveBar
-        data={barData}
-        keys={["value"]}
-        indexBy="id"
-        theme={nivoTheme}
-        colors={({ data }) => (data as { color: string }).color}
-        margin={{ top: 10, right: 20, bottom: 60, left: 50 }}
-        padding={0.4}
-        valueScale={{ type: "linear" }}
-        axisBottom={{
-          tickRotation: -30,
-          tickSize: 0,
-          tickPadding: 8,
-        }}
-        axisLeft={{
-          tickSize: 0,
-          tickPadding: 8,
-          format: (v) => `${v}%`,
-        }}
-        labelFormat={(v) => `${Number(v).toFixed(2)}%`}
-        labelTextColor="#FFFFFF"
-        animate={true}
-        enableGridY={true}
-      />
-    </ChartCard>
+    <div>
+      <ChartCard
+        insight={insight}
+        description="While overall GDP grew, the composition shifted notably: consumers led growth, while net exports dragged — the first negative contribution in 3 quarters."
+        source="Source: BEA · Q4 2025"
+      >
+        <ResponsiveBar
+          data={barData}
+          keys={["value"]}
+          indexBy="id"
+          theme={nivoTheme}
+          colors={({ data }) => (data as { color: string }).color}
+          margin={{ top: 10, right: 20, bottom: 60, left: 50 }}
+          padding={0.4}
+          valueScale={{ type: "linear" }}
+          axisBottom={{
+            tickRotation: -30,
+            tickSize: 0,
+            tickPadding: 8,
+          }}
+          axisLeft={{
+            tickSize: 0,
+            tickPadding: 8,
+            format: (v) => `${v}%`,
+          }}
+          labelFormat={(v) => `${Number(v).toFixed(2)}%`}
+          labelTextColor="#FFFFFF"
+          animate={true}
+          enableGridY={true}
+        />
+      </ChartCard>
+      <ContextualSidebar content="While consumers drove growth, the negative net exports contribution reflects import demand outpacing exports — typical of an accelerating domestic economy. Watch this spread as global demand shifts in 2026." />
+    </div>
   );
 }
