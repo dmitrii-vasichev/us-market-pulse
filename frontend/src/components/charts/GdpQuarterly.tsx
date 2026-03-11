@@ -24,7 +24,7 @@ export default function GdpQuarterly() {
   const barData = data.map((d) => ({
     quarter: formatQuarter(d.quarter),
     value: d.value,
-    color: d.value >= 0 ? chartColors.blue : chartColors.red,
+    color: d.value >= 0 ? chartColors.teal : chartColors.coral,
   }));
 
   return (

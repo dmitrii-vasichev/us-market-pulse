@@ -12,7 +12,7 @@ import ChartErrorFallback from "../ChartErrorFallback";
 const seriesColors: Record<string, string> = {
   "Fed Funds Rate": chartColors.blue,
   "30Y Mortgage": chartColors.purple,
-  "10Y Treasury": chartColors.green,
+  "10Y Treasury": chartColors.teal,
 };
 
 export default function RatesLine() {

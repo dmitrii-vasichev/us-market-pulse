@@ -40,7 +40,7 @@ export default function SentimentRadial() {
         keys={keys}
         indexBy="metric"
         theme={nivoTheme}
-        colors={[chartColors.blue, chartColors.green, chartColors.amber]}
+        colors={[chartColors.blue, chartColors.teal, chartColors.amber]}
         margin={{ top: 40, right: 60, bottom: 40, left: 60 }}
         borderWidth={2}
         borderColor={{ from: "color" }}

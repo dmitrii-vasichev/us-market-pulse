@@ -4,11 +4,11 @@ export const nivoTheme: PartialTheme = {
   text: {
     fontFamily: "DM Sans, sans-serif",
     fontSize: 11,
-    fill: "#6B7280",
+    fill: "#555D73",
   },
   grid: {
     line: {
-      stroke: "#F3F4F6",
+      stroke: "rgba(255,255,255,0.06)",
       strokeWidth: 1,
     },
   },
@@ -16,51 +16,54 @@ export const nivoTheme: PartialTheme = {
     ticks: {
       text: {
         fontSize: 10,
-        fill: "#9CA3AF",
+        fill: "#555D73",
       },
     },
     legend: {
       text: {
         fontSize: 11,
-        fill: "#6B7280",
+        fill: "#555D73",
         fontWeight: 600,
       },
     },
   },
   tooltip: {
     container: {
-      background: "#FFFFFF",
+      background: "#252A3A",
       borderRadius: "12px",
-      boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-      border: "1px solid #F3F4F6",
+      boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+      border: "1px solid rgba(255,255,255,0.08)",
       fontSize: "12px",
       fontFamily: "DM Sans, sans-serif",
+      color: "#E8ECF1",
     },
   },
   labels: {
     text: {
       fontSize: 11,
       fontWeight: 600,
+      fill: "#E8ECF1",
     },
   },
 };
 
 export const chartColors = {
-  blue: "#3B82F6",
-  green: "#10B981",
-  red: "#EF4444",
-  amber: "#F59E0B",
-  purple: "#8B5CF6",
-  pink: "#EC4899",
-  orange: "#F97316",
+  teal:   "#2DD4A8",
+  coral:  "#F97066",
+  amber:  "#F5B731",
+  blue:   "#60A5FA",
+  purple: "#A78BFA",
+  slate:  "#94A3B8",
 } as const;
 
 export const colorScheme = [
+  chartColors.teal,
+  chartColors.coral,
   chartColors.blue,
-  chartColors.green,
-  chartColors.purple,
   chartColors.amber,
-  chartColors.pink,
-  chartColors.orange,
-  chartColors.red,
+  chartColors.purple,
+  chartColors.slate,
 ];
+
+export const positive = "#2DD4A8";
+export const negative = "#F97066";
