@@ -31,12 +31,26 @@ async def mock_db():
     """Fixture providing mock pool and connection."""
     mock_pool, mock_conn = make_mock_pool()
 
-    with patch("app.db.database.get_pool", new_callable=AsyncMock, return_value=mock_pool), \
-         patch("app.db.database.close_pool", new_callable=AsyncMock), \
-         patch("app.api.v1.kpi.get_pool", new_callable=AsyncMock, return_value=mock_pool), \
-         patch("app.api.v1.series.get_pool", new_callable=AsyncMock, return_value=mock_pool), \
-         patch("app.api.v1.meta.get_pool", new_callable=AsyncMock, return_value=mock_pool):
-        yield mock_pool, mock_conn
+    modules_with_pool = [
+        "app.db.database",
+        "app.api.v1.kpi",
+        "app.api.v1.series",
+        "app.api.v1.meta",
+        "app.api.v1.gdp",
+        "app.api.v1.cpi",
+        "app.api.v1.labor",
+        "app.api.v1.rates",
+        "app.api.v1.sentiment",
+        "app.api.v1.overview",
+    ]
+    patches = [patch(f"{m}.get_pool", new_callable=AsyncMock, return_value=mock_pool) for m in modules_with_pool]
+    patches.append(patch("app.db.database.close_pool", new_callable=AsyncMock))
+
+    for p in patches:
+        p.start()
+    yield mock_pool, mock_conn
+    for p in patches:
+        p.stop()
 
 
 @pytest_asyncio.fixture
