@@ -29,7 +29,7 @@ export default function CpiCalendar() {
 
   return (
     <ChartCard
-      insight="Inflation has stayed above the Fed's 2% target since mid-2024"
+      insight="Monthly price increases clustered in Jan–Mar seasonally — watch Q1 2026"
       source="Source: BLS · Jan 2026"
       height={height}
     >

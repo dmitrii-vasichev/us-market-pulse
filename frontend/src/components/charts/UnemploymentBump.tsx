@@ -26,7 +26,11 @@ export default function UnemploymentBump() {
   if (!data.length) return <ChartCardSkeleton height={400} />;
 
   return (
-    <ChartCard insight="State Unemployment Ranking (12 Months)" height={400}>
+    <ChartCard
+      insight="State unemployment rankings have shifted as labor market tightened"
+      source="Source: BLS · Jan 2026"
+      height={400}
+    >
       <ResponsiveBump
         data={data}
         theme={nivoTheme}

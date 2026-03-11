@@ -29,11 +29,11 @@ export default function EconomicFunnel() {
   }));
 
   const gdpStage = data.find((s) => s.label.toLowerCase().includes("gdp"));
-  const empStage = data.find((s) => s.label.toLowerCase().includes("employ") || s.label.toLowerCase().includes("worker"));
+  const compStage = data.find((s) => s.label.toLowerCase().includes("comp") || s.label.toLowerCase().includes("wage"));
   const insight =
-    gdpStage && empStage
-      ? `$${formatLargeNumber(gdpStage.value)} economy \u2014 GDP to ${formatLargeNumber(empStage.value)} workers`
-      : "$31.5T economy supports 160M jobs at $197/hr GDP per worker";
+    gdpStage && compStage
+      ? `Each dollar of GDP generates $${(compStage.value / gdpStage.value).toFixed(2)} in worker compensation`
+      : "Each dollar of GDP generates $0.19 in worker compensation";
 
   return (
     <div>
