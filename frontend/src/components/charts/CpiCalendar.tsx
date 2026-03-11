@@ -38,7 +38,7 @@ export default function CpiCalendar() {
   useEffect(() => {
     api.getCpiCalendar().then((d) => {
       setData(d.data);
-      const years = d.data.map((item) => new Date(item.day).getFullYear());
+      const years = d.data.map((item) => parseInt(item.day.split("-")[0], 10));
       const maxYear = Math.max(...years);
       setWindowEnd(maxYear);
     }).catch(() => setError(true));
