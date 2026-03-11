@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import KeyTakeaways from "@/components/KeyTakeaways";
 import ChartCardSkeleton from "@/components/ChartCardSkeleton";
 
 export const metadata: Metadata = {
@@ -29,6 +30,13 @@ const GdpWaffle = dynamic(
   { loading: () => <ChartCardSkeleton /> },
 );
 
+const marketsTakeaways = [
+  "The Fed's rate pause is signaling confidence in disinflation progress.",
+  "S&P 500 valuations remain elevated at 22x forward earnings — above 15-year average of 17x.",
+  "The yield curve remains partially inverted — historically a recession signal with 12–18 month lag.",
+  "Consumer sentiment recovery is incomplete — still 8% below 2021 peak.",
+];
+
 export default function MarketsPage() {
   return (
     <div className="space-y-6">
@@ -41,6 +49,8 @@ export default function MarketsPage() {
         <Sp500Area />
         <GdpWaffle />
       </div>
+
+      <KeyTakeaways takeaways={marketsTakeaways} />
     </div>
   );
 }
