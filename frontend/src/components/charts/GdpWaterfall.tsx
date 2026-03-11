@@ -23,7 +23,7 @@ export default function GdpWaterfall() {
   const barData = data.components.map((c) => ({
     id: c.label,
     value: c.value,
-    color: c.value >= 0 ? chartColors.blue : chartColors.red,
+    color: c.value >= 0 ? chartColors.teal : chartColors.coral,
   }));
 
   return (

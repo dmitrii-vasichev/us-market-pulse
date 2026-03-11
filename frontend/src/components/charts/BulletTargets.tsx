@@ -49,8 +49,8 @@ export default function BulletTargets() {
         spacing={30}
         titleOffsetX={-110}
         measureColors={[chartColors.blue]}
-        markerColors={[chartColors.red]}
-        rangeColors={["#F3F4F6", "#E5E7EB", "#D1D5DB", "#9CA3AF"]}
+        markerColors={[chartColors.coral]}
+        rangeColors={["rgba(255,255,255,0.04)", "rgba(255,255,255,0.07)", "rgba(255,255,255,0.10)", "rgba(255,255,255,0.14)"]}
         animate={true}
       />
     </ChartCard>
