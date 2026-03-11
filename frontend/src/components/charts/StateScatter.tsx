@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { StatesGroup } from "@/lib/types";
 import ChartCard from "../ChartCard";
+import ChartCardSkeleton from "../ChartCardSkeleton";
 
 export default function StateScatter() {
   const [data, setData] = useState<StatesGroup[]>([]);
@@ -16,7 +17,7 @@ export default function StateScatter() {
   }, []);
 
   if (error) return <ChartCard title="States Comparison"><p className="text-sm text-accent-red">Failed to load</p></ChartCard>;
-  if (!data.length) return <ChartCard title="States Comparison"><div className="animate-pulse h-full bg-gray-100 rounded-lg" /></ChartCard>;
+  if (!data.length) return <ChartCardSkeleton />;
 
   return (
     <ChartCard title="State GDP per Capita vs Unemployment">

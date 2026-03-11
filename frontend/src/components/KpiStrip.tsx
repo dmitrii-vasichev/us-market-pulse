@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { KpiItem } from "@/lib/types";
 import KpiCard from "./KpiCard";
+import KpiStripSkeleton from "./KpiStripSkeleton";
 
 export default function KpiStrip() {
   const [kpis, setKpis] = useState<KpiItem[]>([]);
@@ -19,17 +20,7 @@ export default function KpiStrip() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="animate-pulse py-3">
-            <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
-            <div className="h-8 bg-gray-200 rounded w-24 mb-2" />
-            <div className="h-3 bg-gray-200 rounded w-16" />
-          </div>
-        ))}
-      </div>
-    );
+    return <KpiStripSkeleton />;
   }
 
   if (error) {
