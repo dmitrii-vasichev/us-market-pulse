@@ -1,6 +1,7 @@
 """Seed series_metadata table with dashboard series metadata."""
 
 import asyncio
+from dataclasses import asdict
 import os
 import ssl
 import sys
@@ -20,8 +21,9 @@ def _get_ssl(url: str):
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
 
 from app.services.labor_ranking import STATE_UNEMPLOYMENT_SERIES
+from app.services.methodology import PHASE_3_APPROVED_SERIES
 
-SERIES = [
+BASE_SERIES = [
     {
         "series_id": "GDP",
         "title": "Real Gross Domestic Product",
@@ -182,6 +184,11 @@ SERIES = [
         "category": "markets",
         "display_order": 16,
     },
+]
+
+SERIES = BASE_SERIES + [
+    asdict(series)
+    for series in PHASE_3_APPROVED_SERIES
 ] + [
     {
         "series_id": item["series_id"],

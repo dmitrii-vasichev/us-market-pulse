@@ -36,6 +36,18 @@ class ComponentShareDefinition:
     share: float
 
 
+@dataclass(frozen=True)
+class SeriesMetadataDefinition:
+    series_id: str
+    title: str
+    units: str
+    frequency: str
+    seasonal_adjustment: str
+    source: str
+    category: str
+    display_order: int
+
+
 GDP_COMPONENT_SHARES: tuple[ComponentShareDefinition, ...] = (
     ComponentShareDefinition("consumer", "Consumer Spending", 0.45),
     ComponentShareDefinition("business", "Business Investment", 0.25),
@@ -50,6 +62,101 @@ LABOR_FUNNEL_STAGE_SHARES: tuple[ComponentShareDefinition, ...] = (
     ComponentShareDefinition("business", "Business Investment", 0.18),
     ComponentShareDefinition("government", "Government Spending", 0.17),
     ComponentShareDefinition("net_exports", "Net Exports", 0.03),
+)
+
+
+PHASE_3_GDP_WATERFALL_SERIES: tuple[SeriesMetadataDefinition, ...] = (
+    SeriesMetadataDefinition(
+        series_id="DPCERY2Q224SBEA",
+        title="Contributions to percent change in real gross domestic product: Personal consumption expenditures",
+        units="Percentage Points at Annual Rate",
+        frequency="Quarterly",
+        seasonal_adjustment="Seasonally Adjusted Annual Rate",
+        source="FRED",
+        category="gdp",
+        display_order=27,
+    ),
+    SeriesMetadataDefinition(
+        series_id="A007RY2Q224SBEA",
+        title="Contributions to percent change in real gross domestic product: Gross private domestic investment: Fixed investment",
+        units="Percentage Points at Annual Rate",
+        frequency="Quarterly",
+        seasonal_adjustment="Seasonally Adjusted Annual Rate",
+        source="FRED",
+        category="gdp",
+        display_order=28,
+    ),
+    SeriesMetadataDefinition(
+        series_id="A822RY2Q224SBEA",
+        title="Contributions to percent change in real gross domestic product: Government consumption expenditures and gross investment",
+        units="Percentage Points at Annual Rate",
+        frequency="Quarterly",
+        seasonal_adjustment="Seasonally Adjusted Annual Rate",
+        source="FRED",
+        category="gdp",
+        display_order=29,
+    ),
+    SeriesMetadataDefinition(
+        series_id="A019RY2Q224SBEA",
+        title="Contributions to percent change in real gross domestic product: Net exports of goods and services",
+        units="Percentage Points at Annual Rate",
+        frequency="Quarterly",
+        seasonal_adjustment="Seasonally Adjusted Annual Rate",
+        source="FRED",
+        category="gdp",
+        display_order=30,
+    ),
+    SeriesMetadataDefinition(
+        series_id="A014RY2Q224SBEA",
+        title="Contributions to percent change in real gross domestic product: Gross private domestic investment: Change in private inventories",
+        units="Percentage Points at Annual Rate",
+        frequency="Quarterly",
+        seasonal_adjustment="Seasonally Adjusted Annual Rate",
+        source="FRED",
+        category="gdp",
+        display_order=31,
+    ),
+)
+
+PHASE_3_LABOR_FUNNEL_SERIES: tuple[SeriesMetadataDefinition, ...] = (
+    SeriesMetadataDefinition(
+        series_id="A023RC1Q027SBEA",
+        title="Gross National Income",
+        units="Billions of Dollars",
+        frequency="Quarterly",
+        seasonal_adjustment="Seasonally Adjusted Annual Rate",
+        source="FRED",
+        category="gdp",
+        display_order=32,
+    ),
+    SeriesMetadataDefinition(
+        series_id="COE",
+        title="National Income: Compensation of Employees, Paid",
+        units="Billions of Dollars",
+        frequency="Quarterly",
+        seasonal_adjustment="Seasonally Adjusted Annual Rate",
+        source="FRED",
+        category="labor",
+        display_order=33,
+    ),
+)
+
+PHASE_3_APPROVED_SERIES: tuple[SeriesMetadataDefinition, ...] = (
+    *PHASE_3_GDP_WATERFALL_SERIES,
+    *PHASE_3_LABOR_FUNNEL_SERIES,
+)
+
+PHASE_3_APPROVED_SERIES_IDS: tuple[str, ...] = tuple(
+    series.series_id for series in PHASE_3_APPROVED_SERIES
+)
+GDP_WATERFALL_TARGET_SERIES_IDS: tuple[str, ...] = tuple(
+    series.series_id for series in PHASE_3_GDP_WATERFALL_SERIES
+)
+LABOR_FUNNEL_TARGET_SERIES_IDS: tuple[str, ...] = (
+    "GDP",
+    "A023RC1Q027SBEA",
+    "COE",
+    "PAYEMS",
 )
 
 
@@ -183,4 +290,3 @@ KPI_SUMMARY_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
         ),
     ),
 )
-
