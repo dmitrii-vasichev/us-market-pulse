@@ -1,8 +1,8 @@
 # Source-Backed Dashboard Provenance Inventory
 
 **Date:** 2026-03-12  
-**Status:** Draft  
-**Phase:** Source-Backed Remediation Phase 1 / Task 1  
+**Status:** Active baseline with Phase 2 contract addendum  
+**Phase:** Source-Backed Remediation Phase 1 audit, updated during Phase 2 / Task 1  
 **Reference PRD:** `docs/prd-source-backed-dashboard-remediation.md`
 
 ## Scope
@@ -94,3 +94,19 @@ The goal is to document, for each placement:
 - Use the methodology classifications here to drive shared backend provenance fields in Tasks 3 and 4.
 - Treat every row marked `illustrative` as not eligible for public production once Task 7 retrofits the chart UI.
 - Treat every row marked `derived` as requiring methodology note support before public provenance work is considered complete.
+
+## Approved Phase 2 Replacement Contracts
+
+These contracts lock the production-source mapping for every chart that remains `illustrative` in the current runtime manifest. The runtime classification stays unchanged until the replacement datasets and endpoints ship in later Phase 2 tasks, but the target public contract is now fixed and test-enforced.
+
+| Chart IDs | Target production methodology | Official upstream datasets | Freshness cadence | Deterministic transformation that remains part of the contract | Planned storage |
+| --- | --- | --- | --- | --- | --- |
+| `labor.cpi-heatmap` | `source_backed` | BLS Consumer Price Index Relative Importance tables, U.S. city average, major groups, using the official December annual release | `annual` | Normalize the stored December relative-importance snapshot into the public heatmap grouping without inventing category weights beyond the source release. | `postgres.cpi_category_snapshots` |
+| `labor.state-scatter` | `derived` | BLS Local Area Unemployment Statistics annual average unemployment rate by state; BEA annual current-dollar GDP by state; Census Population Estimates Program annual state population estimates | `annual` | Compute GDP per capita from the stored annual GDP and population inputs, while keeping unemployment as the same-year annual average rate for the curated public state universe. | `postgres.state_indicator_snapshots` |
+| `overview.gdp-waffle`, `markets.sector-treemap`, `markets.gdp-waffle` | `derived` | BEA GDP by Industry, current-dollar value added by industry | `quarterly` | Map the official BEA industry rows into one shared public sector hierarchy used by both the treemap and waffle surfaces, with no handcrafted percentage assumptions. | `postgres.sector_gdp_snapshots` |
+
+### Manifest Alignment Notes
+
+- `config/provenance-manifest.json` keeps the current runtime fields (`public`, `methodology_type`, `current_runtime_visibility`) untouched for still-illustrative charts.
+- The new `phase_2_target_contract` field records the approved production contract that later Phase 2 tasks must implement.
+- The approved target source claims are `Source: BLS CPI Relative Importance · Dec <year>` for `labor.cpi-heatmap`, `Source: BLS, BEA, Census · <year>` for `labor.state-scatter`, and `Source: BEA GDP by Industry · Q<quarter> <year>` for the shared sector GDP surfaces.

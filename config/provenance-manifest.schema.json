@@ -57,6 +57,7 @@
           "type": "string",
           "enum": [
             "stored_series",
+            "stored_snapshot",
             "live_api_fallback",
             "inline_approximation",
             "frontend_assumption"
@@ -84,6 +85,84 @@
           "minLength": 1
         }
       }
+    },
+    "phase2TargetContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public",
+        "methodology_type",
+        "freshness_cadence",
+        "methodology_note_required",
+        "source_claim_template",
+        "upstream_sources",
+        "storage_locations"
+      ],
+      "properties": {
+        "public": {
+          "type": "boolean"
+        },
+        "methodology_type": {
+          "type": "string",
+          "enum": [
+            "source_backed",
+            "derived"
+          ]
+        },
+        "freshness_cadence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "methodology_note_required": {
+          "type": "boolean"
+        },
+        "source_claim_template": {
+          "type": "string",
+          "minLength": 1
+        },
+        "transformation_summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "upstream_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/upstreamSource"
+          }
+        },
+        "storage_locations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/storageLocation"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "methodology_type": {
+                "const": "derived"
+              }
+            },
+            "required": [
+              "methodology_type"
+            ]
+          },
+          "then": {
+            "required": [
+              "transformation_summary"
+            ],
+            "properties": {
+              "methodology_note_required": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
     },
     "chartEntry": {
       "type": "object",
@@ -197,6 +276,9 @@
           "items": {
             "$ref": "#/$defs/storageLocation"
           }
+        },
+        "phase_2_target_contract": {
+          "$ref": "#/$defs/phase2TargetContract"
         }
       },
       "allOf": [
@@ -264,6 +346,23 @@
                 "const": "unavailable_state"
               }
             }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "remediation_status": {
+                "const": "phase_2_replace_or_hide"
+              }
+            },
+            "required": [
+              "remediation_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "phase_2_target_contract"
+            ]
           }
         }
       ]

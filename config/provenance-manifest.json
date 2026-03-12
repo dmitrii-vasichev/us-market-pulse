@@ -1,8 +1,8 @@
 {
   "$schema": "./provenance-manifest.schema.json",
-  "version": 1,
+  "version": 2,
   "inventory_source": "docs/provenance/source-backed-inventory.md",
-  "policy_note": "The public field represents allowed public visibility under the remediation policy. current_runtime_visibility records whether a chart is still rendered on the public site before remediation changes are applied.",
+  "policy_note": "The public field represents allowed public visibility under the remediation policy. current_runtime_visibility records whether a chart is still rendered on the public site before remediation changes are applied. phase_2_target_contract captures the approved replacement dataset contract for charts that remain illustrative at runtime after Phase 1.",
   "charts": [
     {
       "id": "overview.gdp-waterfall",
@@ -218,7 +218,29 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/sectors.py"
         }
-      ]
+      ],
+      "phase_2_target_contract": {
+        "public": true,
+        "methodology_type": "derived",
+        "freshness_cadence": "quarterly",
+        "methodology_note_required": true,
+        "source_claim_template": "Source: BEA GDP by Industry · Q<quarter> <year>",
+        "transformation_summary": "Map official BEA current-dollar value-added industries into one shared sector hierarchy used by both the treemap and waffle without introducing handcrafted percentage assumptions.",
+        "upstream_sources": [
+          {
+            "provider": "BEA",
+            "dataset": "GDP by Industry, current-dollar value added by industry",
+            "kind": "stored_snapshot",
+            "notes": "Quarterly industry value-added releases provide the raw node weights for the shared sector chart dataset."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.sector_gdp_snapshots",
+            "reference": "Quarterly BEA sector value-added snapshots keyed by release quarter and display hierarchy"
+          }
+        ]
+      }
     },
     {
       "id": "labor.unemployment-bump",
@@ -291,7 +313,28 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/cpi.py"
         }
-      ]
+      ],
+      "phase_2_target_contract": {
+        "public": true,
+        "methodology_type": "source_backed",
+        "freshness_cadence": "annual",
+        "methodology_note_required": false,
+        "source_claim_template": "Source: BLS CPI Relative Importance · Dec <year>",
+        "upstream_sources": [
+          {
+            "provider": "BLS",
+            "dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "kind": "stored_snapshot",
+            "notes": "Use the official December relative-importance release as the stored category-weight snapshot for the public heatmap."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.cpi_category_snapshots",
+            "reference": "Annual December CPI category-weight snapshots normalized to the public heatmap grouping"
+          }
+        ]
+      }
     },
     {
       "id": "labor.state-scatter",
@@ -320,7 +363,38 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/states.py"
         }
-      ]
+      ],
+      "phase_2_target_contract": {
+        "public": true,
+        "methodology_type": "derived",
+        "freshness_cadence": "annual",
+        "methodology_note_required": true,
+        "source_claim_template": "Source: BLS, BEA, Census · <year>",
+        "transformation_summary": "Compute GDP per capita as annual current-dollar GDP by state divided by the matching annual Census population estimate, while keeping unemployment as the same-year annual average rate for a curated state universe.",
+        "upstream_sources": [
+          {
+            "provider": "BLS",
+            "dataset": "Local Area Unemployment Statistics annual average unemployment rate by state",
+            "kind": "stored_snapshot"
+          },
+          {
+            "provider": "BEA",
+            "dataset": "Annual current-dollar GDP by state",
+            "kind": "stored_snapshot"
+          },
+          {
+            "provider": "Census Population Estimates Program",
+            "dataset": "Annual state population estimates",
+            "kind": "stored_snapshot"
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.state_indicator_snapshots",
+            "reference": "Annual curated state comparison snapshots with unemployment, GDP, and population inputs stored per state-year"
+          }
+        ]
+      }
     },
     {
       "id": "labor.economic-funnel",
@@ -464,7 +538,29 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/sectors.py"
         }
-      ]
+      ],
+      "phase_2_target_contract": {
+        "public": true,
+        "methodology_type": "derived",
+        "freshness_cadence": "quarterly",
+        "methodology_note_required": true,
+        "source_claim_template": "Source: BEA GDP by Industry · Q<quarter> <year>",
+        "transformation_summary": "Map official BEA current-dollar value-added industries into one shared sector hierarchy used by both the treemap and waffle without introducing handcrafted percentage assumptions.",
+        "upstream_sources": [
+          {
+            "provider": "BEA",
+            "dataset": "GDP by Industry, current-dollar value added by industry",
+            "kind": "stored_snapshot",
+            "notes": "Quarterly industry value-added releases provide the raw node weights for the shared sector chart dataset."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.sector_gdp_snapshots",
+            "reference": "Quarterly BEA sector value-added snapshots keyed by release quarter and display hierarchy"
+          }
+        ]
+      }
     },
     {
       "id": "markets.sentiment-radial",
@@ -559,7 +655,29 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/sectors.py"
         }
-      ]
+      ],
+      "phase_2_target_contract": {
+        "public": true,
+        "methodology_type": "derived",
+        "freshness_cadence": "quarterly",
+        "methodology_note_required": true,
+        "source_claim_template": "Source: BEA GDP by Industry · Q<quarter> <year>",
+        "transformation_summary": "Map official BEA current-dollar value-added industries into one shared sector hierarchy used by both the treemap and waffle without introducing handcrafted percentage assumptions.",
+        "upstream_sources": [
+          {
+            "provider": "BEA",
+            "dataset": "GDP by Industry, current-dollar value added by industry",
+            "kind": "stored_snapshot",
+            "notes": "Quarterly industry value-added releases provide the raw node weights for the shared sector chart dataset."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.sector_gdp_snapshots",
+            "reference": "Quarterly BEA sector value-added snapshots keyed by release quarter and display hierarchy"
+          }
+        ]
+      }
     }
   ]
 }
