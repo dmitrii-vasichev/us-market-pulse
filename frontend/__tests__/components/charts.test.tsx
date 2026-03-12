@@ -121,12 +121,11 @@ describe("CpiHeatmap", () => {
     });
   });
 
-  it("renders unavailable state when the payload is illustrative", async () => {
+  it("renders payload-driven provenance when the endpoint is source-backed", async () => {
     mockApi.getCpiCategories.mockResolvedValue({
-      source: "Source: Illustrative placeholder",
-      methodology_type: "illustrative",
-      methodology_note: "Static category weights.",
-      categories: [{ label: "Food", value: 13.4 }],
+      source: "Source: BLS CPI Relative Importance · Dec 2025",
+      methodology_type: "source_backed",
+      categories: [{ label: "Housing", value: 34.9 }],
     });
 
     await act(async () => {
@@ -134,10 +133,11 @@ describe("CpiHeatmap", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+      expect(screen.getByTestId("nivo-heatmap")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("nivo-heatmap")).toBeNull();
+    expect(screen.getByText("Source: BLS CPI Relative Importance · Dec 2025")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
   });
 });
 
@@ -241,12 +241,12 @@ describe("StateScatter", () => {
     });
   });
 
-  it("renders unavailable state when the payload is illustrative", async () => {
+  it("renders derived provenance metadata when the endpoint is restored", async () => {
     mockApi.getStatesComparison.mockResolvedValue({
-      source: "Source: Illustrative placeholder",
-      methodology_type: "illustrative",
-      methodology_note: "Static sample rows.",
-      data: [{ id: "States", data: [{ x: 3.5, y: 65000 }] }],
+      source: "Source: BLS, BEA, Census · 2025",
+      methodology_type: "derived",
+      methodology_note: "GDP per capita is computed from stored annual GDP and population inputs for the curated public state set.",
+      data: [{ id: "States", data: [{ x: 3.5, y: 65000, label: "Colorado", highlighted: true }] }],
     });
 
     await act(async () => {
@@ -254,10 +254,12 @@ describe("StateScatter", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+      expect(screen.getByTestId("nivo-scatter")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("nivo-scatter")).toBeNull();
+    expect(screen.getByText("Source: BLS, BEA, Census · 2025")).toBeInTheDocument();
+    expect(screen.getByText("Derived")).toBeInTheDocument();
+    expect(screen.getByText(/GDP per capita is computed/)).toBeInTheDocument();
   });
 });
 
@@ -344,7 +346,7 @@ describe("BulletTargets", () => {
 describe("SectorTreemap", () => {
   it("renders chart after data loads", async () => {
     mockApi.getSectorsGdp.mockResolvedValue({
-      tree: { name: "GDP", children: [{ name: "Tech", value: 30 }] },
+      tree: { name: "GDP", children: [{ name: "Services", children: [{ name: "Finance", value: 30 }] }] },
     });
     await act(async () => {
       render(<SectorTreemap />);
@@ -354,12 +356,12 @@ describe("SectorTreemap", () => {
     });
   });
 
-  it("renders unavailable state when the payload is illustrative", async () => {
+  it("renders derived provenance metadata when the sector endpoint is restored", async () => {
     mockApi.getSectorsGdp.mockResolvedValue({
-      source: "Source: Illustrative placeholder",
-      methodology_type: "illustrative",
-      methodology_note: "Static sector share approximation.",
-      tree: { name: "GDP", children: [{ name: "Tech", value: 30 }] },
+      source: "Source: BEA · Q4 2025",
+      methodology_type: "derived",
+      methodology_note: "Sector leaf values are derived as percent shares of the latest stored BEA current-dollar GDP-by-industry snapshot using the configured public hierarchy.",
+      tree: { name: "GDP", children: [{ name: "Services", children: [{ name: "Finance", value: 30 }] }] },
     });
 
     await act(async () => {
@@ -367,20 +369,28 @@ describe("SectorTreemap", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+      expect(screen.getByTestId("nivo-treemap")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("nivo-treemap")).toBeNull();
+    expect(screen.getByText("Source: BEA · Q4 2025")).toBeInTheDocument();
+    expect(screen.getByText("Derived")).toBeInTheDocument();
+    expect(screen.getByText(/Sector leaf values are derived/)).toBeInTheDocument();
   });
 });
 
 describe("GdpWaffle", () => {
-  it("renders unavailable state when the payload is illustrative", async () => {
+  it("renders the source-backed sector payload instead of the unavailable state", async () => {
     mockApi.getSectorsGdp.mockResolvedValue({
-      source: "Source: Illustrative placeholder",
-      methodology_type: "illustrative",
-      methodology_note: "Static sector share approximation.",
-      tree: { name: "GDP", children: [{ name: "Tech", value: 30 }] },
+      source: "Source: BEA · Q4 2025",
+      methodology_type: "derived",
+      methodology_note: "Sector leaf values are derived as percent shares of the latest stored BEA current-dollar GDP-by-industry snapshot using the configured public hierarchy.",
+      tree: {
+        name: "GDP",
+        children: [
+          { name: "Services", children: [{ name: "Finance", value: 60 }] },
+          { name: "Industry", children: [{ name: "Manufacturing", value: 40 }] },
+        ],
+      },
     });
 
     await act(async () => {
@@ -388,10 +398,11 @@ describe("GdpWaffle", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+      expect(screen.getByTestId("nivo-waffle")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("nivo-waffle")).toBeNull();
+    expect(screen.getByText("Source: BEA · Q4 2025")).toBeInTheDocument();
+    expect(screen.getByText("Derived")).toBeInTheDocument();
   });
 });
 

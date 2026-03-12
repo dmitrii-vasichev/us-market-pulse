@@ -9,7 +9,6 @@ import type { CpiCategoriesResponse, CpiCategory } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
-import ChartUnavailableState from "../ChartUnavailableState";
 
 type HeatmapItem = { id: string; data: DefaultHeatMapDatum[] };
 
@@ -30,7 +29,7 @@ function ShelterAnnotation(props: Record<string, unknown>) {
   if (!cells || (innerWidth !== undefined && innerWidth < 400)) return null;
 
   const shelterCell = cells.find(
-    (c) => c.data?.id?.toLowerCase().includes("shelter"),
+    (c) => /(shelter|housing)/.test(c.data?.id?.toLowerCase() ?? ""),
   );
   if (!shelterCell) return null;
 
@@ -58,19 +57,13 @@ export default function CpiHeatmap() {
 
   if (error) return <ChartErrorFallback title="CPI by Category" height={300} />;
   if (!response) return <ChartCardSkeleton height={300} />;
-  if (response.methodology_type === "illustrative") {
-    return (
-      <ChartUnavailableState
-        insight="Shelter costs remain the stickiest inflation driver"
-        provenance={response}
-        height={300}
-        reason="This CPI category view is temporarily unavailable while we replace a static weighting approximation with a source-backed breakdown."
-      />
-    );
-  }
 
   const data: CpiCategory[] = response?.categories ?? [];
   if (!data.length) return <ChartCardSkeleton height={300} />;
+  const leadingCategory = [...data].sort((a, b) => b.value - a.value)[0];
+  const insight = leadingCategory
+    ? `${leadingCategory.label} remains the largest CPI weight at ${leadingCategory.value.toFixed(1)}%`
+    : "Housing remains the largest CPI weight";
 
   const heatmapData: HeatmapItem[] = data.map((cat) => ({
     id: cat.label,
@@ -79,7 +72,7 @@ export default function CpiHeatmap() {
 
   return (
     <ChartCard
-      insight="Shelter costs remain the stickiest inflation driver"
+      insight={insight}
       provenance={response}
       height={300}
     >
