@@ -1,7 +1,12 @@
 """Pydantic response models for the API."""
 
 from datetime import date, datetime
+from typing import Literal
 from pydantic import BaseModel
+
+
+MethodologyType = Literal["source_backed", "derived", "illustrative"]
+FreshnessStatus = Literal["current", "stale", "unknown"]
 
 
 class SparklinePoint(BaseModel):
@@ -25,6 +30,17 @@ class KpiItem(BaseModel):
 class KpiSummaryResponse(BaseModel):
     kpis: list[KpiItem]
     updated_at: str | None = None
+
+
+class ProvenancePayload(BaseModel):
+    source: str
+    methodology_type: MethodologyType
+    latest_observation_date: str | None = None
+    latest_month: str | None = None
+    methodology_note: str | None = None
+    source_dataset: str | None = None
+    source_series_ids: list[str] | None = None
+    freshness_status: FreshnessStatus | None = None
 
 
 class SeriesPoint(BaseModel):
@@ -62,3 +78,18 @@ class LastUpdateResponse(BaseModel):
     status: str | None = None
     series_collected: int | None = None
     records_inserted: int | None = None
+
+
+class LaborRankingPoint(BaseModel):
+    x: str
+    y: int
+
+
+class LaborRankingSeries(BaseModel):
+    id: str
+    data: list[LaborRankingPoint]
+
+
+class LaborRankingResponse(ProvenancePayload):
+    data: list[LaborRankingSeries]
+    states: list[str]
