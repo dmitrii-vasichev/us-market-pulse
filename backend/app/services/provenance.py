@@ -12,7 +12,7 @@ from app.models.schemas import (
     ProvenancePayload,
 )
 
-PeriodKind = Literal["date", "month", "quarter"]
+PeriodKind = Literal["date", "month", "quarter", "year"]
 
 
 def format_display_period(
@@ -30,6 +30,9 @@ def format_display_period(
     if period_kind == "month":
         month_name = calendar.month_abbr[latest_date.month]
         return f"{month_name} {latest_date.year}"
+
+    if period_kind == "year":
+        return str(latest_date.year)
 
     quarter = ((latest_date.month - 1) // 3) + 1
     return f"Q{quarter} {latest_date.year}"
@@ -139,7 +142,7 @@ def build_provenance(
     """Build the normalized provenance payload shared across chart responses."""
     latest_observation_date = latest_date.isoformat() if latest_date else None
     latest_month = None
-    if latest_date and period_kind in {"month", "quarter"}:
+    if latest_date and period_kind in {"month", "quarter", "year"}:
         latest_month = format_display_period(latest_date, period_kind)
 
     return ProvenancePayload(
