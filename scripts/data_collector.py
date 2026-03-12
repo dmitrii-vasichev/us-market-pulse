@@ -1,4 +1,4 @@
-"""Daily data collector: fetches latest observations from FRED API for all active series."""
+"""Daily data collector: fetches latest observations from FRED and BLS for active series."""
 
 import asyncio
 import os
@@ -9,6 +9,10 @@ from datetime import date, datetime, timezone
 
 import asyncpg
 import httpx
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
+
+from app.services.labor_ranking import fetch_bls_series, get_bls_year_range
 
 
 def _get_ssl(url: str):
@@ -25,7 +29,7 @@ FETCH_LIMIT = 30  # Latest N observations per series
 
 async def get_active_series(conn: asyncpg.Connection) -> list[dict]:
     rows = await conn.fetch(
-        "SELECT series_id, title FROM series_metadata WHERE is_active = TRUE ORDER BY display_order"
+        "SELECT series_id, title, source FROM series_metadata WHERE is_active = TRUE ORDER BY display_order"
     )
     return [dict(r) for r in rows]
 
@@ -114,6 +118,12 @@ async def log_collection_run(
     )
 
 
+def _group_observations_by_series(
+    observations_by_series: dict[str, list[dict[str, str]]],
+) -> list[tuple[str, list[dict[str, str]]]]:
+    return list(observations_by_series.items())
+
+
 async def collect(
     database_url: str | None = None,
     fred_api_key: str | None = None,
@@ -139,9 +149,11 @@ async def collect(
     try:
         series_list = await get_active_series(conn)
         print(f"Collecting data for {len(series_list)} series...")
+        fred_series = [series for series in series_list if series.get("source") != "BLS"]
+        bls_series = [series for series in series_list if series.get("source") == "BLS"]
 
         async with httpx.AsyncClient(timeout=30.0) as client:
-            for i, s in enumerate(series_list, 1):
+            for i, s in enumerate(fred_series, 1):
                 sid = s["series_id"]
                 try:
                     observations = await fetch_fred_series(
@@ -162,6 +174,29 @@ async def collect(
                     error_msg = f"{sid}: {e}"
                     errors.append(error_msg)
                     print(f"  [{i:2d}/{len(series_list)}] {sid:20s} — ERROR: {e}")
+
+            if bls_series:
+                start_year, end_year = get_bls_year_range(observation_start)
+                series_ids = [series["series_id"] for series in bls_series]
+                try:
+                    observations_by_series = await fetch_bls_series(
+                        client,
+                        series_ids,
+                        start_year,
+                        end_year,
+                    )
+                    for sid, observations in _group_observations_by_series(observations_by_series):
+                        count = await upsert_observations(conn, sid, observations)
+                        await update_last_updated(conn, sid)
+                        total_records += count
+                        series_ok += 1
+                        print(
+                            f"  [BLS/{series_ok:2d}] {sid:20s} — {count} records"
+                        )
+                except Exception as e:
+                    error_msg = f"BLS state series: {e}"
+                    errors.append(error_msg)
+                    print(f"  [BLS] ERROR: {e}")
 
         duration = time.time() - start_time
         status = "success" if not errors else "partial"

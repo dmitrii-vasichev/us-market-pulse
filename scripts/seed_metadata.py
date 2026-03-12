@@ -1,4 +1,4 @@
-"""Seed series_metadata table with 16 FRED economic series."""
+"""Seed series_metadata table with dashboard series metadata."""
 
 import asyncio
 import os
@@ -18,6 +18,8 @@ def _get_ssl(url: str):
 
 # Allow running from project root or scripts/
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
+
+from app.services.labor_ranking import STATE_UNEMPLOYMENT_SERIES
 
 SERIES = [
     {
@@ -180,6 +182,18 @@ SERIES = [
         "category": "markets",
         "display_order": 16,
     },
+] + [
+    {
+        "series_id": item["series_id"],
+        "title": f"{item['state']} Unemployment Rate",
+        "units": "Percent",
+        "frequency": "Monthly",
+        "seasonal_adjustment": "Seasonally Adjusted",
+        "source": "BLS",
+        "category": "labor",
+        "display_order": item["display_order"],
+    }
+    for item in STATE_UNEMPLOYMENT_SERIES
 ]
 
 
@@ -217,7 +231,7 @@ async def seed(database_url: str | None = None) -> int:
                 s["display_order"],
             )
             count += 1
-            print(f"  [{count:2d}/16] {s['series_id']:20s} — {s['title']}")
+            print(f"  [{count:2d}/{len(SERIES)}] {s['series_id']:20s} — {s['title']}")
 
         print(f"\nSeeded {count} series.")
         return count

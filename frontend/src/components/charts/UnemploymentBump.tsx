@@ -3,23 +3,28 @@
 import { useEffect, useState } from "react";
 import { ResponsiveBump } from "@nivo/bump";
 import { api } from "@/lib/api";
+import type { LaborRankingResponse, LaborRankingSeries } from "@/lib/types";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 
-interface BumpData {
-  id: string;
-  data: { x: string; y: number }[];
+interface BumpData extends LaborRankingSeries {
   [key: string]: unknown;
 }
 
 export default function UnemploymentBump() {
   const [data, setData] = useState<BumpData[]>([]);
+  const [source, setSource] = useState("Source: BLS");
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getLaborRanking().then((d) => setData(d.data as unknown as BumpData[])).catch(() => setError(true));
+    api.getLaborRanking()
+      .then((response: LaborRankingResponse) => {
+        setData(response.data as BumpData[]);
+        setSource(response.source || "Source: BLS");
+      })
+      .catch(() => setError(true));
   }, []);
 
   if (error) return <ChartErrorFallback title="Unemployment Ranking" height={400} />;
@@ -28,7 +33,7 @@ export default function UnemploymentBump() {
   return (
     <ChartCard
       insight="State unemployment rankings have shifted as labor market tightened"
-      source="Source: BLS · Jan 2026"
+      source={source}
       height={400}
     >
       <ResponsiveBump

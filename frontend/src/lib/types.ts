@@ -83,6 +83,8 @@ export interface LaborRankingSeries {
 export interface LaborRankingResponse {
   data: LaborRankingSeries[];
   states: string[];
+  source?: string;
+  latest_month?: string | null;
 }
 
 // States

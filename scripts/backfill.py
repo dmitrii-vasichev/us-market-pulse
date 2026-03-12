@@ -1,4 +1,4 @@
-"""One-time backfill: fetches 5 years of historical data for all active series from FRED."""
+"""One-time backfill: fetches 5 years of historical data for all active series."""
 
 import asyncio
 import os
