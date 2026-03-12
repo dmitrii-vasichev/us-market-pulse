@@ -5,11 +5,8 @@ from fastapi import APIRouter
 from app.db.database import get_pool
 from app.db.queries import get_series_metadata
 from app.models.schemas import GdpComponentsResponse, GdpQuarterlyResponse
-from app.services.methodology import (
-    GDP_COMPONENT_SHARES,
-    GDP_WATERFALL_CURRENT_METHODOLOGY,
-)
-from app.services.provenance import build_chart_methodology_provenance, build_metadata_provenance
+from app.services.gdp_waterfall import get_gdp_waterfall_response
+from app.services.provenance import build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/gdp", tags=["GDP"])
 
@@ -19,40 +16,8 @@ async def gdp_components():
     """GDP breakdown by component for waterfall chart."""
     pool = await get_pool()
     async with pool.acquire() as conn:
-        meta = await get_series_metadata(conn, "A191RL1Q225SBEA")
-        # Get GDP contribution components from A191RL1Q225SBEA
-        # For waterfall: each component shows its contribution to total GDP growth
-        row = await conn.fetchrow(
-            """
-            SELECT date, value FROM economic_series
-            WHERE series_id = 'A191RL1Q225SBEA' AND value IS NOT NULL
-            ORDER BY date DESC LIMIT 1
-            """
-        )
-        total_growth = float(row["value"]) if row else 0
-
-        components = [
-            {
-                "id": component.id,
-                "label": component.label,
-                "value": round(total_growth * component.share, 2),
-            }
-            for component in GDP_COMPONENT_SHARES
-        ]
-
-        provenance = build_chart_methodology_provenance(
-            GDP_WATERFALL_CURRENT_METHODOLOGY,
-            [meta] if meta else [],
-            latest_date=row["date"] if row else None,
-            period_kind="quarter",
-        )
-
-        return GdpComponentsResponse(
-            quarter=str(row["date"]) if row else None,
-            total_growth=total_growth,
-            components=components,
-            **provenance.model_dump(),
-        )
+        response = await get_gdp_waterfall_response(conn)
+        return GdpComponentsResponse(**response)
 
 
 @router.get("/quarterly", response_model=GdpQuarterlyResponse)
