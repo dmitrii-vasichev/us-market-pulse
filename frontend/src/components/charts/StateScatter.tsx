@@ -8,7 +8,6 @@ import type { StatesComparisonResponse, StatesGroup } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
-import ChartUnavailableState from "../ChartUnavailableState";
 
 export default function StateScatter() {
   const [response, setResponse] = useState<StatesComparisonResponse | null>(null);
@@ -20,18 +19,13 @@ export default function StateScatter() {
 
   if (error) return <ChartErrorFallback title="States Comparison" />;
   if (!response) return <ChartCardSkeleton />;
-  if (response.methodology_type === "illustrative") {
-    return (
-      <ChartUnavailableState
-        insight="High-wage states show lower unemployment — but the gap is narrowing"
-        provenance={response}
-        reason="This state comparison is temporarily unavailable while we replace static sample rows with source-backed state datasets."
-      />
-    );
-  }
 
   const data: StatesGroup[] = response?.data ?? [];
   if (!data.length) return <ChartCardSkeleton />;
+  const highlightedState = data.flatMap((group) => group.data).find((point) => point.highlighted);
+  const insight = highlightedState
+    ? `${highlightedState.label} remains in the lower-unemployment, higher-income cluster`
+    : "Higher-income states continue to pair with lower unemployment in the curated set";
 
   // Normalize bubble sizes to a bounded pixel range to avoid invisible large hit areas
   const allSizes = data.flatMap((g) => g.data.map((pt) => (pt as { size?: number }).size ?? 1));
@@ -46,7 +40,7 @@ export default function StateScatter() {
 
   return (
     <ChartCard
-      insight="High-wage states show lower unemployment — but the gap is narrowing"
+      insight={insight}
       provenance={response}
     >
       <ResponsiveScatterPlot
