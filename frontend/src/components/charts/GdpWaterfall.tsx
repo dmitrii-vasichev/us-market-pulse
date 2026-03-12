@@ -95,7 +95,7 @@ export default function GdpWaterfall() {
         labelTextColor="#FFFFFF"
         animate={true}
         enableGridY={true}
-        layers={["grid", "axes", "bars", "markers", "legends", NetExportsAnnotation]}
+        layers={["grid", "bars", "axes", "markers", "legends", NetExportsAnnotation]}
       />
     </ChartCard>
   );
