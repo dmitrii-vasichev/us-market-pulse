@@ -9,13 +9,6 @@ import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 
-const targets: Record<string, { target: number; max: number }> = {
-  gdp: { target: 3.0, max: 5.0 },
-  cpi: { target: 2.0, max: 10.0 },
-  unemployment: { target: 4.0, max: 10.0 },
-  fed_rate: { target: 3.0, max: 6.0 },
-};
-
 export default function BulletTargets() {
   const [response, setResponse] = useState<KpiSummaryResponse | null>(null);
   const [error, setError] = useState(false);
@@ -30,25 +23,27 @@ export default function BulletTargets() {
   if (!kpis.length) return <ChartCardSkeleton height={220} />;
 
   const bulletData = kpis
-    .filter((k) => targets[k.key])
+    .filter((k) => k.target_policy)
     .map((k) => {
-      const t = targets[k.key];
-      // GDP: use change_percent (QoQ % growth); CPI: use change_percent (YoY %); others: current_value is already in %
-      const actual = k.format === "trillions" || k.format === "percent_change" ? k.change_percent : k.current_value;
+      const policy = k.target_policy!;
       return {
         id: k.label,
-        ranges: [0, t.max * 0.5, t.max * 0.75, t.max],
-        measures: [actual],
-        markers: [t.target],
+        ranges: policy.ranges,
+        measures: [policy.measure],
+        markers: policy.markers,
       };
     });
 
-  const cpi = kpis.find((k) => k.key === "cpi");
-  const fedRate = kpis.find((k) => k.key === "fed_rate");
+  const cpiPolicy = kpis.find((k) => k.key === "cpi")?.target_policy;
+  const fedPolicy = kpis.find((k) => k.key === "fed_rate")?.target_policy;
+  const cpiGapPercent = cpiPolicy && cpiPolicy.target !== 0
+    ? Math.round(((cpiPolicy.measure / cpiPolicy.target) - 1) * 100)
+    : null;
+  const fedGap = fedPolicy ? fedPolicy.measure - fedPolicy.target : null;
   const insight =
-    cpi && fedRate
-      ? `Fed hits rate target; inflation at ${cpi.change_percent.toFixed(1)}% — ${Math.round((cpi.change_percent / 2 - 1) * 100)}% above 2% goal`
-      : "Fed hits rate target; inflation still 35% above 2% goal";
+    cpiPolicy && cpiGapPercent !== null && fedPolicy && fedGap !== null
+      ? `Fed funds rate is ${Math.abs(fedGap).toFixed(1)} pts ${fedGap >= 0 ? "above" : "below"} the ${fedPolicy.target.toFixed(1)}% policy target; inflation is ${Math.abs(cpiGapPercent)}% ${cpiGapPercent >= 0 ? "above" : "below"} its ${cpiPolicy.target.toFixed(1)}% goal`
+      : "Stored KPI measures are benchmarked against backend-owned targets and bands.";
 
   return (
     <ChartCard

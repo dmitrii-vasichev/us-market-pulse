@@ -18,6 +18,19 @@ export interface SparklinePoint {
   value: number;
 }
 
+export type KpiTargetMeasureField = "current_value" | "change_percent";
+
+export interface KpiTargetPolicy {
+  target: number;
+  max: number;
+  ranges: number[];
+  markers: number[];
+  measure: number;
+  measure_field: KpiTargetMeasureField;
+  measure_label: string;
+  policy_note?: string | null;
+}
+
 export interface KpiItem {
   key: string;
   label: string;
@@ -29,6 +42,7 @@ export interface KpiItem {
   positive_is_good: boolean;
   format: string;
   sparkline: SparklinePoint[];
+  target_policy?: KpiTargetPolicy | null;
 }
 
 export interface KpiSummaryResponse extends ProvenanceFields {

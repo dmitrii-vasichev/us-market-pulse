@@ -1,6 +1,7 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
 
 const mockResponsiveCalendar = jest.fn(() => <div data-testid="nivo-calendar" />);
+const mockResponsiveBullet = jest.fn(() => <div data-testid="nivo-bullet" />);
 
 // Mock all Nivo chart components
 jest.mock("@nivo/bump", () => ({
@@ -31,7 +32,7 @@ jest.mock("@nivo/funnel", () => ({
   ResponsiveFunnel: () => <div data-testid="nivo-funnel" />,
 }));
 jest.mock("@nivo/bullet", () => ({
-  ResponsiveBullet: () => <div data-testid="nivo-bullet" />,
+  ResponsiveBullet: (props: unknown) => mockResponsiveBullet(props),
 }));
 jest.mock("@nivo/waffle", () => ({
   ResponsiveWaffle: () => <div data-testid="nivo-waffle" />,
@@ -284,11 +285,12 @@ describe("RatesLine", () => {
 });
 
 describe("BulletTargets", () => {
-  it("renders derived provenance metadata for KPI-driven bullets", async () => {
+  it("renders payload-driven bullet policies without frontend threshold literals", async () => {
     mockApi.getKpiSummary.mockResolvedValue({
-      source: "Source: FRED · Mar 10, 2026",
+      source: "Source: BEA, BLS, Federal Reserve · Mar 10, 2026",
       methodology_type: "derived",
-      methodology_note: "Derived from stored dashboard KPI inputs and static dashboard thresholds.",
+      methodology_note:
+        "KPI summary values are computed from stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS observations, and downstream bullet targets compare backend-selected measures against backend-owned target bands, markers, and policy notes.",
       kpis: [
         {
           key: "gdp",
@@ -301,6 +303,16 @@ describe("BulletTargets", () => {
           positive_is_good: true,
           format: "trillions",
           sparkline: [{ date: "2025-10-01", value: 28000 }],
+          target_policy: {
+            target: 3,
+            max: 5,
+            ranges: [0, 2.5, 3.75, 5],
+            markers: [3],
+            measure: 0.72,
+            measure_field: "change_percent",
+            measure_label: "QoQ GDP growth",
+            policy_note: "Compare quarterly GDP growth against a 3.0% expansion target on a 0-5% dashboard scale.",
+          },
         },
         {
           key: "cpi",
@@ -313,6 +325,38 @@ describe("BulletTargets", () => {
           positive_is_good: false,
           format: "percent_change",
           sparkline: [{ date: "2026-01-01", value: 309 }],
+          target_policy: {
+            target: 2,
+            max: 10,
+            ranges: [0, 5, 7.5, 10],
+            markers: [2],
+            measure: 2.7,
+            measure_field: "change_percent",
+            measure_label: "YoY inflation",
+            policy_note: "Compare year-over-year CPI inflation against the 2.0% price-stability goal on a 0-10% dashboard scale.",
+          },
+        },
+        {
+          key: "unemployment",
+          label: "Unemployment",
+          current_value: 4.1,
+          previous_value: 4.0,
+          change_absolute: 0.1,
+          change_percent: 2.5,
+          period_label: "MoM",
+          positive_is_good: false,
+          format: "percent",
+          sparkline: [{ date: "2026-01-01", value: 4.1 }],
+          target_policy: {
+            target: 4,
+            max: 10,
+            ranges: [0, 5, 7.5, 10],
+            markers: [4],
+            measure: 4.1,
+            measure_field: "current_value",
+            measure_label: "Current unemployment rate",
+            policy_note: "Compare the latest unemployment rate against a 4.0% labor-market target on a 0-10% dashboard scale.",
+          },
         },
         {
           key: "fed_rate",
@@ -325,6 +369,16 @@ describe("BulletTargets", () => {
           positive_is_good: false,
           format: "percent",
           sparkline: [{ date: "2026-03-10", value: 4.5 }],
+          target_policy: {
+            target: 3,
+            max: 6,
+            ranges: [0, 3, 4.5, 6],
+            markers: [3],
+            measure: 4.5,
+            measure_field: "current_value",
+            measure_label: "Current fed funds rate",
+            policy_note: "Compare the latest effective fed funds rate against a 3.0% dashboard policy target on a 0-6% scale.",
+          },
         },
       ],
     });
@@ -337,11 +391,25 @@ describe("BulletTargets", () => {
       expect(screen.getByTestId("nivo-bullet")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Source: FRED · Mar 10, 2026")).toBeInTheDocument();
+    expect(screen.getByText("Source: BEA, BLS, Federal Reserve · Mar 10, 2026")).toBeInTheDocument();
     expect(screen.getByText("Derived")).toBeInTheDocument();
     expect(
-      screen.getByText("Derived from stored dashboard KPI inputs and static dashboard thresholds."),
+      screen.getByText(/backend-selected measures against backend-owned target bands/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("Fed funds rate is 1.5 pts above the 3.0% policy target; inflation is 35% above its 2.0% goal"),
+    ).toBeInTheDocument();
+
+    const bulletProps = mockResponsiveBullet.mock.calls[0]?.[0] as {
+      data: Array<{ id: string; ranges: number[]; measures: number[]; markers: number[] }>;
+    };
+
+    expect(bulletProps.data).toEqual([
+      { id: "Total GDP", ranges: [0, 2.5, 3.75, 5], measures: [0.72], markers: [3] },
+      { id: "Inflation Rate", ranges: [0, 5, 7.5, 10], measures: [2.7], markers: [2] },
+      { id: "Unemployment", ranges: [0, 5, 7.5, 10], measures: [4.1], markers: [4] },
+      { id: "Fed Funds Rate", ranges: [0, 3, 4.5, 6], measures: [4.5], markers: [3] },
+    ]);
   });
 });
 
