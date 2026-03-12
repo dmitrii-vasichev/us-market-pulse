@@ -9,6 +9,7 @@ import type { CpiCategoriesResponse, CpiCategory } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
+import ChartUnavailableState from "../ChartUnavailableState";
 
 type HeatmapItem = { id: string; data: DefaultHeatMapDatum[] };
 
@@ -55,9 +56,20 @@ export default function CpiHeatmap() {
     api.getCpiCategories().then(setResponse).catch(() => setError(true));
   }, []);
 
-  const data: CpiCategory[] = response?.categories ?? [];
-
   if (error) return <ChartErrorFallback title="CPI by Category" height={300} />;
+  if (!response) return <ChartCardSkeleton height={300} />;
+  if (response.methodology_type === "illustrative") {
+    return (
+      <ChartUnavailableState
+        insight="Shelter costs remain the stickiest inflation driver"
+        provenance={response}
+        height={300}
+        reason="This CPI category view is temporarily unavailable while we replace a static weighting approximation with a source-backed breakdown."
+      />
+    );
+  }
+
+  const data: CpiCategory[] = response?.categories ?? [];
   if (!data.length) return <ChartCardSkeleton height={300} />;
 
   const heatmapData: HeatmapItem[] = data.map((cat) => ({
@@ -68,8 +80,7 @@ export default function CpiHeatmap() {
   return (
     <ChartCard
       insight="Shelter costs remain the stickiest inflation driver"
-      source={response?.source}
-      contextualNote={response?.methodology_note ?? undefined}
+      provenance={response}
       height={300}
     >
       <ResponsiveHeatMap

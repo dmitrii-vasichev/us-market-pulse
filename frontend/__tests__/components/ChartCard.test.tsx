@@ -48,6 +48,59 @@ describe("ChartCard", () => {
     expect(screen.queryByText(/Source:/)).toBeNull();
   });
 
+  it("renders structured provenance metadata with methodology badge", () => {
+    render(
+      <ChartCard
+        insight="Test"
+        provenance={{
+          source: "Source: FRED · Jan 2026",
+          methodology_type: "derived",
+          methodology_note: "Derived from stored monthly observations.",
+        }}
+      >
+        <div>chart</div>
+      </ChartCard>
+    );
+
+    expect(screen.getByText("Source: FRED · Jan 2026")).toBeInTheDocument();
+    expect(screen.getByText("Derived")).toBeInTheDocument();
+    expect(screen.getByText("Derived from stored monthly observations.")).toBeInTheDocument();
+  });
+
+  it("renders freshness microcopy for stale provenance", () => {
+    render(
+      <ChartCard
+        insight="Test"
+        provenance={{
+          source: "Source: FRED · Jan 2026",
+          methodology_type: "source_backed",
+          freshness_status: "stale",
+        }}
+      >
+        <div>chart</div>
+      </ChartCard>
+    );
+
+    expect(screen.getByText("Release window lagging")).toBeInTheDocument();
+  });
+
+  it("renders a custom freshness indicator when provided", () => {
+    render(
+      <ChartCard
+        insight="Test"
+        provenance={{
+          source: "Source: FRED · Jan 2026",
+          methodology_type: "source_backed",
+        }}
+        freshnessIndicator={<span>Manual freshness override</span>}
+      >
+        <div>chart</div>
+      </ChartCard>
+    );
+
+    expect(screen.getByText("Manual freshness override")).toBeInTheDocument();
+  });
+
   it("uses auto horizontal overflow by default", () => {
     render(
       <ChartCard insight="Test">
