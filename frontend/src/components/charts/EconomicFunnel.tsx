@@ -48,6 +48,14 @@ export default function EconomicFunnel() {
     gdpStage && compensationStage && gdpStage.value > 0
       ? (compensationStage.value / gdpStage.value).toFixed(2)
       : null;
+  const inputLabels = response?.methodology_inputs
+    ?.filter((input) => input.kind !== "derived_policy")
+    .map((input) => input.label)
+    .join(", ");
+  const policyUnitSummary = response?.methodology_inputs
+    ?.filter((input) => input.unit)
+    .map((input) => `${input.label}: ${input.unit}`)
+    .join(" • ");
   const insight = compensationRatio && payrollStage
     ? `Each dollar of GDP lines up with $${compensationRatio} in employee compensation and ${payrollStage.value.toFixed(1)}M payroll jobs`
     : "Stored GDP, income, compensation, and payroll inputs are aligned to the same quarter.";
@@ -55,9 +63,13 @@ export default function EconomicFunnel() {
   return (
     <ChartCard
       insight={insight}
-      description="Stored GDP, GNI, compensation, and payroll inputs trace how national output becomes income, wages, and jobs in the same aligned quarter."
+      description={
+        inputLabels
+          ? `Aligned funnel stages are built from payload inputs for ${inputLabels}.`
+          : "Aligned funnel stages are built from payload-provided macro and labor inputs."
+      }
       provenance={response ?? undefined}
-      contextualNote="GDP, GNI, and employee compensation use quarterly annual-rate dollars. The final workforce stage uses the latest PAYEMS month inside that same quarter and converts thousands of persons into millions for display."
+      contextualNote={policyUnitSummary ?? undefined}
     >
       <ResponsiveFunnel
         data={funnelData}
