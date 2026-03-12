@@ -1,6 +1,5 @@
 """Pydantic response models for the API."""
 
-from datetime import date, datetime
 from typing import Literal
 from pydantic import BaseModel
 
@@ -64,6 +63,18 @@ class GdpQuarterlyItem(BaseModel):
     value: float
 
 
+class GdpComponent(BaseModel):
+    id: str
+    label: str
+    value: float
+
+
+class GdpComponentsResponse(ProvenancePayload):
+    quarter: str | None = None
+    total_growth: float
+    components: list[GdpComponent]
+
+
 class GdpQuarterlyResponse(ProvenancePayload):
     data: list[GdpQuarterlyItem]
 
@@ -77,6 +88,17 @@ class CpiCalendarResponse(ProvenancePayload):
     data: list[CpiCalendarItem]
     from_date: str | None = None
     to_date: str | None = None
+
+
+class CpiCategory(BaseModel):
+    id: str
+    label: str
+    value: float
+
+
+class CpiCategoriesResponse(ProvenancePayload):
+    categories: list[CpiCategory]
+    total: float
 
 
 class SeriesMetadataItem(BaseModel):
@@ -141,11 +163,51 @@ class LaborRankingSeries(BaseModel):
     data: list[LaborRankingPoint]
 
 
+class FunnelStage(BaseModel):
+    id: str
+    label: str
+    value: float
+
+
+class LaborFunnelResponse(ProvenancePayload):
+    stages: list[FunnelStage]
+
+
 class LaborRankingResponse(ProvenancePayload):
     data: list[LaborRankingSeries]
     states: list[str]
 
 
+class StatePoint(BaseModel):
+    x: float
+    y: float
+    size: float
+    label: str
+    highlighted: bool = False
+
+
+class StatesGroup(BaseModel):
+    id: str
+    data: list[StatePoint]
+
+
+class StatesComparisonResponse(ProvenancePayload):
+    data: list[StatesGroup]
+
+
+class TreeNode(BaseModel):
+    name: str
+    value: float | None = None
+    children: list["TreeNode"] | None = None
+
+
+class SectorsGdpResponse(ProvenancePayload):
+    tree: TreeNode
+
+
 class OverviewResponse(ProvenancePayload):
     kpis: list[KpiItem]
     updated_at: str | None = None
+
+
+TreeNode.model_rebuild()
