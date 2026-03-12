@@ -97,6 +97,12 @@ async def test_labor_ranking(client):
     assert len(data["data"]) == 10
     assert "Colorado" in data["states"]
     assert data["source"] == "Source: BLS · Dec 2025"
+    assert data["methodology_type"] == "source_backed"
+    assert data["latest_observation_date"] == "2025-12-01"
+    assert data["latest_month"] == "Dec 2025"
+    assert data["source_dataset"] == "BLS State Unemployment Rates"
+    assert len(data["source_series_ids"]) == 10
+    assert data["freshness_status"] is None
     december_ranks = {
         item["id"]: item["data"][-1]["y"]
         for item in data["data"]
