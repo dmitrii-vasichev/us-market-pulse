@@ -5,7 +5,7 @@ import { ResponsiveHeatMap } from "@nivo/heatmap";
 import type { DefaultHeatMapDatum } from "@nivo/heatmap";
 import { api } from "@/lib/api";
 import { nivoTheme } from "@/lib/nivo-theme";
-import type { CpiCategory } from "@/lib/types";
+import type { CpiCategoriesResponse, CpiCategory } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
@@ -48,12 +48,14 @@ function ShelterAnnotation(props: Record<string, unknown>) {
 }
 
 export default function CpiHeatmap() {
-  const [data, setData] = useState<CpiCategory[]>([]);
+  const [response, setResponse] = useState<CpiCategoriesResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getCpiCategories().then((d) => setData(d.categories)).catch(() => setError(true));
+    api.getCpiCategories().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const data: CpiCategory[] = response?.categories ?? [];
 
   if (error) return <ChartErrorFallback title="CPI by Category" height={300} />;
   if (!data.length) return <ChartCardSkeleton height={300} />;
@@ -66,7 +68,8 @@ export default function CpiHeatmap() {
   return (
     <ChartCard
       insight="Shelter costs remain the stickiest inflation driver"
-      source="Source: BLS · Jan 2026"
+      source={response?.source}
+      contextualNote={response?.methodology_note ?? undefined}
       height={300}
     >
       <ResponsiveHeatMap

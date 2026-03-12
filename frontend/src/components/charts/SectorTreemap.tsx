@@ -4,18 +4,20 @@ import { useEffect, useState } from "react";
 import { ResponsiveTreeMap } from "@nivo/treemap";
 import { api } from "@/lib/api";
 import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
-import type { TreeNode } from "@/lib/types";
+import type { SectorsGdpResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function SectorTreemap() {
-  const [data, setData] = useState<TreeNode | null>(null);
+  const [response, setResponse] = useState<SectorsGdpResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getSectorsGdp().then((d) => setData(d.tree)).catch(() => setError(true));
+    api.getSectorsGdp().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const data = response?.tree ?? null;
 
   if (error) return <ChartErrorFallback title="GDP by Sector" height={400} />;
   if (!data) return <ChartCardSkeleton height={400} />;
@@ -23,7 +25,8 @@ export default function SectorTreemap() {
   return (
     <ChartCard
       insight="Services sectors dominate at 78% of GDP; manufacturing leads goods at 11%"
-      source="Source: BEA · Q4 2025"
+      source={response?.source}
+      contextualNote={response?.methodology_note ?? undefined}
       height={400}
     >
       <ResponsiveTreeMap
