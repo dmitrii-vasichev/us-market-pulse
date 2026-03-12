@@ -69,8 +69,26 @@ async def test_labor_funnel(client):
 async def test_labor_ranking(client):
     c, mock_conn = client
     mock_conn.fetch.return_value = [
-        {"date": date(2026, i, 1), "value": Decimal("4.0")}
-        for i in range(1, 13)
+        {"series_id": "LASST060000000000003", "date": date(2025, 11, 1), "value": Decimal("5.6")},
+        {"series_id": "LASST360000000000003", "date": date(2025, 11, 1), "value": Decimal("4.8")},
+        {"series_id": "LASST480000000000003", "date": date(2025, 11, 1), "value": Decimal("4.4")},
+        {"series_id": "LASST120000000000003", "date": date(2025, 11, 1), "value": Decimal("4.4")},
+        {"series_id": "LASST170000000000003", "date": date(2025, 11, 1), "value": Decimal("4.6")},
+        {"series_id": "LASST420000000000003", "date": date(2025, 11, 1), "value": Decimal("4.2")},
+        {"series_id": "LASST390000000000003", "date": date(2025, 11, 1), "value": Decimal("4.6")},
+        {"series_id": "LASST080000000000003", "date": date(2025, 11, 1), "value": Decimal("3.9")},
+        {"series_id": "LASST320000000000003", "date": date(2025, 11, 1), "value": Decimal("5.3")},
+        {"series_id": "LASST260000000000003", "date": date(2025, 11, 1), "value": Decimal("5.0")},
+        {"series_id": "LASST060000000000003", "date": date(2025, 12, 1), "value": Decimal("5.5")},
+        {"series_id": "LASST360000000000003", "date": date(2025, 12, 1), "value": Decimal("4.6")},
+        {"series_id": "LASST480000000000003", "date": date(2025, 12, 1), "value": Decimal("4.3")},
+        {"series_id": "LASST120000000000003", "date": date(2025, 12, 1), "value": Decimal("4.3")},
+        {"series_id": "LASST170000000000003", "date": date(2025, 12, 1), "value": Decimal("4.6")},
+        {"series_id": "LASST420000000000003", "date": date(2025, 12, 1), "value": Decimal("4.2")},
+        {"series_id": "LASST390000000000003", "date": date(2025, 12, 1), "value": Decimal("4.5")},
+        {"series_id": "LASST080000000000003", "date": date(2025, 12, 1), "value": Decimal("3.8")},
+        {"series_id": "LASST320000000000003", "date": date(2025, 12, 1), "value": Decimal("5.2")},
+        {"series_id": "LASST260000000000003", "date": date(2025, 12, 1), "value": Decimal("5.0")},
     ]
 
     resp = await c.get("/api/v1/labor/ranking")
@@ -78,6 +96,15 @@ async def test_labor_ranking(client):
     data = resp.json()
     assert len(data["data"]) == 10
     assert "Colorado" in data["states"]
+    assert data["source"] == "Source: BLS · Dec 2025"
+    december_ranks = {
+        item["id"]: item["data"][-1]["y"]
+        for item in data["data"]
+    }
+    assert december_ranks["California"] == 1
+    assert december_ranks["Nevada"] == 2
+    assert december_ranks["Michigan"] == 3
+    assert december_ranks["Colorado"] == 10
 
 
 async def test_states_comparison(client):

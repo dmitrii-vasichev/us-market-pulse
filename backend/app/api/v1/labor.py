@@ -1,8 +1,15 @@
 """Labor market endpoints: funnel and bump ranking."""
 
+import httpx
 from fastapi import APIRouter
 
 from app.db.database import get_pool
+from app.services.labor_ranking import (
+    STATE_UNEMPLOYMENT_SERIES_IDS,
+    build_labor_ranking_response,
+    fetch_bls_series,
+    get_bls_year_range,
+)
 
 router = APIRouter(prefix="/api/v1/labor", tags=["Labor"])
 
@@ -33,41 +40,38 @@ async def labor_ranking():
     """State unemployment rankings over time for bump chart.
     Shows top 8-10 states ranked by unemployment rate over 12 months.
     """
-    # In production, this would come from BLS state-level data
-    # For MVP, we simulate with representative state data
-    states = ["California", "New York", "Texas", "Florida", "Illinois",
-              "Pennsylvania", "Ohio", "Colorado", "Nevada", "Michigan"]
-
-    # Generate 12 months of rankings
-    months = []
     pool = await get_pool()
     async with pool.acquire() as conn:
         rows = await conn.fetch(
             """
-            SELECT date, value FROM economic_series
-            WHERE series_id = 'UNRATE' AND value IS NOT NULL
-            ORDER BY date DESC LIMIT 12
-            """
+            SELECT series_id, date, value
+            FROM economic_series
+            WHERE series_id = ANY($1::varchar[]) AND value IS NOT NULL
+            ORDER BY date DESC
+            LIMIT 240
+            """,
+            STATE_UNEMPLOYMENT_SERIES_IDS,
         )
 
-    base_rates = [4.2, 4.5, 4.0, 3.5, 4.8, 4.1, 3.9, 3.2, 5.1, 4.3]
+    response = build_labor_ranking_response(rows)
+    if response["data"]:
+        return response
 
-    data = []
-    for i, state in enumerate(states):
-        state_data = {
-            "id": state,
-            "data": []
-        }
-        for j, row in enumerate(reversed(rows if rows else [])):
-            # Simulate slight variations
-            rank = ((i + j) % len(states)) + 1
-            state_data["data"].append({
-                "x": str(row["date"]),
-                "y": rank,
-            })
-        if not rows:
-            for month_idx in range(12):
-                state_data["data"].append({"x": f"Month {month_idx + 1}", "y": ((i + month_idx) % len(states)) + 1})
-        data.append(state_data)
+    try:
+        start_year, end_year = get_bls_year_range()
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            observations_by_series = await fetch_bls_series(
+                client,
+                STATE_UNEMPLOYMENT_SERIES_IDS,
+                start_year,
+                end_year,
+            )
+    except Exception:
+        return response
 
-    return {"data": data, "states": states}
+    fallback_rows = [
+        {"series_id": series_id, "date": item["date"], "value": item["value"]}
+        for series_id, items in observations_by_series.items()
+        for item in items
+    ]
+    return build_labor_ranking_response(fallback_rows)

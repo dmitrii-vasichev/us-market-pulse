@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from data_collector import fetch_fred_series, upsert_observations
+from data_collector import fetch_bls_series, fetch_fred_series, upsert_observations
 
 
 @pytest.fixture
@@ -32,6 +32,41 @@ async def test_fetch_fred_series(mock_fred_response):
     assert len(result) == 3
     assert result[0]["date"] == "2026-01-01"
     assert result[0]["value"] == "4.0"
+
+
+async def test_fetch_bls_series():
+    mock_response = MagicMock()
+    mock_response.json.return_value = {
+        "status": "REQUEST_SUCCEEDED",
+        "Results": {
+            "series": [
+                {
+                    "seriesID": "LASST080000000000003",
+                    "data": [
+                        {"year": "2025", "period": "M12", "value": "3.8"},
+                        {"year": "2025", "period": "M10", "value": "-"},
+                    ],
+                }
+            ]
+        },
+    }
+    mock_response.raise_for_status = MagicMock()
+
+    mock_client = AsyncMock()
+    mock_client.post.return_value = mock_response
+
+    result = await fetch_bls_series(
+        mock_client,
+        ["LASST080000000000003"],
+        "2025",
+        "2026",
+    )
+    assert result == {
+        "LASST080000000000003": [
+            {"date": "2025-12-01", "value": "3.8"},
+        ]
+    }
+    mock_client.post.assert_called_once()
 
 
 async def test_upsert_observations_filters_invalid():
