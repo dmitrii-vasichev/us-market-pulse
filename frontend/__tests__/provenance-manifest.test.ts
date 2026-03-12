@@ -95,7 +95,7 @@ const RESTORED_PHASE_2_COMPONENTS = [
 ];
 
 const CHART_RUNTIME_EXPECTATIONS: ChartRuntimeExpectation[] = [
-  { id: "overview.gdp-waterfall", page: "overview", route: "/", component: "GdpWaterfall", endpoint: "/api/v1/gdp/components", methodology_type: "derived", public: true },
+  { id: "overview.gdp-waterfall", page: "overview", route: "/", component: "GdpWaterfall", endpoint: "/api/v1/gdp/components", methodology_type: "source_backed", public: true },
   { id: "overview.gdp-quarterly", page: "overview", route: "/", component: "GdpQuarterly", endpoint: "/api/v1/gdp/quarterly", methodology_type: "source_backed", public: true },
   { id: "overview.cpi-calendar", page: "overview", route: "/", component: "CpiCalendar", endpoint: "/api/v1/cpi/calendar", methodology_type: "source_backed", public: true },
   { id: "overview.economic-funnel", page: "overview", route: "/", component: "EconomicFunnel", endpoint: "/api/v1/labor/funnel", methodology_type: "derived", public: true },
@@ -696,8 +696,8 @@ describe("provenance manifest enforcement", () => {
       throw new Error("overview.gdp-waterfall missing from fixture manifest");
     }
 
-    chart.methodology_type = "source_backed";
-    chart.methodology_note_required = false;
+    chart.methodology_type = "derived";
+    chart.methodology_note_required = true;
 
     expect(() => validateManifest(nextManifest)).toThrow(
       "manifest classification mismatch for overview.gdp-waterfall",
