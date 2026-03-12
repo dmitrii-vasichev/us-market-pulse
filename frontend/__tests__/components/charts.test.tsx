@@ -184,6 +184,13 @@ describe("EconomicFunnel", () => {
     mockApi.getLaborFunnel.mockResolvedValue({
       source: "Source: BEA, BLS · Q4 2025",
       methodology_type: "derived",
+      methodology_inputs: [
+        { key: "gross_domestic_product", label: "Gross Domestic Product", source: "BEA via FRED", unit: "Billions of Dollars" },
+        { key: "gross_national_income", label: "Gross National Income", source: "BEA via FRED", unit: "Billions of Dollars" },
+        { key: "employee_compensation", label: "Compensation of Employees", source: "BEA via FRED", unit: "Billions of Dollars" },
+        { key: "nonfarm_payroll_employment", label: "Nonfarm Payroll Employment", source: "BLS via FRED", unit: "Thousands of Persons" },
+        { key: "aligned_stage_mapping_policy", label: "Quarterly stage alignment policy", source: "Backend policy", kind: "derived_policy" },
+      ],
       methodology_note:
         "Funnel stages are built from stored GDP, gross national income, compensation of employees, and payroll inputs. GDP, GNI, and compensation use the latest quarter with all BEA series present, while payroll employment uses the latest PAYEMS month inside that same quarter and is converted from thousands to millions of persons for the final stage.",
       stages: [
@@ -206,6 +213,12 @@ describe("EconomicFunnel", () => {
     expect(screen.getByText("Derived")).toBeInTheDocument();
     expect(
       screen.getByText(/latest PAYEMS month inside that same quarter/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Aligned funnel stages are built from payload inputs for Gross Domestic Product, Gross National Income, Compensation of Employees, Nonfarm Payroll Employment."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Inputs: Gross Domestic Product • Gross National Income • Compensation of Employees • Nonfarm Payroll Employment • Quarterly stage alignment policy"),
     ).toBeInTheDocument();
   });
 });
@@ -289,6 +302,13 @@ describe("BulletTargets", () => {
     mockApi.getKpiSummary.mockResolvedValue({
       source: "Source: BEA, BLS, Federal Reserve · Mar 10, 2026",
       methodology_type: "derived",
+      methodology_inputs: [
+        { key: "gross_domestic_product", label: "Gross Domestic Product", source: "BEA via FRED" },
+        { key: "consumer_price_index", label: "Consumer Price Index", source: "BLS via FRED" },
+        { key: "unemployment_rate", label: "Unemployment Rate", source: "BLS via FRED" },
+        { key: "fed_funds_rate", label: "Federal Funds Rate", source: "Federal Reserve via FRED" },
+        { key: "bullet_target_policy", label: "Backend KPI target policy", source: "Backend policy", kind: "derived_policy" },
+      ],
       methodology_note:
         "KPI summary values are computed from stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS observations, and downstream bullet targets compare backend-selected measures against backend-owned target bands, markers, and policy notes.",
       kpis: [
@@ -398,6 +418,12 @@ describe("BulletTargets", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText("Fed funds rate is 1.5 pts above the 3.0% policy target; inflation is 35% above its 2.0% goal"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Bullet measures are rendered from payload policy selections for QoQ GDP growth, YoY inflation, Current unemployment rate, Current fed funds rate."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Inputs: Gross Domestic Product • Consumer Price Index • Unemployment Rate • Federal Funds Rate • Backend KPI target policy"),
     ).toBeInTheDocument();
 
     const bulletProps = mockResponsiveBullet.mock.calls[0]?.[0] as {
