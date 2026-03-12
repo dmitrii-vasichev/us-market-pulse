@@ -11,34 +11,30 @@
       "placement": "grid-card-1",
       "component": "GdpWaterfall",
       "endpoint": "/api/v1/gdp/components",
-      "current_source_claim": "Source: BEA · Q4 2025",
+      "current_source_claim": "Source: BEA Contributions to Real GDP Growth · Q4 2025",
       "current_runtime_visibility": "public",
       "public": true,
-      "methodology_type": "derived",
+      "methodology_type": "source_backed",
       "freshness_cadence": "quarterly",
-      "methodology_note_required": true,
+      "methodology_note_required": false,
       "phase_1_requirement": "dynamic_payload_attribution",
-      "remediation_status": "phase_3_methodology_note",
+      "remediation_status": "phase_1_dynamic_attribution",
       "upstream_sources": [
         {
           "provider": "BEA via FRED",
-          "dataset": "A191RL1Q225SBEA",
+          "dataset": "NIPA Table 1.1.2 Contributions to Percent Change in Real Gross Domestic Product",
           "kind": "stored_series",
-          "notes": "Single stored GDP growth series redistributed into hardcoded component shares in backend code."
+          "notes": "Stored quarterly contribution component series directly back consumer spending, business investment, government, net exports, and inventory bars."
         }
       ],
       "storage_locations": [
         {
           "layer": "postgres.economic_series",
-          "reference": "A191RL1Q225SBEA observations"
+          "reference": "Quarterly GDP component contribution observations stored per source series"
         },
         {
           "layer": "postgres.series_metadata",
-          "reference": "A191RL1Q225SBEA metadata row"
-        },
-        {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/gdp.py"
+          "reference": "Metadata rows for the approved GDP contribution component series"
         }
       ],
       "phase_3_target_contract": {

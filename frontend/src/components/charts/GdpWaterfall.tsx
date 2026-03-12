@@ -42,6 +42,14 @@ export function splitGdpWaterfallAxisLabel(label: string) {
   ];
 }
 
+function formatWaterfallQuarterLabel(quarter: string | null | undefined) {
+  if (!quarter) return null;
+  const parsed = new Date(`${quarter}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return null;
+  const quarterNumber = Math.floor(parsed.getUTCMonth() / 3) + 1;
+  return `Q${quarterNumber} ${parsed.getUTCFullYear()}`;
+}
+
 function WaterfallAxisTick({
   value,
   lineX,
@@ -142,9 +150,10 @@ export default function GdpWaterfall() {
     consumer && data.total_growth !== 0
       ? Math.round((consumer.value / data.total_growth) * 100)
       : null;
+  const quarterLabel = formatWaterfallQuarterLabel(data.quarter);
   const insight = consumerShare !== null
-    ? `Consumer spending drove ${consumerShare}% of Q4 growth (${data.total_growth}% total)`
-    : "Consumer spending drove nearly half of Q4 growth";
+    ? `Consumer spending drove ${consumerShare}% of ${quarterLabel ?? "recent"} growth (${data.total_growth}% total)`
+    : `Consumer spending remained the largest ${quarterLabel ?? "recent"} growth driver`;
 
   return (
     <ChartCard

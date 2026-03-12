@@ -8,17 +8,61 @@ import pytest
 
 async def test_gdp_components(client):
     c, mock_conn = client
-    mock_conn.fetchrow.side_effect = [
-        {
-            "series_id": "A191RL1Q225SBEA",
-            "title": "Real GDP Growth Rate (Contributions by Component)",
-            "units": "Percent",
-            "frequency": "Quarterly",
-            "source": "FRED",
-            "category": "gdp",
-            "last_updated": None,
-        },
-        {"date": date(2026, 1, 1), "value": Decimal("2.5")},
+    mock_conn.fetch.side_effect = [
+        [
+            {
+                "series_id": "DPCERY2Q224SBEA",
+                "title": "Contributions to percent change in real gross domestic product: Personal consumption expenditures",
+                "units": "Percentage Points at Annual Rate",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "gdp",
+                "last_updated": None,
+            },
+            {
+                "series_id": "A007RY2Q224SBEA",
+                "title": "Contributions to percent change in real gross domestic product: Gross private domestic investment: Fixed investment",
+                "units": "Percentage Points at Annual Rate",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "gdp",
+                "last_updated": None,
+            },
+            {
+                "series_id": "A822RY2Q224SBEA",
+                "title": "Contributions to percent change in real gross domestic product: Government consumption expenditures and gross investment",
+                "units": "Percentage Points at Annual Rate",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "gdp",
+                "last_updated": None,
+            },
+            {
+                "series_id": "A019RY2Q224SBEA",
+                "title": "Contributions to percent change in real gross domestic product: Net exports of goods and services",
+                "units": "Percentage Points at Annual Rate",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "gdp",
+                "last_updated": None,
+            },
+            {
+                "series_id": "A014RY2Q224SBEA",
+                "title": "Contributions to percent change in real gross domestic product: Gross private domestic investment: Change in private inventories",
+                "units": "Percentage Points at Annual Rate",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "gdp",
+                "last_updated": None,
+            },
+        ],
+        [
+            {"series_id": "DPCERY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("1.10")},
+            {"series_id": "A007RY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("0.45")},
+            {"series_id": "A822RY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("0.21")},
+            {"series_id": "A019RY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("-0.18")},
+            {"series_id": "A014RY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("0.38")},
+        ],
     ]
 
     resp = await c.get("/api/v1/gdp/components")
@@ -26,18 +70,71 @@ async def test_gdp_components(client):
     data = resp.json()
     assert "components" in data
     assert len(data["components"]) == 5
-    assert data["total_growth"] == 2.5
-    assert data["source"] == "Source: FRED · Q1 2026"
-    assert data["methodology_type"] == "derived"
+    assert data["total_growth"] == 1.96
+    assert data["source"] == "Source: BEA Contributions to Real GDP Growth · Q1 2026"
+    assert data["methodology_type"] == "source_backed"
     assert data["latest_observation_date"] == "2026-01-01"
     assert data["latest_month"] == "Q1 2026"
-    assert data["methodology_key"] == "gdp_waterfall_current_share_split"
+    assert data["methodology_key"] == "gdp_waterfall_component_series"
     assert [item["key"] for item in data["methodology_inputs"]] == [
-        "gdp_growth_rate",
-        "component_share_policy",
+        "consumer_spending_contribution",
+        "business_investment_contribution",
+        "government_contribution",
+        "net_exports_contribution",
+        "inventory_contribution",
     ]
-    assert data["source_series_ids"] == ["A191RL1Q225SBEA"]
-    assert "fixed backend share assumptions" in data["methodology_note"]
+    assert data["source_series_ids"] == [
+        "DPCERY2Q224SBEA",
+        "A007RY2Q224SBEA",
+        "A822RY2Q224SBEA",
+        "A019RY2Q224SBEA",
+        "A014RY2Q224SBEA",
+    ]
+    assert data["methodology_note"] is None
+    assert data["components"] == [
+        {"id": "consumer", "label": "Consumer Spending", "value": 1.1},
+        {"id": "business", "label": "Business Investment", "value": 0.45},
+        {"id": "government", "label": "Government", "value": 0.21},
+        {"id": "net_exports", "label": "Net Exports", "value": -0.18},
+        {"id": "inventory", "label": "Inventory Change", "value": 0.38},
+    ]
+
+
+async def test_gdp_components_uses_latest_complete_quarter(client):
+    c, mock_conn = client
+    mock_conn.fetch.side_effect = [
+        [
+            {"series_id": "DPCERY2Q224SBEA", "title": "Consumer", "source": "FRED"},
+            {"series_id": "A007RY2Q224SBEA", "title": "Business", "source": "FRED"},
+            {"series_id": "A822RY2Q224SBEA", "title": "Government", "source": "FRED"},
+            {"series_id": "A019RY2Q224SBEA", "title": "Net exports", "source": "FRED"},
+            {"series_id": "A014RY2Q224SBEA", "title": "Inventory", "source": "FRED"},
+        ],
+        [
+            {"series_id": "DPCERY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("0.90")},
+            {"series_id": "A007RY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("0.20")},
+            {"series_id": "A822RY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("0.11")},
+            {"series_id": "A019RY2Q224SBEA", "date": date(2026, 1, 1), "value": Decimal("-0.05")},
+            {"series_id": "DPCERY2Q224SBEA", "date": date(2025, 10, 1), "value": Decimal("0.80")},
+            {"series_id": "A007RY2Q224SBEA", "date": date(2025, 10, 1), "value": Decimal("0.30")},
+            {"series_id": "A822RY2Q224SBEA", "date": date(2025, 10, 1), "value": Decimal("0.16")},
+            {"series_id": "A019RY2Q224SBEA", "date": date(2025, 10, 1), "value": Decimal("-0.09")},
+            {"series_id": "A014RY2Q224SBEA", "date": date(2025, 10, 1), "value": Decimal("0.27")},
+        ],
+    ]
+
+    resp = await c.get("/api/v1/gdp/components")
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert data["quarter"] == "2025-10-01"
+    assert data["latest_observation_date"] == "2025-10-01"
+    assert data["total_growth"] == 1.44
+    assert data["components"][-1] == {
+        "id": "inventory",
+        "label": "Inventory Change",
+        "value": 0.27,
+    }
 
 
 async def test_gdp_quarterly(client):
