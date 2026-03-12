@@ -35,16 +35,13 @@ export default function EconomicFunnel() {
     gdpStage && compStage
       ? `Each dollar of GDP generates $${(compStage.value / gdpStage.value).toFixed(2)} in worker compensation`
       : "Each dollar of GDP generates $0.19 in worker compensation";
-  const contextualNote = response?.methodology_note
-    ? `${response.methodology_note} Each dollar of GDP flows through GNI (capturing domestic income) to employee compensation — about $0.62 per dollar. The remaining share goes to corporate profits, depreciation, and taxes, ultimately funding investment and government services.`
-    : "Each dollar of GDP flows through GNI (capturing domestic income) to employee compensation — about $0.62 per dollar. The remaining share goes to corporate profits, depreciation, and taxes, ultimately funding investment and government services.";
 
   return (
     <ChartCard
       insight={insight}
       description="Consumer spending accounts for ~70% of US GDP. Each $1 of GDP flows through GNI to compensation, supporting the entire employed workforce."
-      source={response?.source}
-      contextualNote={contextualNote}
+      provenance={response ?? undefined}
+      contextualNote="Each dollar of GDP flows through GNI (capturing domestic income) to employee compensation — about $0.62 per dollar. The remaining share goes to corporate profits, depreciation, and taxes, ultimately funding investment and government services."
     >
       <ResponsiveFunnel
         data={funnelData}

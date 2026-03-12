@@ -70,6 +70,7 @@ import RatesLine from "@/components/charts/RatesLine";
 import SectorTreemap from "@/components/charts/SectorTreemap";
 import SentimentRadial from "@/components/charts/SentimentRadial";
 import Sp500Area from "@/components/charts/Sp500Area";
+import GdpWaffle from "@/components/charts/GdpWaffle";
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -108,6 +109,25 @@ describe("CpiHeatmap", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nivo-heatmap")).toBeTruthy();
     });
+  });
+
+  it("renders unavailable state when the payload is illustrative", async () => {
+    mockApi.getCpiCategories.mockResolvedValue({
+      source: "Source: Illustrative placeholder",
+      methodology_type: "illustrative",
+      methodology_note: "Static category weights.",
+      categories: [{ label: "Food", value: 13.4 }],
+    });
+
+    await act(async () => {
+      render(<CpiHeatmap />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("nivo-heatmap")).toBeNull();
   });
 });
 
@@ -156,6 +176,25 @@ describe("StateScatter", () => {
       expect(screen.getByTestId("nivo-scatter")).toBeTruthy();
     });
   });
+
+  it("renders unavailable state when the payload is illustrative", async () => {
+    mockApi.getStatesComparison.mockResolvedValue({
+      source: "Source: Illustrative placeholder",
+      methodology_type: "illustrative",
+      methodology_note: "Static sample rows.",
+      data: [{ id: "States", data: [{ x: 3.5, y: 65000 }] }],
+    });
+
+    await act(async () => {
+      render(<StateScatter />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("nivo-scatter")).toBeNull();
+  });
 });
 
 describe("RatesLine", () => {
@@ -183,6 +222,46 @@ describe("SectorTreemap", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nivo-treemap")).toBeTruthy();
     });
+  });
+
+  it("renders unavailable state when the payload is illustrative", async () => {
+    mockApi.getSectorsGdp.mockResolvedValue({
+      source: "Source: Illustrative placeholder",
+      methodology_type: "illustrative",
+      methodology_note: "Static sector share approximation.",
+      tree: { name: "GDP", children: [{ name: "Tech", value: 30 }] },
+    });
+
+    await act(async () => {
+      render(<SectorTreemap />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("nivo-treemap")).toBeNull();
+  });
+});
+
+describe("GdpWaffle", () => {
+  it("renders unavailable state when the payload is illustrative", async () => {
+    mockApi.getSectorsGdp.mockResolvedValue({
+      source: "Source: Illustrative placeholder",
+      methodology_type: "illustrative",
+      methodology_note: "Static sector share approximation.",
+      tree: { name: "GDP", children: [{ name: "Tech", value: 30 }] },
+    });
+
+    await act(async () => {
+      render(<GdpWaffle />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("nivo-waffle")).toBeNull();
   });
 });
 

@@ -8,6 +8,7 @@ import type { SectorsGdpResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
+import ChartUnavailableState from "../ChartUnavailableState";
 
 export default function SectorTreemap() {
   const [response, setResponse] = useState<SectorsGdpResponse | null>(null);
@@ -17,16 +18,26 @@ export default function SectorTreemap() {
     api.getSectorsGdp().then(setResponse).catch(() => setError(true));
   }, []);
 
-  const data = response?.tree ?? null;
-
   if (error) return <ChartErrorFallback title="GDP by Sector" height={400} />;
+  if (!response) return <ChartCardSkeleton height={400} />;
+  if (response.methodology_type === "illustrative") {
+    return (
+      <ChartUnavailableState
+        insight="Services sectors dominate at 78% of GDP; manufacturing leads goods at 11%"
+        provenance={response}
+        height={400}
+        reason="This treemap is temporarily unavailable while we replace an illustrative sector share tree with a source-backed BEA sector dataset."
+      />
+    );
+  }
+
+  const data = response?.tree ?? null;
   if (!data) return <ChartCardSkeleton height={400} />;
 
   return (
     <ChartCard
       insight="Services sectors dominate at 78% of GDP; manufacturing leads goods at 11%"
-      source={response?.source}
-      contextualNote={response?.methodology_note ?? undefined}
+      provenance={response}
       height={400}
     >
       <ResponsiveTreeMap
