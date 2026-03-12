@@ -36,8 +36,13 @@ async def kpi_summary():
         latest_date = max(latest_dates, default=None)
         provenance = build_metadata_provenance(
             metadata_rows,
-            methodology_type="source_backed",
+            methodology_type="derived",
             latest_date=latest_date,
+            methodology_note=(
+                "KPI summary values are computed from stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS "
+                "observations, and downstream bullet targets compare those measures against static "
+                "dashboard thresholds."
+            ),
             fallback_dataset="Dashboard KPI Summary",
             source_series_ids=series_ids,
         )

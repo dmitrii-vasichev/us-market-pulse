@@ -4,18 +4,20 @@ import { useEffect, useState } from "react";
 import { ResponsiveScatterPlot } from "@nivo/scatterplot";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
-import type { StatesGroup } from "@/lib/types";
+import type { StatesComparisonResponse, StatesGroup } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function StateScatter() {
-  const [data, setData] = useState<StatesGroup[]>([]);
+  const [response, setResponse] = useState<StatesComparisonResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getStatesComparison().then((d) => setData(d.data)).catch(() => setError(true));
+    api.getStatesComparison().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const data: StatesGroup[] = response?.data ?? [];
 
   if (error) return <ChartErrorFallback title="States Comparison" />;
   if (!data.length) return <ChartCardSkeleton />;
@@ -34,7 +36,8 @@ export default function StateScatter() {
   return (
     <ChartCard
       insight="High-wage states show lower unemployment — but the gap is narrowing"
-      source="Source: BEA, BLS · 2024"
+      source={response?.source}
+      contextualNote={response?.methodology_note ?? undefined}
     >
       <ResponsiveScatterPlot
         data={data}

@@ -2,10 +2,13 @@
 
 from fastapi import APIRouter
 
+from app.models.schemas import SectorsGdpResponse
+from app.services.provenance import build_provenance
+
 router = APIRouter(prefix="/api/v1/sectors", tags=["Sectors"])
 
 
-@router.get("/gdp")
+@router.get("/gdp", response_model=SectorsGdpResponse)
 async def sectors_gdp():
     """GDP breakdown by sector for treemap visualization."""
     # BEA industry data — approximate shares
@@ -52,4 +55,16 @@ async def sectors_gdp():
             },
         ],
     }
-    return {"tree": sectors}
+    provenance = build_provenance(
+        source_name="Illustrative placeholder",
+        methodology_type="illustrative",
+        methodology_note=(
+            "Sector shares are a static illustrative tree defined in backend code until a BEA-backed "
+            "sector dataset is integrated."
+        ),
+        source_dataset="Static GDP sector share approximation",
+    )
+    return SectorsGdpResponse(
+        tree=sectors,
+        **provenance.model_dump(),
+    )
