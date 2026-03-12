@@ -8,7 +8,6 @@ import type { SectorsGdpResponse, TreeNode } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
-import ChartUnavailableState from "../ChartUnavailableState";
 
 function flattenTree(node: TreeNode): { id: string; label: string; value: number }[] {
   if (node.children) {
@@ -33,23 +32,17 @@ export default function GdpWaffle() {
 
   if (error) return <ChartErrorFallback title="GDP by Sector" />;
   if (!response) return <ChartCardSkeleton />;
-  if (response.methodology_type === "illustrative") {
-    return (
-      <ChartUnavailableState
-        insight="Services sectors dominate at 78% of GDP; manufacturing leads goods"
-        provenance={response}
-        reason="This GDP waffle is temporarily unavailable while we replace an illustrative sector share tree with a source-backed sector dataset."
-      />
-    );
-  }
 
   const data = response ? flattenTree(response.tree) : [];
   if (!data.length) return <ChartCardSkeleton />;
 
-  const services = data.find((d) => d.id.toLowerCase().includes("service"));
-  const insight = services
-    ? `Services sectors dominate at ${services.value.toFixed(0)}% of GDP; manufacturing leads goods`
-    : "Services sectors dominate at 78% of GDP; manufacturing at 11%";
+  const topGroup = [...data].sort((a, b) => b.value - a.value)[0];
+  const topLeaf = response.tree.children
+    ?.flatMap((child) => child.children ?? [])
+    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0))[0];
+  const insight = topGroup && topLeaf
+    ? `${topGroup.label} represent ${topGroup.value.toFixed(0)}% of GDP; ${topLeaf.name} is the largest leaf sector`
+    : "Stored BEA sector shares show the current GDP composition";
 
   return (
     <ChartCard
