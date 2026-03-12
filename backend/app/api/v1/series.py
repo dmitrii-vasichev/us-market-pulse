@@ -1,10 +1,13 @@
 """Series data endpoints."""
 
+from datetime import date
+
 from fastapi import APIRouter, HTTPException, Query
 
 from app.db.database import get_pool
 from app.db.queries import get_series_data, get_series_metadata
 from app.models.schemas import SeriesResponse, MultiSeriesResponse
+from app.services.provenance import build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/series", tags=["Series"])
 
@@ -27,11 +30,21 @@ async def multi_series(
             if not meta:
                 continue
             data = await get_series_data(conn, sid, start=start, end=end)
+            latest_date = None
+            if data:
+                latest_date = date.fromisoformat(data[-1]["date"])
+            provenance = build_metadata_provenance(
+                [meta],
+                methodology_type="source_backed",
+                latest_date=latest_date,
+                source_series_ids=[sid],
+            )
             result.append(SeriesResponse(
                 series_id=sid,
                 title=meta["title"],
                 units=meta.get("units"),
                 data=data,
+                **provenance.model_dump(),
             ))
         return MultiSeriesResponse(series=result)
 
@@ -48,9 +61,19 @@ async def single_series(
         if not meta:
             raise HTTPException(status_code=404, detail=f"Series '{series_id}' not found")
         data = await get_series_data(conn, series_id, start=start, end=end)
+        latest_date = None
+        if data:
+            latest_date = date.fromisoformat(data[-1]["date"])
+        provenance = build_metadata_provenance(
+            [meta],
+            methodology_type="source_backed",
+            latest_date=latest_date,
+            source_series_ids=[series_id],
+        )
         return SeriesResponse(
             series_id=series_id,
             title=meta["title"],
             units=meta.get("units"),
             data=data,
+            **provenance.model_dump(),
         )
