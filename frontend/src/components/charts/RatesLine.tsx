@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ResponsiveLine } from "@nivo/line";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
-import type { RateSeries } from "@/lib/types";
+import type { RateSeries, RatesHistoryResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
@@ -16,12 +16,14 @@ const seriesColors: Record<string, string> = {
 };
 
 export default function RatesLine() {
-  const [data, setData] = useState<RateSeries[]>([]);
+  const [response, setResponse] = useState<RatesHistoryResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getRatesHistory().then((d) => setData(d.series)).catch(() => setError(true));
+    api.getRatesHistory().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const data: RateSeries[] = response?.series ?? [];
 
   if (error) return <ChartErrorFallback title="Interest Rates" height={350} />;
   if (!data.length) return <ChartCardSkeleton height={350} />;
@@ -29,7 +31,7 @@ export default function RatesLine() {
   return (
     <ChartCard
       insight="The Fed's rate hikes are transmitting into mortgage costs — watch spread compression"
-      source="Source: Federal Reserve, Freddie Mac · Mar 2026"
+      provenance={response ?? undefined}
       height={350}
     >
       <ResponsiveLine

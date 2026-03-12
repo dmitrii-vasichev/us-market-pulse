@@ -5,7 +5,7 @@ import { ResponsiveCalendar } from "@nivo/calendar";
 import type { CalendarTooltipProps } from "@nivo/calendar";
 import { api } from "@/lib/api";
 import { nivoTheme } from "@/lib/nivo-theme";
-import type { CpiCalendarItem } from "@/lib/types";
+import type { CpiCalendarItem, CpiCalendarResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
@@ -101,18 +101,20 @@ function CpiTooltip({ day, value, color }: CalendarTooltipProps) {
 }
 
 export default function CpiCalendar() {
-  const [data, setData] = useState<CpiCalendarItem[]>([]);
+  const [response, setResponse] = useState<CpiCalendarResponse | null>(null);
   const [error, setError] = useState(false);
   const [windowEnd, setWindowEnd] = useState<number | null>(null);
 
   useEffect(() => {
-    api.getCpiCalendar().then((d) => {
-      setData(d.data);
-      const years = d.data.map((item) => parseInt(item.day.split("-")[0], 10));
+    api.getCpiCalendar().then((nextResponse) => {
+      setResponse(nextResponse);
+      const years = nextResponse.data.map((item) => parseInt(item.day.split("-")[0], 10));
       const maxYear = Math.max(...years);
       setWindowEnd(maxYear);
     }).catch(() => setError(true));
   }, []);
+
+  const data: CpiCalendarItem[] = response?.data ?? [];
 
   if (error) return <ChartErrorFallback title="CPI Inflation Calendar" height={200} />;
   if (!data.length || windowEnd === null) return <ChartCardSkeleton height={200} />;
@@ -144,7 +146,7 @@ export default function CpiCalendar() {
   return (
     <ChartCard
       insight="Monthly price increases clustered in Jan–Mar seasonally — watch Q1 2026"
-      source="Source: BLS · Jan 2026"
+      provenance={response ?? undefined}
       height={height}
       horizontalOverflow="visible"
     >
