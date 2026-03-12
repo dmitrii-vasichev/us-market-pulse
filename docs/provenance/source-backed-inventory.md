@@ -33,8 +33,8 @@ The goal is to document, for each placement:
 ## Placement Summary
 
 - 16 public chart placements audited
-- 8 placements currently qualify as `source_backed`
-- 8 placements currently qualify as `derived`
+- 9 placements currently qualify as `source_backed`
+- 7 placements currently qualify as `derived`
 - 0 placements currently qualify as `illustrative`
 - 0 of 16 placements hardcode source/date text in the frontend
 - All current public placements consume backend-provided provenance metadata
@@ -53,7 +53,7 @@ The goal is to document, for each placement:
 
 | Chart ID | Location | Component | Endpoint | Current source/date claim | Actual upstream dataset | Storage path | Methodology | Remediation status | Integrity gap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `overview.gdp-waterfall` | Overview / grid card 1 | `GdpWaterfall` | `/api/v1/gdp/components` | `Source: BEA · Q4 2025` | `A191RL1Q225SBEA` from `economic_series`, redistributed into hardcoded 45/25/15/-5/20 component shares in `backend/app/api/v1/gdp.py` | `economic_series` + `series_metadata` for `A191RL1Q225SBEA` | `derived` | Phase 3 target contract locked in Task 1; approve source-backed upgrade to stored BEA component contributions | Current endpoint still fabricates component contributions from a single stored growth series. The approved target state is a source-backed chart built from stored contribution component inputs, not a share split. |
+| `overview.gdp-waterfall` | Overview / grid card 1 | `GdpWaterfall` | `/api/v1/gdp/components` | `Source: BEA Contributions to Real GDP Growth · Q4 2025` | Stored BEA/FRED contribution component series for consumer spending, business investment, government, net exports, and inventory selected from the latest complete shared quarter | `economic_series` + `series_metadata` for `DPCERY2Q224SBEA`, `A007RY2Q224SBEA`, `A822RY2Q224SBEA`, `A019RY2Q224SBEA`, `A014RY2Q224SBEA`; response builder in `backend/app/services/gdp_waterfall.py` | `source_backed` | Phase 3 implementation completed in Task 4; runtime now matches the approved stored-series contract | The chart no longer redistributes a single growth reading across fixed shares. It now renders the stored contribution inputs directly and falls back to the latest complete quarter if a newer partial quarter exists. |
 | `overview.gdp-quarterly` | Overview / grid card 2 | `GdpQuarterly` | `/api/v1/gdp/quarterly` | `Source: BEA · Q4 2025` | Stored quarterly growth series `A191RL1Q225SBEA` (seeded as `source = FRED`, BEA-origin economic release) | `economic_series` + `series_metadata` for `A191RL1Q225SBEA` | `source_backed` | Keep public; add shared provenance payload/footer in Phase 1 | Data is traceable, but the source/date footer is hardcoded in the frontend instead of coming from the payload. |
 | `overview.cpi-calendar` | Overview / grid card 3 | `CpiCalendar` | `/api/v1/cpi/calendar` | `Source: BLS · Jan 2026` | Stored monthly CPI index `CPIAUCSL` transformed into YoY values at response time | `economic_series` + `series_metadata` for `CPIAUCSL` | `source_backed` | Keep public; add shared provenance payload/footer in Phase 1 | Underlying data is stored and traceable, but the displayed month is hardcoded and never validated against the payload. |
 | `overview.economic-funnel` | Overview / grid card 4 | `EconomicFunnel` | `/api/v1/labor/funnel` | `Source: BEA, BLS · Q4 2025` | Stored GDP level `GDP` multiplied by fixed stage shares (`0.68`, `0.18`, `0.17`, `0.03`) in backend code | `economic_series` + `series_metadata` for `GDP`; no persisted funnel dataset | `derived` | Phase 3 target contract locked in Task 1; remain derived with documented multi-input BEA/BLS methodology | Current endpoint claims BEA and BLS inputs, but only reads GDP and synthesizes the rest of the funnel. The approved target state remains derived, but from stored GDP, income, compensation, and workforce inputs with documented stage mapping. |
@@ -83,8 +83,8 @@ The goal is to document, for each placement:
 ## Cross-Cutting Findings
 
 1. Phase 2 removed the last public `illustrative` placements by restoring `GdpWaffle`, `SectorTreemap`, `CpiHeatmap`, and `StateScatter` to payload-driven rendering.
-2. The remaining unresolved methodology work is limited to `overview.gdp-waterfall`, both `EconomicFunnel` placements, and `overview.bullet-targets`.
-3. Phase 3 now has an approved target contract for each unresolved chart, recorded in both the manifest and this inventory before implementation starts.
+2. The remaining unresolved methodology work is now limited to both `EconomicFunnel` placements and `overview.bullet-targets`.
+3. Phase 3 keeps approved target contracts for the remaining unresolved charts, and `overview.gdp-waterfall` now matches its locked source-backed contract at runtime.
 4. The shared provenance footer pattern is now centralized through chart payloads rather than per-component source/date literals.
 5. Shared endpoints such as `/api/v1/sectors/gdp` still require regression coverage because one payload contract powers multiple public surfaces.
 
@@ -124,5 +124,5 @@ These contracts lock the post-Phase-3 target state for the remaining charts whos
 ### Manifest Alignment Notes
 
 - `config/provenance-manifest.json` now records `phase_3_target_contract` for `overview.gdp-waterfall`, `overview.economic-funnel`, `labor.economic-funnel`, and `overview.bullet-targets`.
-- `phase_3_target_contract` captures the approved post-remediation methodology contract while the runtime `methodology_type` fields still reflect the current pre-implementation state.
+- `phase_3_target_contract` still captures the approved post-remediation methodology contract for the remaining unresolved charts, while `overview.gdp-waterfall` already matches its locked runtime state.
 - The approved target source claims are `Source: BEA Contributions to Real GDP Growth · Q<quarter> <year>` for `overview.gdp-waterfall`, `Source: BEA, BLS · <latest aligned period>` for both `EconomicFunnel` placements, and `Source: BEA, BLS, Federal Reserve · <latest aligned period>` for `overview.bullet-targets`.

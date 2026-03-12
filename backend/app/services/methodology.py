@@ -22,7 +22,7 @@ class MethodologyInputDefinition:
 class ChartMethodologyDefinition:
     key: str
     methodology_type: MethodologyType
-    methodology_note: str
+    methodology_note: str | None
     fallback_source_name: str
     fallback_dataset: str
     source_series_ids: tuple[str, ...]
@@ -37,6 +37,14 @@ class ComponentShareDefinition:
 
 
 @dataclass(frozen=True)
+class GdpWaterfallComponentDefinition:
+    id: str
+    label: str
+    series_id: str
+    input_key: str
+
+
+@dataclass(frozen=True)
 class SeriesMetadataDefinition:
     series_id: str
     title: str
@@ -48,12 +56,37 @@ class SeriesMetadataDefinition:
     display_order: int
 
 
-GDP_COMPONENT_SHARES: tuple[ComponentShareDefinition, ...] = (
-    ComponentShareDefinition("consumer", "Consumer Spending", 0.45),
-    ComponentShareDefinition("business", "Business Investment", 0.25),
-    ComponentShareDefinition("government", "Government", 0.15),
-    ComponentShareDefinition("net_exports", "Net Exports", -0.05),
-    ComponentShareDefinition("inventory", "Inventory Change", 0.20),
+GDP_WATERFALL_COMPONENTS: tuple[GdpWaterfallComponentDefinition, ...] = (
+    GdpWaterfallComponentDefinition(
+        "consumer",
+        "Consumer Spending",
+        "DPCERY2Q224SBEA",
+        "consumer_spending_contribution",
+    ),
+    GdpWaterfallComponentDefinition(
+        "business",
+        "Business Investment",
+        "A007RY2Q224SBEA",
+        "business_investment_contribution",
+    ),
+    GdpWaterfallComponentDefinition(
+        "government",
+        "Government",
+        "A822RY2Q224SBEA",
+        "government_contribution",
+    ),
+    GdpWaterfallComponentDefinition(
+        "net_exports",
+        "Net Exports",
+        "A019RY2Q224SBEA",
+        "net_exports_contribution",
+    ),
+    GdpWaterfallComponentDefinition(
+        "inventory",
+        "Inventory Change",
+        "A014RY2Q224SBEA",
+        "inventory_contribution",
+    ),
 )
 
 LABOR_FUNNEL_STAGE_SHARES: tuple[ComponentShareDefinition, ...] = (
@@ -150,7 +183,7 @@ PHASE_3_APPROVED_SERIES_IDS: tuple[str, ...] = tuple(
     series.series_id for series in PHASE_3_APPROVED_SERIES
 )
 GDP_WATERFALL_TARGET_SERIES_IDS: tuple[str, ...] = tuple(
-    series.series_id for series in PHASE_3_GDP_WATERFALL_SERIES
+    component.series_id for component in GDP_WATERFALL_COMPONENTS
 )
 LABOR_FUNNEL_TARGET_SERIES_IDS: tuple[str, ...] = (
     "GDP",
@@ -176,33 +209,27 @@ KPI_TARGET_POLICIES: dict[str, KpiTargetPolicy] = {
 }
 
 
-GDP_WATERFALL_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
-    key="gdp_waterfall_current_share_split",
-    methodology_type="derived",
-    methodology_note=(
-        "Component contributions are derived by redistributing the latest stored GDP growth "
-        "reading across fixed backend share assumptions rather than a stored component dataset."
-    ),
-    fallback_source_name="FRED",
-    fallback_dataset="Real GDP Growth Rate (Contributions by Component)",
-    source_series_ids=("A191RL1Q225SBEA",),
-    inputs=(
+GDP_WATERFALL_SOURCE_BACKED_METHODOLOGY = ChartMethodologyDefinition(
+    key="gdp_waterfall_component_series",
+    methodology_type="source_backed",
+    methodology_note=None,
+    fallback_source_name="BEA Contributions to Real GDP Growth",
+    fallback_dataset="NIPA Table 1.1.2 Contributions to Percent Change in Real Gross Domestic Product",
+    source_series_ids=GDP_WATERFALL_TARGET_SERIES_IDS,
+    inputs=tuple(
         MethodologyInputDefinition(
-            key="gdp_growth_rate",
-            label="Real GDP growth rate",
+            key=component.input_key,
+            label=component.label,
             source="FRED",
-            dataset="Real GDP Growth Rate (Contributions by Component)",
-            series_id="A191RL1Q225SBEA",
-            role="base_growth_input",
-        ),
-        MethodologyInputDefinition(
-            key="component_share_policy",
-            label="Backend component share policy",
-            source="Backend policy",
-            dataset="Current GDP waterfall redistribution shares",
-            kind="derived_policy",
-            role="component_share_policy",
-        ),
+            dataset=next(
+                series.title
+                for series in PHASE_3_GDP_WATERFALL_SERIES
+                if series.series_id == component.series_id
+            ),
+            series_id=component.series_id,
+            role="component_contribution",
+        )
+        for component in GDP_WATERFALL_COMPONENTS
     ),
 )
 
