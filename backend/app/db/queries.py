@@ -1,8 +1,27 @@
 """Reusable database queries."""
 
 from datetime import date
+from typing import Literal
 
 import asyncpg
+
+SnapshotTableName = Literal[
+    "cpi_category_snapshots",
+    "state_indicator_snapshots",
+    "sector_gdp_snapshots",
+]
+
+_ALLOWED_SNAPSHOT_TABLES: set[SnapshotTableName] = {
+    "cpi_category_snapshots",
+    "state_indicator_snapshots",
+    "sector_gdp_snapshots",
+}
+
+
+def _validate_snapshot_table_name(table_name: SnapshotTableName) -> SnapshotTableName:
+    if table_name not in _ALLOWED_SNAPSHOT_TABLES:
+        raise ValueError(f"Unsupported snapshot table: {table_name}")
+    return table_name
 
 
 async def get_series_data(
@@ -131,3 +150,107 @@ async def get_last_collection_run(conn: asyncpg.Connection) -> dict | None:
     if not row:
         return None
     return dict(row)
+
+
+async def get_latest_snapshot_date(
+    conn: asyncpg.Connection,
+    table_name: SnapshotTableName,
+) -> date | None:
+    safe_table_name = _validate_snapshot_table_name(table_name)
+    row = await conn.fetchrow(
+        f"""
+        SELECT MAX(snapshot_date) AS latest_date
+        FROM {safe_table_name}
+        """
+    )
+    if not row:
+        return None
+    return row["latest_date"]
+
+
+async def get_latest_cpi_category_snapshot(
+    conn: asyncpg.Connection,
+) -> list[dict]:
+    rows = await conn.fetch(
+        """
+        WITH latest AS (
+            SELECT MAX(snapshot_date) AS snapshot_date
+            FROM cpi_category_snapshots
+        )
+        SELECT
+            snapshot_date,
+            period_label,
+            category_key,
+            category_label,
+            display_order,
+            relative_importance,
+            source_provider,
+            source_dataset,
+            source_metadata,
+            collected_at
+        FROM cpi_category_snapshots
+        WHERE snapshot_date = (SELECT snapshot_date FROM latest)
+        ORDER BY display_order ASC, category_key ASC
+        """
+    )
+    return [dict(r) for r in rows]
+
+
+async def get_latest_state_indicator_snapshot(
+    conn: asyncpg.Connection,
+) -> list[dict]:
+    rows = await conn.fetch(
+        """
+        WITH latest AS (
+            SELECT MAX(snapshot_date) AS snapshot_date
+            FROM state_indicator_snapshots
+        )
+        SELECT
+            snapshot_date,
+            period_label,
+            state_code,
+            state_name,
+            display_order,
+            unemployment_rate,
+            gdp_current_dollars,
+            population,
+            source_providers,
+            source_datasets,
+            source_metadata,
+            collected_at
+        FROM state_indicator_snapshots
+        WHERE snapshot_date = (SELECT snapshot_date FROM latest)
+        ORDER BY display_order ASC, state_code ASC
+        """
+    )
+    return [dict(r) for r in rows]
+
+
+async def get_latest_sector_gdp_snapshot(
+    conn: asyncpg.Connection,
+) -> list[dict]:
+    rows = await conn.fetch(
+        """
+        WITH latest AS (
+            SELECT MAX(snapshot_date) AS snapshot_date
+            FROM sector_gdp_snapshots
+        )
+        SELECT
+            snapshot_date,
+            period_label,
+            node_key,
+            parent_node_key,
+            node_label,
+            depth,
+            display_order,
+            value_current_dollars,
+            source_provider,
+            source_dataset,
+            source_metadata,
+            collected_at
+        FROM sector_gdp_snapshots
+        WHERE snapshot_date = (SELECT snapshot_date FROM latest)
+        ORDER BY depth ASC, display_order ASC, node_key ASC
+        """
+    )
+    return [dict(r) for r in rows]
