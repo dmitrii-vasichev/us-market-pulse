@@ -40,6 +40,13 @@ export default function BulletTargets() {
     ? Math.round(((cpiPolicy.measure / cpiPolicy.target) - 1) * 100)
     : null;
   const fedGap = fedPolicy ? fedPolicy.measure - fedPolicy.target : null;
+  const policyLabels = kpis
+    .flatMap((kpi) => (kpi.target_policy ? [kpi.target_policy.measure_label] : []))
+    .join(", ");
+  const policyNotes = kpis
+    .flatMap((kpi) => (kpi.target_policy?.policy_note ? [kpi.target_policy.policy_note] : []))
+    .slice(0, 2)
+    .join(" ");
   const insight =
     cpiPolicy && cpiGapPercent !== null && fedPolicy && fedGap !== null
       ? `Fed funds rate is ${Math.abs(fedGap).toFixed(1)} pts ${fedGap >= 0 ? "above" : "below"} the ${fedPolicy.target.toFixed(1)}% policy target; inflation is ${Math.abs(cpiGapPercent)}% ${cpiGapPercent >= 0 ? "above" : "below"} its ${cpiPolicy.target.toFixed(1)}% goal`
@@ -48,8 +55,14 @@ export default function BulletTargets() {
   return (
     <ChartCard
       insight={insight}
+      description={
+        policyLabels
+          ? `Bullet measures are rendered from payload policy selections for ${policyLabels}.`
+          : "Bullet measures are rendered from payload policy selections."
+      }
       provenance={response ?? undefined}
       height={220}
+      contextualNote={policyNotes || undefined}
     >
       <ResponsiveBullet
         data={bulletData}

@@ -104,6 +104,13 @@ describe("GdpWaterfall", () => {
     mockApi.getGdpComponents.mockResolvedValue({
       source: "Source: BEA Contributions to Real GDP Growth · Q4 2025",
       methodology_type: "source_backed",
+      methodology_inputs: [
+        { key: "consumer_spending_contribution", label: "Consumer Spending", source: "FRED" },
+        { key: "business_investment_contribution", label: "Business Investment", source: "FRED" },
+        { key: "government_contribution", label: "Government", source: "FRED" },
+        { key: "net_exports_contribution", label: "Net Exports", source: "FRED" },
+        { key: "inventory_contribution", label: "Inventory Change", source: "FRED" },
+      ],
       quarter: "2025-10-01",
       total_growth: 1.4,
       components: [
@@ -126,5 +133,13 @@ describe("GdpWaterfall", () => {
     expect(screen.getByText("Source: BEA Contributions to Real GDP Growth · Q4 2025")).toBeInTheDocument();
     expect(screen.getByText("Source-backed")).toBeInTheDocument();
     expect(screen.getByText("Consumer spending drove 45% of Q4 2025 growth (1.4% total)")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Stored component contribution inputs for Consumer Spending, Business Investment, Government, Net Exports, Inventory Change are rendered directly from the response payload.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Inputs: Consumer Spending • Business Investment • Government • Net Exports • Inventory Change"),
+    ).toBeInTheDocument();
   });
 });
