@@ -8,7 +8,10 @@ import type { SectorsGdpResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
-import ChartUnavailableState from "../ChartUnavailableState";
+
+function sumChildValues(children: { value?: number }[] | undefined): number {
+  return (children ?? []).reduce((sum, child) => sum + (child.value ?? 0), 0);
+}
 
 export default function SectorTreemap() {
   const [response, setResponse] = useState<SectorsGdpResponse | null>(null);
@@ -20,23 +23,22 @@ export default function SectorTreemap() {
 
   if (error) return <ChartErrorFallback title="GDP by Sector" height={400} />;
   if (!response) return <ChartCardSkeleton height={400} />;
-  if (response.methodology_type === "illustrative") {
-    return (
-      <ChartUnavailableState
-        insight="Services sectors dominate at 78% of GDP; manufacturing leads goods at 11%"
-        provenance={response}
-        height={400}
-        reason="This treemap is temporarily unavailable while we replace an illustrative sector share tree with a source-backed BEA sector dataset."
-      />
-    );
-  }
 
   const data = response?.tree ?? null;
-  if (!data) return <ChartCardSkeleton height={400} />;
+  if (!data?.children?.length) return <ChartCardSkeleton height={400} />;
+  const topGroup = [...data.children]
+    .map((child) => ({ name: child.name, value: sumChildValues(child.children) }))
+    .sort((a, b) => b.value - a.value)[0];
+  const topLeaf = data.children
+    .flatMap((child) => child.children ?? [])
+    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0))[0];
+  const insight = topGroup && topLeaf
+    ? `${topGroup.name} account for ${topGroup.value.toFixed(0)}% of GDP; ${topLeaf.name} is the largest leaf sector`
+    : "Stored BEA sector shares highlight the largest contributors to current-dollar GDP";
 
   return (
     <ChartCard
-      insight="Services sectors dominate at 78% of GDP; manufacturing leads goods at 11%"
+      insight={insight}
       provenance={response}
       height={400}
     >

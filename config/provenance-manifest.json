@@ -200,23 +200,28 @@
       "endpoint": "/api/v1/sectors/gdp",
       "current_source_claim": "Source: BEA · Q4 2025",
       "current_runtime_visibility": "public",
-      "public": false,
-      "methodology_type": "illustrative",
+      "public": true,
+      "methodology_type": "derived",
       "freshness_cadence": "quarterly",
-      "methodology_note_required": false,
-      "phase_1_requirement": "unavailable_state",
-      "remediation_status": "phase_2_replace_or_hide",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
       "upstream_sources": [
         {
-          "provider": "Inline approximation",
-          "dataset": "Static GDP sector tree in sectors endpoint",
-          "kind": "inline_approximation"
+          "provider": "BEA",
+          "dataset": "GDP by Industry, current-dollar value added by industry",
+          "kind": "stored_series",
+          "notes": "The chart consumes stored sector snapshot rows and renders derived percentage shares from the latest BEA hierarchy snapshot."
         }
       ],
       "storage_locations": [
         {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/sectors.py"
+          "layer": "postgres.sector_gdp_snapshots",
+          "reference": "Latest sector GDP hierarchy snapshot"
+        },
+        {
+          "layer": "backend_service",
+          "reference": "backend/app/services/sector_gdp.py"
         }
       ]
     },
@@ -271,25 +276,29 @@
       "placement": "grid-card-2",
       "component": "CpiHeatmap",
       "endpoint": "/api/v1/cpi/categories",
-      "current_source_claim": "Source: BLS · Jan 2026",
+      "current_source_claim": "Source: BLS CPI Relative Importance · Dec 2025",
       "current_runtime_visibility": "public",
-      "public": false,
-      "methodology_type": "illustrative",
+      "public": true,
+      "methodology_type": "source_backed",
       "freshness_cadence": "annual",
       "methodology_note_required": false,
-      "phase_1_requirement": "unavailable_state",
-      "remediation_status": "phase_2_replace_or_hide",
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
       "upstream_sources": [
         {
-          "provider": "Inline approximation",
-          "dataset": "Static CPI category weights in cpi categories endpoint",
-          "kind": "inline_approximation"
+          "provider": "BLS",
+          "dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+          "kind": "stored_series"
         }
       ],
       "storage_locations": [
         {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/cpi.py"
+          "layer": "postgres.cpi_category_snapshots",
+          "reference": "Latest CPI category relative importance snapshot"
+        },
+        {
+          "layer": "backend_service",
+          "reference": "backend/app/services/cpi_categories.py"
         }
       ]
     },
@@ -300,25 +309,30 @@
       "placement": "grid-card-3",
       "component": "StateScatter",
       "endpoint": "/api/v1/states/comparison",
-      "current_source_claim": "Source: BEA, BLS · 2024",
+      "current_source_claim": "Source: BLS, BEA, Census · 2025",
       "current_runtime_visibility": "public",
-      "public": false,
-      "methodology_type": "illustrative",
+      "public": true,
+      "methodology_type": "derived",
       "freshness_cadence": "annual",
-      "methodology_note_required": false,
-      "phase_1_requirement": "unavailable_state",
-      "remediation_status": "phase_2_replace_or_hide",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
       "upstream_sources": [
         {
-          "provider": "Inline approximation",
-          "dataset": "Static state unemployment, GDP-per-capita, and population rows",
-          "kind": "inline_approximation"
+          "provider": "BLS, BEA, Census",
+          "dataset": "Annual state unemployment, GDP, and population snapshot set",
+          "kind": "stored_series",
+          "notes": "The scatter derives GDP per capita from stored annual GDP and population inputs for the curated public state set."
         }
       ],
       "storage_locations": [
         {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/states.py"
+          "layer": "postgres.state_indicator_snapshots",
+          "reference": "Latest curated public state indicator snapshot"
+        },
+        {
+          "layer": "backend_service",
+          "reference": "backend/app/services/state_comparison.py"
         }
       ]
     },
@@ -446,23 +460,28 @@
       "endpoint": "/api/v1/sectors/gdp",
       "current_source_claim": "Source: BEA · Q4 2025",
       "current_runtime_visibility": "public",
-      "public": false,
-      "methodology_type": "illustrative",
+      "public": true,
+      "methodology_type": "derived",
       "freshness_cadence": "quarterly",
-      "methodology_note_required": false,
-      "phase_1_requirement": "unavailable_state",
-      "remediation_status": "phase_2_replace_or_hide",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
       "upstream_sources": [
         {
-          "provider": "Inline approximation",
-          "dataset": "Static GDP sector tree in sectors endpoint",
-          "kind": "inline_approximation"
+          "provider": "BEA",
+          "dataset": "GDP by Industry, current-dollar value added by industry",
+          "kind": "stored_series",
+          "notes": "The treemap consumes stored sector snapshot rows and renders derived percentage shares from the latest BEA hierarchy snapshot."
         }
       ],
       "storage_locations": [
         {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/sectors.py"
+          "layer": "postgres.sector_gdp_snapshots",
+          "reference": "Latest sector GDP hierarchy snapshot"
+        },
+        {
+          "layer": "backend_service",
+          "reference": "backend/app/services/sector_gdp.py"
         }
       ]
     },
@@ -541,23 +560,28 @@
       "endpoint": "/api/v1/sectors/gdp",
       "current_source_claim": "Source: BEA · Q4 2025",
       "current_runtime_visibility": "public",
-      "public": false,
-      "methodology_type": "illustrative",
+      "public": true,
+      "methodology_type": "derived",
       "freshness_cadence": "quarterly",
-      "methodology_note_required": false,
-      "phase_1_requirement": "unavailable_state",
-      "remediation_status": "phase_2_replace_or_hide",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
       "upstream_sources": [
         {
-          "provider": "Inline approximation",
-          "dataset": "Static GDP sector tree in sectors endpoint",
-          "kind": "inline_approximation"
+          "provider": "BEA",
+          "dataset": "GDP by Industry, current-dollar value added by industry",
+          "kind": "stored_series",
+          "notes": "The chart consumes stored sector snapshot rows and renders derived percentage shares from the latest BEA hierarchy snapshot."
         }
       ],
       "storage_locations": [
         {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/sectors.py"
+          "layer": "postgres.sector_gdp_snapshots",
+          "reference": "Latest sector GDP hierarchy snapshot"
+        },
+        {
+          "layer": "backend_service",
+          "reference": "backend/app/services/sector_gdp.py"
         }
       ]
     }
