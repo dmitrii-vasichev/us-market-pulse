@@ -22,15 +22,16 @@ function NetExportsAnnotation({ bars, innerWidth }: BarCustomLayerProps<BarDatum
   );
   if (!netExportsBar) return null;
 
-  const x = netExportsBar.x + netExportsBar.width / 2;
-  // For negative bars, y is at zero line, height extends down
-  const barBottom = netExportsBar.y + netExportsBar.height;
-  const lineEndY = barBottom + 20;
+  const cx = netExportsBar.x + netExportsBar.width / 2;
+  const barTop = netExportsBar.y;
+  // Place annotation above the negative bar (pointing up from the bar top)
+  const lineStartY = barTop - 4;
+  const lineEndY = barTop - 22;
 
   return (
     <g>
-      <line x1={x} y1={barBottom + 2} x2={x} y2={lineEndY} stroke="#555D73" strokeWidth={1} />
-      <text x={x} y={lineEndY + 12} textAnchor="middle" fontSize={11} fill="#555D73">
+      <line x1={cx} y1={lineStartY} x2={cx} y2={lineEndY} stroke="#555D73" strokeWidth={1} />
+      <text x={cx} y={lineEndY - 6} textAnchor="middle" fontSize={11} fill="#555D73">
         First drag in 3 quarters
       </text>
     </g>
@@ -78,13 +79,13 @@ export default function GdpWaterfall() {
         indexBy="id"
         theme={nivoTheme}
         colors={({ data }) => (data as { color: string }).color}
-        margin={{ top: 10, right: 20, bottom: 80, left: 50 }}
+        margin={{ top: 10, right: 20, bottom: 100, left: 50 }}
         padding={0.4}
         valueScale={{ type: "linear" }}
         axisBottom={{
           tickRotation: -45,
           tickSize: 0,
-          tickPadding: 8,
+          tickPadding: 20,
         }}
         axisLeft={{
           tickSize: 0,
