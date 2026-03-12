@@ -1,0 +1,565 @@
+{
+  "$schema": "./provenance-manifest.schema.json",
+  "version": 1,
+  "inventory_source": "docs/provenance/source-backed-inventory.md",
+  "policy_note": "The public field represents allowed public visibility under the remediation policy. current_runtime_visibility records whether a chart is still rendered on the public site before remediation changes are applied.",
+  "charts": [
+    {
+      "id": "overview.gdp-waterfall",
+      "page": "overview",
+      "route": "/",
+      "placement": "grid-card-1",
+      "component": "GdpWaterfall",
+      "endpoint": "/api/v1/gdp/components",
+      "current_source_claim": "Source: BEA · Q4 2025",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "derived",
+      "freshness_cadence": "quarterly",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
+      "upstream_sources": [
+        {
+          "provider": "BEA via FRED",
+          "dataset": "A191RL1Q225SBEA",
+          "kind": "stored_series",
+          "notes": "Single stored GDP growth series redistributed into hardcoded component shares in backend code."
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "A191RL1Q225SBEA observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "A191RL1Q225SBEA metadata row"
+        },
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/gdp.py"
+        }
+      ]
+    },
+    {
+      "id": "overview.gdp-quarterly",
+      "page": "overview",
+      "route": "/",
+      "placement": "grid-card-2",
+      "component": "GdpQuarterly",
+      "endpoint": "/api/v1/gdp/quarterly",
+      "current_source_claim": "Source: BEA · Q4 2025",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "source_backed",
+      "freshness_cadence": "quarterly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
+      "upstream_sources": [
+        {
+          "provider": "BEA via FRED",
+          "dataset": "A191RL1Q225SBEA",
+          "kind": "stored_series"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "A191RL1Q225SBEA observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "A191RL1Q225SBEA metadata row"
+        }
+      ]
+    },
+    {
+      "id": "overview.cpi-calendar",
+      "page": "overview",
+      "route": "/",
+      "placement": "grid-card-3",
+      "component": "CpiCalendar",
+      "endpoint": "/api/v1/cpi/calendar",
+      "current_source_claim": "Source: BLS · Jan 2026",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "source_backed",
+      "freshness_cadence": "monthly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
+      "upstream_sources": [
+        {
+          "provider": "BLS via FRED",
+          "dataset": "CPIAUCSL",
+          "kind": "stored_series",
+          "notes": "YoY values are calculated from stored CPI observations at response time."
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "CPIAUCSL observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "CPIAUCSL metadata row"
+        }
+      ]
+    },
+    {
+      "id": "overview.economic-funnel",
+      "page": "overview",
+      "route": "/",
+      "placement": "grid-card-4",
+      "component": "EconomicFunnel",
+      "endpoint": "/api/v1/labor/funnel",
+      "current_source_claim": "Source: BEA, BLS · Q4 2025",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "derived",
+      "freshness_cadence": "quarterly",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
+      "upstream_sources": [
+        {
+          "provider": "BEA via FRED",
+          "dataset": "GDP",
+          "kind": "stored_series",
+          "notes": "Backend multiplies the stored GDP level by fixed stage shares; there is no stored funnel dataset."
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "GDP observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "GDP metadata row"
+        },
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/labor.py"
+        }
+      ]
+    },
+    {
+      "id": "overview.bullet-targets",
+      "page": "overview",
+      "route": "/",
+      "placement": "grid-card-5",
+      "component": "BulletTargets",
+      "endpoint": "/api/v1/kpi/summary",
+      "current_source_claim": "Source: Federal Reserve · Mar 2026",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "derived",
+      "freshness_cadence": "mixed",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
+      "upstream_sources": [
+        {
+          "provider": "Stored dashboard KPI inputs",
+          "dataset": "GDP, CPIAUCSL, UNRATE, FEDFUNDS",
+          "kind": "stored_series",
+          "notes": "Chart draws measures from KPI summary output computed from stored series."
+        },
+        {
+          "provider": "Frontend assumption",
+          "dataset": "Static target thresholds in BulletTargets.tsx",
+          "kind": "frontend_assumption",
+          "notes": "Targets are hardcoded in the chart component rather than sourced from a dataset."
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "GDP, CPIAUCSL, UNRATE, FEDFUNDS observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "GDP, CPIAUCSL, UNRATE, FEDFUNDS metadata rows"
+        },
+        {
+          "layer": "frontend_inline",
+          "reference": "frontend/src/components/charts/BulletTargets.tsx"
+        }
+      ]
+    },
+    {
+      "id": "overview.gdp-waffle",
+      "page": "overview",
+      "route": "/",
+      "placement": "grid-card-6",
+      "component": "GdpWaffle",
+      "endpoint": "/api/v1/sectors/gdp",
+      "current_source_claim": "Source: BEA · Q4 2025",
+      "current_runtime_visibility": "public",
+      "public": false,
+      "methodology_type": "illustrative",
+      "freshness_cadence": "quarterly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "unavailable_state",
+      "remediation_status": "phase_2_replace_or_hide",
+      "upstream_sources": [
+        {
+          "provider": "Inline approximation",
+          "dataset": "Static GDP sector tree in sectors endpoint",
+          "kind": "inline_approximation"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/sectors.py"
+        }
+      ]
+    },
+    {
+      "id": "labor.unemployment-bump",
+      "page": "labor",
+      "route": "/labor",
+      "placement": "hero-card",
+      "component": "UnemploymentBump",
+      "endpoint": "/api/v1/labor/ranking",
+      "current_source_claim": "Source: BLS · <latest month>",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "source_backed",
+      "freshness_cadence": "monthly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
+      "upstream_sources": [
+        {
+          "provider": "BLS",
+          "dataset": "10 state unemployment rate time series",
+          "kind": "stored_series",
+          "notes": "Ranking is computed from stored state unemployment observations."
+        },
+        {
+          "provider": "BLS public API",
+          "dataset": "State unemployment fallback fetch",
+          "kind": "live_api_fallback",
+          "notes": "Runtime fallback is used only when the database lacks a complete stored set."
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "LASST state unemployment observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "LASST state unemployment metadata rows"
+        },
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/services/labor_ranking.py"
+        }
+      ]
+    },
+    {
+      "id": "labor.cpi-heatmap",
+      "page": "labor",
+      "route": "/labor",
+      "placement": "grid-card-2",
+      "component": "CpiHeatmap",
+      "endpoint": "/api/v1/cpi/categories",
+      "current_source_claim": "Source: BLS · Jan 2026",
+      "current_runtime_visibility": "public",
+      "public": false,
+      "methodology_type": "illustrative",
+      "freshness_cadence": "annual",
+      "methodology_note_required": false,
+      "phase_1_requirement": "unavailable_state",
+      "remediation_status": "phase_2_replace_or_hide",
+      "upstream_sources": [
+        {
+          "provider": "Inline approximation",
+          "dataset": "Static CPI category weights in cpi categories endpoint",
+          "kind": "inline_approximation"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/cpi.py"
+        }
+      ]
+    },
+    {
+      "id": "labor.state-scatter",
+      "page": "labor",
+      "route": "/labor",
+      "placement": "grid-card-3",
+      "component": "StateScatter",
+      "endpoint": "/api/v1/states/comparison",
+      "current_source_claim": "Source: BEA, BLS · 2024",
+      "current_runtime_visibility": "public",
+      "public": false,
+      "methodology_type": "illustrative",
+      "freshness_cadence": "annual",
+      "methodology_note_required": false,
+      "phase_1_requirement": "unavailable_state",
+      "remediation_status": "phase_2_replace_or_hide",
+      "upstream_sources": [
+        {
+          "provider": "Inline approximation",
+          "dataset": "Static state unemployment, GDP-per-capita, and population rows",
+          "kind": "inline_approximation"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/states.py"
+        }
+      ]
+    },
+    {
+      "id": "labor.economic-funnel",
+      "page": "labor",
+      "route": "/labor",
+      "placement": "grid-card-4",
+      "component": "EconomicFunnel",
+      "endpoint": "/api/v1/labor/funnel",
+      "current_source_claim": "Source: BEA, BLS · Q4 2025",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "derived",
+      "freshness_cadence": "quarterly",
+      "methodology_note_required": true,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_3_methodology_note",
+      "upstream_sources": [
+        {
+          "provider": "BEA via FRED",
+          "dataset": "GDP",
+          "kind": "stored_series",
+          "notes": "Same derived funnel logic as overview placement; stage values are synthesized in backend code."
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "GDP observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "GDP metadata row"
+        },
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/labor.py"
+        }
+      ]
+    },
+    {
+      "id": "labor.cpi-calendar",
+      "page": "labor",
+      "route": "/labor",
+      "placement": "grid-card-5",
+      "component": "CpiCalendar",
+      "endpoint": "/api/v1/cpi/calendar",
+      "current_source_claim": "Source: BLS · Jan 2026",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "source_backed",
+      "freshness_cadence": "monthly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
+      "upstream_sources": [
+        {
+          "provider": "BLS via FRED",
+          "dataset": "CPIAUCSL",
+          "kind": "stored_series",
+          "notes": "Shared chart component with overview calendar placement."
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "CPIAUCSL observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "CPIAUCSL metadata row"
+        }
+      ]
+    },
+    {
+      "id": "markets.rates-line",
+      "page": "markets",
+      "route": "/markets",
+      "placement": "hero-card",
+      "component": "RatesLine",
+      "endpoint": "/api/v1/rates/history",
+      "current_source_claim": "Source: Federal Reserve, Freddie Mac · Mar 2026",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "source_backed",
+      "freshness_cadence": "mixed",
+      "methodology_note_required": false,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
+      "upstream_sources": [
+        {
+          "provider": "Federal Reserve via FRED",
+          "dataset": "FEDFUNDS",
+          "kind": "stored_series"
+        },
+        {
+          "provider": "Freddie Mac via FRED",
+          "dataset": "MORTGAGE30US",
+          "kind": "stored_series"
+        },
+        {
+          "provider": "US Treasury via FRED",
+          "dataset": "DGS10",
+          "kind": "stored_series"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "FEDFUNDS, MORTGAGE30US, DGS10 observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "FEDFUNDS, MORTGAGE30US, DGS10 metadata rows"
+        }
+      ]
+    },
+    {
+      "id": "markets.sector-treemap",
+      "page": "markets",
+      "route": "/markets",
+      "placement": "grid-card-2",
+      "component": "SectorTreemap",
+      "endpoint": "/api/v1/sectors/gdp",
+      "current_source_claim": "Source: BEA · Q4 2025",
+      "current_runtime_visibility": "public",
+      "public": false,
+      "methodology_type": "illustrative",
+      "freshness_cadence": "quarterly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "unavailable_state",
+      "remediation_status": "phase_2_replace_or_hide",
+      "upstream_sources": [
+        {
+          "provider": "Inline approximation",
+          "dataset": "Static GDP sector tree in sectors endpoint",
+          "kind": "inline_approximation"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/sectors.py"
+        }
+      ]
+    },
+    {
+      "id": "markets.sentiment-radial",
+      "page": "markets",
+      "route": "/markets",
+      "placement": "grid-card-3",
+      "component": "SentimentRadial",
+      "endpoint": "/api/v1/sentiment/radial",
+      "current_source_claim": "Source: University of Michigan · Mar 2026",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "source_backed",
+      "freshness_cadence": "monthly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
+      "upstream_sources": [
+        {
+          "provider": "University of Michigan via FRED",
+          "dataset": "UMCSENT",
+          "kind": "stored_series"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "UMCSENT observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "UMCSENT metadata row"
+        }
+      ]
+    },
+    {
+      "id": "markets.sp500-area",
+      "page": "markets",
+      "route": "/markets",
+      "placement": "grid-card-4",
+      "component": "Sp500Area",
+      "endpoint": "/api/v1/series/SP500",
+      "current_source_claim": "Source: S&P · Mar 2026",
+      "current_runtime_visibility": "public",
+      "public": true,
+      "methodology_type": "source_backed",
+      "freshness_cadence": "daily",
+      "methodology_note_required": false,
+      "phase_1_requirement": "dynamic_payload_attribution",
+      "remediation_status": "phase_1_dynamic_attribution",
+      "upstream_sources": [
+        {
+          "provider": "S&P 500 via FRED",
+          "dataset": "SP500",
+          "kind": "stored_series"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "postgres.economic_series",
+          "reference": "SP500 observations"
+        },
+        {
+          "layer": "postgres.series_metadata",
+          "reference": "SP500 metadata row"
+        }
+      ]
+    },
+    {
+      "id": "markets.gdp-waffle",
+      "page": "markets",
+      "route": "/markets",
+      "placement": "grid-card-5",
+      "component": "GdpWaffle",
+      "endpoint": "/api/v1/sectors/gdp",
+      "current_source_claim": "Source: BEA · Q4 2025",
+      "current_runtime_visibility": "public",
+      "public": false,
+      "methodology_type": "illustrative",
+      "freshness_cadence": "quarterly",
+      "methodology_note_required": false,
+      "phase_1_requirement": "unavailable_state",
+      "remediation_status": "phase_2_replace_or_hide",
+      "upstream_sources": [
+        {
+          "provider": "Inline approximation",
+          "dataset": "Static GDP sector tree in sectors endpoint",
+          "kind": "inline_approximation"
+        }
+      ],
+      "storage_locations": [
+        {
+          "layer": "backend_inline",
+          "reference": "backend/app/api/v1/sectors.py"
+        }
+      ]
+    }
+  ]
+}
