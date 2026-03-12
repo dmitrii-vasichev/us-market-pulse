@@ -5,7 +5,8 @@ from fastapi import APIRouter
 from app.db.database import get_pool
 from app.db.queries import get_series_metadata
 from app.models.schemas import CpiCalendarResponse, CpiCategoriesResponse
-from app.services.provenance import build_metadata_provenance, build_provenance
+from app.services.cpi_categories import get_cpi_categories_response
+from app.services.provenance import build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/cpi", tags=["CPI"])
 
@@ -64,30 +65,8 @@ async def cpi_calendar():
 
 @router.get("/categories", response_model=CpiCategoriesResponse)
 async def cpi_categories():
-    """CPI breakdown by category for waffle chart."""
-    # BLS CPI categories — using approximate weights
-    # In production, these would come from BLS API
-    categories = [
-        {"id": "housing", "label": "Housing", "value": 34.9},
-        {"id": "food", "label": "Food & Beverages", "value": 14.3},
-        {"id": "transport", "label": "Transportation", "value": 16.7},
-        {"id": "medical", "label": "Medical Care", "value": 8.9},
-        {"id": "education", "label": "Education & Communication", "value": 6.1},
-        {"id": "recreation", "label": "Recreation", "value": 5.6},
-        {"id": "apparel", "label": "Apparel", "value": 2.6},
-        {"id": "other", "label": "Other", "value": 10.9},
-    ]
-    provenance = build_provenance(
-        source_name="Illustrative placeholder",
-        methodology_type="illustrative",
-        methodology_note=(
-            "Category weights are static illustrative values maintained in backend code until a "
-            "source-backed BLS category dataset is integrated."
-        ),
-        source_dataset="Static CPI category weight approximation",
-    )
-    return CpiCategoriesResponse(
-        categories=categories,
-        total=100.0,
-        **provenance.model_dump(),
-    )
+    """CPI breakdown by category for the labor heatmap card."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        payload = await get_cpi_categories_response(conn)
+        return CpiCategoriesResponse(**payload)
