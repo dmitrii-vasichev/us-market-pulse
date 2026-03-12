@@ -8,6 +8,7 @@ import type { StatesComparisonResponse, StatesGroup } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
+import ChartUnavailableState from "../ChartUnavailableState";
 
 export default function StateScatter() {
   const [response, setResponse] = useState<StatesComparisonResponse | null>(null);
@@ -17,9 +18,19 @@ export default function StateScatter() {
     api.getStatesComparison().then(setResponse).catch(() => setError(true));
   }, []);
 
-  const data: StatesGroup[] = response?.data ?? [];
-
   if (error) return <ChartErrorFallback title="States Comparison" />;
+  if (!response) return <ChartCardSkeleton />;
+  if (response.methodology_type === "illustrative") {
+    return (
+      <ChartUnavailableState
+        insight="High-wage states show lower unemployment — but the gap is narrowing"
+        provenance={response}
+        reason="This state comparison is temporarily unavailable while we replace static sample rows with source-backed state datasets."
+      />
+    );
+  }
+
+  const data: StatesGroup[] = response?.data ?? [];
   if (!data.length) return <ChartCardSkeleton />;
 
   // Normalize bubble sizes to a bounded pixel range to avoid invisible large hit areas
@@ -36,8 +47,7 @@ export default function StateScatter() {
   return (
     <ChartCard
       insight="High-wage states show lower unemployment — but the gap is narrowing"
-      source={response?.source}
-      contextualNote={response?.methodology_note ?? undefined}
+      provenance={response}
     >
       <ResponsiveScatterPlot
         data={data}
