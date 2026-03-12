@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ResponsiveCalendar } from "@nivo/calendar";
+import type { CalendarTooltipProps } from "@nivo/calendar";
 import { api } from "@/lib/api";
 import { nivoTheme } from "@/lib/nivo-theme";
 import type { CpiCalendarItem } from "@/lib/types";
@@ -10,22 +11,91 @@ import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 
 const WINDOW_SIZE = 3;
+const cpiObservationFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
+});
 
-function CpiTooltip({ day, value }: { day: string; value: number }) {
+function parseCalendarDay(day: string) {
+  const [year, month, date] = day.split("-").map(Number);
+  return new Date(year, month - 1, date);
+}
+
+function formatObservationMonth(day: string) {
+  return cpiObservationFormatter.format(parseCalendarDay(day));
+}
+
+function formatComparisonMonth(day: string) {
+  const date = parseCalendarDay(day);
+  return cpiObservationFormatter.format(new Date(date.getFullYear() - 1, date.getMonth(), 1));
+}
+
+function CpiTooltip({ day, value, color }: CalendarTooltipProps) {
+  const numericValue = Number(value);
+
+  if (Number.isNaN(numericValue)) return null;
+
   return (
     <div
       style={{
-        background: "#1A1F2E",
-        border: "1px solid #2A2F3E",
-        borderRadius: 6,
-        padding: "6px 10px",
+        minWidth: 220,
+        maxWidth: 240,
+        background: "#171B27",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 14,
+        padding: "12px 14px",
         fontSize: 12,
         color: "#E8ECF4",
         fontFamily: "DM Sans, sans-serif",
+        boxShadow: "0 10px 28px rgba(0,0,0,0.35)",
       }}
     >
-      <span style={{ color: "#6B7280" }}>{day}: </span>
-      <strong>CPI MoM: {value.toFixed(2)}%</strong>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 8,
+        }}
+      >
+        <span
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "999px",
+            background: color,
+            boxShadow: `0 0 0 3px ${color}1A`,
+          }}
+        />
+        <span
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "#8B93A7",
+          }}
+        >
+          CPI calendar point
+        </span>
+      </div>
+      <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.3, marginBottom: 10 }}>
+        {formatObservationMonth(day)} observation
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 6,
+        }}
+      >
+        <span style={{ color: "#8B93A7" }}>Annual CPI change</span>
+        <strong style={{ fontSize: 16 }}>{numericValue.toFixed(2)}%</strong>
+      </div>
+      <div style={{ color: "#8B93A7", lineHeight: 1.5 }}>
+        YoY CPI-U, all items, versus {formatComparisonMonth(day)}.
+      </div>
     </div>
   );
 }
@@ -76,6 +146,7 @@ export default function CpiCalendar() {
       insight="Monthly price increases clustered in Jan–Mar seasonally — watch Q1 2026"
       source="Source: BLS · Jan 2026"
       height={height}
+      horizontalOverflow="hidden"
     >
       {/* Year navigation */}
       <div
@@ -143,7 +214,7 @@ export default function CpiCalendar() {
         dayBorderWidth={1}
         dayBorderColor="#0F1117"
         theme={nivoTheme}
-        tooltip={({ day, value }) => <CpiTooltip day={day} value={Number(value)} />}
+        tooltip={(props) => <CpiTooltip {...props} />}
       />
     </ChartCard>
   );

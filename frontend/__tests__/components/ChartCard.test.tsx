@@ -48,6 +48,24 @@ describe("ChartCard", () => {
     expect(screen.queryByText(/Source:/)).toBeNull();
   });
 
+  it("uses auto horizontal overflow by default", () => {
+    render(
+      <ChartCard insight="Test">
+        <div>chart</div>
+      </ChartCard>
+    );
+    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-x-auto");
+  });
+
+  it("can hide horizontal overflow when requested", () => {
+    render(
+      <ChartCard insight="Test" horizontalOverflow="hidden">
+        <div>chart</div>
+      </ChartCard>
+    );
+    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-x-hidden");
+  });
+
   it("does not render ? button when contextualNote is not provided", () => {
     render(
       <ChartCard insight="Test">

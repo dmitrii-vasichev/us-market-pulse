@@ -1,5 +1,7 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
 
+const mockResponsiveCalendar = jest.fn(() => <div data-testid="nivo-calendar" />);
+
 // Mock all Nivo chart components
 jest.mock("@nivo/bump", () => ({
   ResponsiveBump: () => <div data-testid="nivo-bump" />,
@@ -23,7 +25,7 @@ jest.mock("@nivo/bar", () => ({
   ResponsiveBar: () => <div data-testid="nivo-bar" />,
 }));
 jest.mock("@nivo/calendar", () => ({
-  ResponsiveCalendar: () => <div data-testid="nivo-calendar" />,
+  ResponsiveCalendar: (props: unknown) => mockResponsiveCalendar(props),
 }));
 jest.mock("@nivo/funnel", () => ({
   ResponsiveFunnel: () => <div data-testid="nivo-funnel" />,
@@ -38,6 +40,7 @@ jest.mock("@nivo/waffle", () => ({
 const mockApi = {
   getLaborRanking: jest.fn(),
   getCpiCategories: jest.fn(),
+  getCpiCalendar: jest.fn(),
   getStatesComparison: jest.fn(),
   getRatesHistory: jest.fn(),
   getSectorsGdp: jest.fn(),
@@ -60,6 +63,7 @@ jest.mock("@/lib/nivo-theme", () => ({
 }));
 
 import UnemploymentBump from "@/components/charts/UnemploymentBump";
+import CpiCalendar from "@/components/charts/CpiCalendar";
 import CpiHeatmap from "@/components/charts/CpiHeatmap";
 import StateScatter from "@/components/charts/StateScatter";
 import RatesLine from "@/components/charts/RatesLine";
@@ -104,6 +108,39 @@ describe("CpiHeatmap", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nivo-heatmap")).toBeTruthy();
     });
+  });
+});
+
+describe("CpiCalendar", () => {
+  it("renders without horizontal scroll and provides contextual tooltip content", async () => {
+    mockApi.getCpiCalendar.mockResolvedValue({
+      data: [
+        { day: "2024-01-01", value: 3.4 },
+        { day: "2025-02-01", value: 3.1 },
+        { day: "2026-01-01", value: 2.9 },
+      ],
+    });
+
+    await act(async () => {
+      render(<CpiCalendar />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("nivo-calendar")).toBeTruthy();
+    });
+
+    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-x-hidden");
+
+    const calendarProps = mockResponsiveCalendar.mock.calls[0]?.[0] as {
+      tooltip: (props: { day: string; value: string; color: string }) => React.JSX.Element | null;
+    };
+
+    render(calendarProps.tooltip({ day: "2026-01-01", value: "2.9", color: "#F97066" }));
+
+    expect(screen.getByText("January 2026 observation")).toBeTruthy();
+    expect(screen.getByText("Annual CPI change")).toBeTruthy();
+    expect(screen.getByText("2.90%")).toBeTruthy();
+    expect(screen.getByText("YoY CPI-U, all items, versus January 2025.")).toBeTruthy();
   });
 });
 

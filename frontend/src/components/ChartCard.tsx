@@ -10,6 +10,7 @@ interface ChartCardProps {
   height?: number;
   animationClass?: string;
   contextualNote?: string;
+  horizontalOverflow?: "auto" | "hidden";
   children: React.ReactNode;
 }
 
@@ -21,6 +22,7 @@ export default function ChartCard({
   height = 300,
   animationClass,
   contextualNote,
+  horizontalOverflow = "auto",
   children,
 }: ChartCardProps) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -88,8 +90,14 @@ export default function ChartCard({
           </p>
         )}
       </div>
-      <div className="flex-1 min-h-0 overflow-x-auto -mx-1">
-        <div style={{ minHeight: height, minWidth: "280px" }} className="relative px-1 h-full">
+      <div
+        data-testid="chart-card-scroll-container"
+        className={`flex-1 min-h-0 ${horizontalOverflow === "hidden" ? "overflow-x-hidden" : "overflow-x-auto -mx-1"}`}
+      >
+        <div
+          style={{ minHeight: height, minWidth: "280px" }}
+          className={`relative h-full ${horizontalOverflow === "hidden" ? "" : "px-1"}`}
+        >
           {children}
         </div>
       </div>
