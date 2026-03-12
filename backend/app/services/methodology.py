@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from app.models.schemas import KpiTargetPolicy, MethodologyInputKind, MethodologyType
+from app.models.schemas import KpiTargetMeasureField, MethodologyInputKind, MethodologyType
 
 LaborFunnelValueTransform = Literal["identity", "thousands_to_millions"]
 
@@ -62,6 +62,15 @@ class SeriesMetadataDefinition:
     source: str
     category: str
     display_order: int
+
+
+@dataclass(frozen=True)
+class KpiTargetPolicyDefinition:
+    target: float
+    max_value: float
+    measure_field: KpiTargetMeasureField
+    measure_label: str
+    policy_note: str
 
 
 GDP_WATERFALL_COMPONENTS: tuple[GdpWaterfallComponentDefinition, ...] = (
@@ -232,19 +241,35 @@ LABOR_FUNNEL_TARGET_SERIES_IDS: tuple[str, ...] = (
 )
 
 
-def _build_target_policy(target: float, max_value: float) -> KpiTargetPolicy:
-    return KpiTargetPolicy(
-        target=target,
-        max=max_value,
-        ranges=[0.0, round(max_value * 0.5, 2), round(max_value * 0.75, 2), max_value],
-    )
-
-
-KPI_TARGET_POLICIES: dict[str, KpiTargetPolicy] = {
-    "gdp": _build_target_policy(3.0, 5.0),
-    "cpi": _build_target_policy(2.0, 10.0),
-    "unemployment": _build_target_policy(4.0, 10.0),
-    "fed_rate": _build_target_policy(3.0, 6.0),
+KPI_TARGET_POLICY_DEFINITIONS: dict[str, KpiTargetPolicyDefinition] = {
+    "gdp": KpiTargetPolicyDefinition(
+        target=3.0,
+        max_value=5.0,
+        measure_field="change_percent",
+        measure_label="QoQ GDP growth",
+        policy_note="Compare quarterly GDP growth against a 3.0% expansion target on a 0-5% dashboard scale.",
+    ),
+    "cpi": KpiTargetPolicyDefinition(
+        target=2.0,
+        max_value=10.0,
+        measure_field="change_percent",
+        measure_label="YoY inflation",
+        policy_note="Compare year-over-year CPI inflation against the 2.0% price-stability goal on a 0-10% dashboard scale.",
+    ),
+    "unemployment": KpiTargetPolicyDefinition(
+        target=4.0,
+        max_value=10.0,
+        measure_field="current_value",
+        measure_label="Current unemployment rate",
+        policy_note="Compare the latest unemployment rate against a 4.0% labor-market target on a 0-10% dashboard scale.",
+    ),
+    "fed_rate": KpiTargetPolicyDefinition(
+        target=3.0,
+        max_value=6.0,
+        measure_field="current_value",
+        measure_label="Current fed funds rate",
+        policy_note="Compare the latest effective fed funds rate against a 3.0% dashboard policy target on a 0-6% scale.",
+    ),
 }
 
 
@@ -341,17 +366,17 @@ KPI_SUMMARY_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
     methodology_type="derived",
     methodology_note=(
         "KPI summary values are computed from stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS "
-        "observations, and downstream bullet targets compare those measures against backend-owned "
-        "threshold bands."
+        "observations, and downstream bullet targets compare backend-selected measures against "
+        "backend-owned target bands, markers, and policy notes."
     ),
-    fallback_source_name="FRED",
+    fallback_source_name="BEA, BLS, Federal Reserve",
     fallback_dataset="Dashboard KPI Summary",
     source_series_ids=("GDP", "CPIAUCSL", "UNRATE", "FEDFUNDS"),
     inputs=(
         MethodologyInputDefinition(
             key="gross_domestic_product",
             label="Gross Domestic Product",
-            source="FRED",
+            source="BEA via FRED",
             dataset="Gross Domestic Product",
             series_id="GDP",
             role="kpi_input",
@@ -359,7 +384,7 @@ KPI_SUMMARY_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
         MethodologyInputDefinition(
             key="consumer_price_index",
             label="Consumer Price Index",
-            source="FRED",
+            source="BLS via FRED",
             dataset="Consumer Price Index for All Urban Consumers",
             series_id="CPIAUCSL",
             role="kpi_input",
@@ -367,7 +392,7 @@ KPI_SUMMARY_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
         MethodologyInputDefinition(
             key="unemployment_rate",
             label="Unemployment Rate",
-            source="FRED",
+            source="BLS via FRED",
             dataset="Unemployment Rate",
             series_id="UNRATE",
             role="kpi_input",
@@ -375,7 +400,7 @@ KPI_SUMMARY_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
         MethodologyInputDefinition(
             key="fed_funds_rate",
             label="Federal Funds Rate",
-            source="FRED",
+            source="Federal Reserve via FRED",
             dataset="Federal Funds Effective Rate",
             series_id="FEDFUNDS",
             role="kpi_input",
@@ -384,7 +409,7 @@ KPI_SUMMARY_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
             key="bullet_target_policy",
             label="Backend KPI target policy",
             source="Backend policy",
-            dataset="Bullet target bands and marker thresholds",
+            dataset="Bullet target bands, markers, measure selection rules, and policy notes",
             kind="derived_policy",
             role="target_policy",
         ),

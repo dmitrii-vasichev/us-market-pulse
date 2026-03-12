@@ -98,7 +98,8 @@ def _serialize_methodology_input(
     unit = definition.unit
     if metadata_row is not None:
         dataset = str(metadata_row["title"]) if metadata_row.get("title") else dataset
-        source = str(metadata_row["source"]) if metadata_row.get("source") else source
+        if (metadata_source := metadata_row.get("source")) and source in {"", "FRED"}:
+            source = str(metadata_source)
         if unit is None and metadata_row.get("units"):
             unit = str(metadata_row["units"])
 
