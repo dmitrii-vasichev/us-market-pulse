@@ -4,17 +4,18 @@ from fastapi import APIRouter
 
 from app.db.database import get_pool
 from app.db.queries import get_series_metadata
-from app.models.schemas import GdpQuarterlyResponse
+from app.models.schemas import GdpComponentsResponse, GdpQuarterlyResponse
 from app.services.provenance import build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/gdp", tags=["GDP"])
 
 
-@router.get("/components")
+@router.get("/components", response_model=GdpComponentsResponse)
 async def gdp_components():
     """GDP breakdown by component for waterfall chart."""
     pool = await get_pool()
     async with pool.acquire() as conn:
+        meta = await get_series_metadata(conn, "A191RL1Q225SBEA")
         # Get GDP contribution components from A191RL1Q225SBEA
         # For waterfall: each component shows its contribution to total GDP growth
         row = await conn.fetchrow(
@@ -36,11 +37,26 @@ async def gdp_components():
             {"id": "inventory", "label": "Inventory Change", "value": round(total_growth * 0.20, 2)},
         ]
 
-        return {
-            "quarter": str(row["date"]) if row else None,
-            "total_growth": total_growth,
-            "components": components,
-        }
+        provenance = build_metadata_provenance(
+            [meta] if meta else [],
+            methodology_type="derived",
+            latest_date=row["date"] if row else None,
+            period_kind="quarter",
+            methodology_note=(
+                "Component contributions are derived by redistributing the latest stored GDP growth "
+                "reading across fixed backend share assumptions rather than a stored component dataset."
+            ),
+            fallback_source_name="BEA",
+            fallback_dataset="Real GDP Growth Rate (Contributions by Component)",
+            source_series_ids=["A191RL1Q225SBEA"],
+        )
+
+        return GdpComponentsResponse(
+            quarter=str(row["date"]) if row else None,
+            total_growth=total_growth,
+            components=components,
+            **provenance.model_dump(),
+        )
 
 
 @router.get("/quarterly", response_model=GdpQuarterlyResponse)

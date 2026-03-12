@@ -5,18 +5,20 @@ import { ResponsiveFunnel } from "@nivo/funnel";
 import { api } from "@/lib/api";
 import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
 import { formatLargeNumber } from "@/lib/formatters";
-import type { FunnelStage } from "@/lib/types";
+import type { FunnelStage, LaborFunnelResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
 
 export default function EconomicFunnel() {
-  const [data, setData] = useState<FunnelStage[]>([]);
+  const [response, setResponse] = useState<LaborFunnelResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getLaborFunnel().then((d) => setData(d.stages)).catch(() => setError(true));
+    api.getLaborFunnel().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const data: FunnelStage[] = response?.stages ?? [];
 
   if (error) return <ChartErrorFallback title="Economic Funnel" />;
   if (!data.length) return <ChartCardSkeleton />;
@@ -33,13 +35,16 @@ export default function EconomicFunnel() {
     gdpStage && compStage
       ? `Each dollar of GDP generates $${(compStage.value / gdpStage.value).toFixed(2)} in worker compensation`
       : "Each dollar of GDP generates $0.19 in worker compensation";
+  const contextualNote = response?.methodology_note
+    ? `${response.methodology_note} Each dollar of GDP flows through GNI (capturing domestic income) to employee compensation — about $0.62 per dollar. The remaining share goes to corporate profits, depreciation, and taxes, ultimately funding investment and government services.`
+    : "Each dollar of GDP flows through GNI (capturing domestic income) to employee compensation — about $0.62 per dollar. The remaining share goes to corporate profits, depreciation, and taxes, ultimately funding investment and government services.";
 
   return (
     <ChartCard
       insight={insight}
       description="Consumer spending accounts for ~70% of US GDP. Each $1 of GDP flows through GNI to compensation, supporting the entire employed workforce."
-      source="Source: BEA, BLS · Q4 2025"
-      contextualNote="Each dollar of GDP flows through GNI (capturing domestic income) to employee compensation — about $0.62 per dollar. The remaining share goes to corporate profits, depreciation, and taxes, ultimately funding investment and government services."
+      source={response?.source}
+      contextualNote={contextualNote}
     >
       <ResponsiveFunnel
         data={funnelData}

@@ -1,3 +1,17 @@
+export type MethodologyType = "source_backed" | "derived" | "illustrative";
+export type FreshnessStatus = "current" | "stale" | "unknown";
+
+export interface ProvenanceFields {
+  source: string;
+  methodology_type: MethodologyType;
+  latest_observation_date?: string | null;
+  latest_month?: string | null;
+  methodology_note?: string | null;
+  source_dataset?: string | null;
+  source_series_ids?: string[] | null;
+  freshness_status?: FreshnessStatus | null;
+}
+
 // KPI
 export interface SparklinePoint {
   date: string;
@@ -17,8 +31,9 @@ export interface KpiItem {
   sparkline: SparklinePoint[];
 }
 
-export interface KpiSummaryResponse {
+export interface KpiSummaryResponse extends ProvenanceFields {
   kpis: KpiItem[];
+  updated_at?: string | null;
 }
 
 // GDP
@@ -28,8 +43,8 @@ export interface GdpComponent {
   value: number;
 }
 
-export interface GdpComponentsResponse {
-  quarter: string;
+export interface GdpComponentsResponse extends ProvenanceFields {
+  quarter: string | null;
   total_growth: number;
   components: GdpComponent[];
 }
@@ -39,7 +54,7 @@ export interface GdpQuarterlyItem {
   value: number;
 }
 
-export interface GdpQuarterlyResponse {
+export interface GdpQuarterlyResponse extends ProvenanceFields {
   data: GdpQuarterlyItem[];
 }
 
@@ -49,8 +64,10 @@ export interface CpiCalendarItem {
   value: number;
 }
 
-export interface CpiCalendarResponse {
+export interface CpiCalendarResponse extends ProvenanceFields {
   data: CpiCalendarItem[];
+  from_date?: string | null;
+  to_date?: string | null;
 }
 
 export interface CpiCategory {
@@ -59,7 +76,7 @@ export interface CpiCategory {
   value: number;
 }
 
-export interface CpiCategoriesResponse {
+export interface CpiCategoriesResponse extends ProvenanceFields {
   categories: CpiCategory[];
   total: number;
 }
@@ -71,7 +88,7 @@ export interface FunnelStage {
   value: number;
 }
 
-export interface LaborFunnelResponse {
+export interface LaborFunnelResponse extends ProvenanceFields {
   stages: FunnelStage[];
 }
 
@@ -80,11 +97,9 @@ export interface LaborRankingSeries {
   data: { x: string; y: number }[];
 }
 
-export interface LaborRankingResponse {
+export interface LaborRankingResponse extends ProvenanceFields {
   data: LaborRankingSeries[];
   states: string[];
-  source?: string;
-  latest_month?: string | null;
 }
 
 // States
@@ -101,7 +116,7 @@ export interface StatesGroup {
   data: StatePoint[];
 }
 
-export interface StatesComparisonResponse {
+export interface StatesComparisonResponse extends ProvenanceFields {
   data: StatesGroup[];
 }
 
@@ -117,7 +132,7 @@ export interface RateSeries {
   data: RatePoint[];
 }
 
-export interface RatesHistoryResponse {
+export interface RatesHistoryResponse extends ProvenanceFields {
   series: RateSeries[];
 }
 
@@ -128,7 +143,7 @@ export interface TreeNode {
   children?: TreeNode[];
 }
 
-export interface SectorsGdpResponse {
+export interface SectorsGdpResponse extends ProvenanceFields {
   tree: TreeNode;
 }
 
@@ -143,20 +158,22 @@ export interface SentimentSeries {
   data: SentimentDataPoint[];
 }
 
-export interface SentimentRadialResponse {
+export interface SentimentRadialResponse extends ProvenanceFields {
   data: SentimentSeries[];
+  max_value: number;
   current: number | null;
 }
 
 // Series (generic)
-export interface SeriesDataResponse {
+export interface SeriesDataResponse extends ProvenanceFields {
   series_id: string;
   title: string;
-  units: string;
+  units: string | null;
   data: { date: string; value: number }[];
 }
 
 // Overview (combined)
-export interface OverviewResponse {
+export interface OverviewResponse extends ProvenanceFields {
   kpis: KpiItem[];
+  updated_at?: string | null;
 }
