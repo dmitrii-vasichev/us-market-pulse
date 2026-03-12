@@ -17,6 +17,7 @@ describe("ChartUnavailableState", () => {
 
     expect(screen.getByText("Temporarily unavailable")).toBeInTheDocument();
     expect(screen.getByText("Upgrading to source-backed methodology")).toBeInTheDocument();
+    expect(screen.getByText("Source: Illustrative placeholder")).toBeInTheDocument();
     expect(screen.getByText("Illustrative")).toBeInTheDocument();
     expect(screen.getByText("Static sector share approximation.")).toBeInTheDocument();
   });

@@ -38,6 +38,8 @@ jest.mock("@nivo/waffle", () => ({
 }));
 
 const mockApi = {
+  getKpiSummary: jest.fn(),
+  getLaborFunnel: jest.fn(),
   getLaborRanking: jest.fn(),
   getCpiCategories: jest.fn(),
   getCpiCalendar: jest.fn(),
@@ -73,6 +75,8 @@ import SectorTreemap from "@/components/charts/SectorTreemap";
 import SentimentRadial from "@/components/charts/SentimentRadial";
 import Sp500Area from "@/components/charts/Sp500Area";
 import GdpWaffle from "@/components/charts/GdpWaffle";
+import EconomicFunnel from "@/components/charts/EconomicFunnel";
+import BulletTargets from "@/components/charts/BulletTargets";
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -174,6 +178,35 @@ describe("CpiCalendar", () => {
   });
 });
 
+describe("EconomicFunnel", () => {
+  it("renders derived provenance metadata alongside the chart", async () => {
+    mockApi.getLaborFunnel.mockResolvedValue({
+      source: "Source: FRED · Q4 2025",
+      methodology_type: "derived",
+      methodology_note: "Derived from stored GDP levels and fixed backend shares.",
+      stages: [
+        { id: "gdp", label: "Total GDP", value: 28000 },
+        { id: "gni", label: "Gross National Income", value: 19040 },
+        { id: "comp", label: "Employee Compensation", value: 17360 },
+      ],
+    });
+
+    await act(async () => {
+      render(<EconomicFunnel />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("nivo-funnel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Source: FRED · Q4 2025")).toBeInTheDocument();
+    expect(screen.getByText("Derived")).toBeInTheDocument();
+    expect(
+      screen.getByText("Derived from stored GDP levels and fixed backend shares."),
+    ).toBeInTheDocument();
+  });
+});
+
 describe("GdpQuarterly", () => {
   it("renders chart with payload-driven provenance", async () => {
     mockApi.getGdpQuarterly.mockResolvedValue({
@@ -243,6 +276,68 @@ describe("RatesLine", () => {
     });
     expect(screen.getByText("Source: FRED · Jan 2026")).toBeInTheDocument();
     expect(screen.getByText("Source-backed")).toBeInTheDocument();
+  });
+});
+
+describe("BulletTargets", () => {
+  it("renders derived provenance metadata for KPI-driven bullets", async () => {
+    mockApi.getKpiSummary.mockResolvedValue({
+      source: "Source: FRED · Mar 10, 2026",
+      methodology_type: "derived",
+      methodology_note: "Derived from stored dashboard KPI inputs and static dashboard thresholds.",
+      kpis: [
+        {
+          key: "gdp",
+          label: "Total GDP",
+          current_value: 28000,
+          previous_value: 27800,
+          change_absolute: 200,
+          change_percent: 0.72,
+          period_label: "QoQ",
+          positive_is_good: true,
+          format: "trillions",
+          sparkline: [{ date: "2025-10-01", value: 28000 }],
+        },
+        {
+          key: "cpi",
+          label: "Inflation Rate",
+          current_value: 309,
+          previous_value: 301,
+          change_absolute: 8,
+          change_percent: 2.7,
+          period_label: "YoY",
+          positive_is_good: false,
+          format: "percent_change",
+          sparkline: [{ date: "2026-01-01", value: 309 }],
+        },
+        {
+          key: "fed_rate",
+          label: "Fed Funds Rate",
+          current_value: 4.5,
+          previous_value: 4.5,
+          change_absolute: 0,
+          change_percent: 0,
+          period_label: "Current",
+          positive_is_good: false,
+          format: "percent",
+          sparkline: [{ date: "2026-03-10", value: 4.5 }],
+        },
+      ],
+    });
+
+    await act(async () => {
+      render(<BulletTargets />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("nivo-bullet")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Source: FRED · Mar 10, 2026")).toBeInTheDocument();
+    expect(screen.getByText("Derived")).toBeInTheDocument();
+    expect(
+      screen.getByText("Derived from stored dashboard KPI inputs and static dashboard thresholds."),
+    ).toBeInTheDocument();
   });
 });
 

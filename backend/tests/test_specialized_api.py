@@ -3,6 +3,8 @@
 from decimal import Decimal
 from datetime import date
 
+import pytest
+
 
 async def test_gdp_components(client):
     c, mock_conn = client
@@ -333,3 +335,24 @@ async def test_overview(client):
     data = resp.json()
     assert "kpis" in data
     assert data["methodology_type"] == "source_backed"
+
+
+@pytest.mark.parametrize(
+    ("path", "note_fragment"),
+    [
+        ("/api/v1/cpi/categories", "static illustrative values"),
+        ("/api/v1/states/comparison", "static illustrative sample values"),
+        ("/api/v1/sectors/gdp", "static illustrative tree"),
+    ],
+)
+async def test_illustrative_endpoints_keep_provenance_dates_empty(client, path, note_fragment):
+    c, _ = client
+
+    resp = await c.get(path)
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["methodology_type"] == "illustrative"
+    assert data["latest_observation_date"] is None
+    assert data["latest_month"] is None
+    assert note_fragment in data["methodology_note"]
