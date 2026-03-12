@@ -572,16 +572,237 @@ async def test_rates_history(client):
 
 
 async def test_sectors_gdp(client):
-    c, _ = client
+    c, mock_conn = client
+    mock_conn.fetch.return_value = [
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "root",
+            "parent_node_key": None,
+            "node_label": "US GDP",
+            "depth": 0,
+            "display_order": 0,
+            "value_current_dollars": Decimal("1000"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "services",
+            "parent_node_key": "root",
+            "node_label": "Services",
+            "depth": 1,
+            "display_order": 1,
+            "value_current_dollars": Decimal("200"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "industry",
+            "parent_node_key": "root",
+            "node_label": "Industry",
+            "depth": 1,
+            "display_order": 2,
+            "value_current_dollars": Decimal("200"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "government",
+            "parent_node_key": "root",
+            "node_label": "Government",
+            "depth": 1,
+            "display_order": 3,
+            "value_current_dollars": Decimal("150"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "other",
+            "parent_node_key": "root",
+            "node_label": "Other",
+            "depth": 1,
+            "display_order": 4,
+            "value_current_dollars": Decimal("450"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "services.finance-insurance",
+            "parent_node_key": "services",
+            "node_label": "Finance & Insurance",
+            "depth": 2,
+            "display_order": 1,
+            "value_current_dollars": Decimal("80"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "services.real-estate",
+            "parent_node_key": "services",
+            "node_label": "Real Estate",
+            "depth": 2,
+            "display_order": 7,
+            "value_current_dollars": Decimal("120"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "industry.manufacturing",
+            "parent_node_key": "industry",
+            "node_label": "Manufacturing",
+            "depth": 2,
+            "display_order": 1,
+            "value_current_dollars": Decimal("150"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "industry.construction",
+            "parent_node_key": "industry",
+            "node_label": "Construction",
+            "depth": 2,
+            "display_order": 2,
+            "value_current_dollars": Decimal("50"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "government.federal",
+            "parent_node_key": "government",
+            "node_label": "Federal",
+            "depth": 2,
+            "display_order": 1,
+            "value_current_dollars": Decimal("100"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "government.state-local",
+            "parent_node_key": "government",
+            "node_label": "State & Local",
+            "depth": 2,
+            "display_order": 2,
+            "value_current_dollars": Decimal("50"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "other.transportation",
+            "parent_node_key": "other",
+            "node_label": "Transportation",
+            "depth": 2,
+            "display_order": 1,
+            "value_current_dollars": Decimal("150"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 10, 1),
+            "period_label": "Q4 2025",
+            "node_key": "other.other-services",
+            "parent_node_key": "other",
+            "node_label": "Other Services",
+            "depth": 2,
+            "display_order": 5,
+            "value_current_dollars": Decimal("300"),
+            "source_provider": "BEA",
+            "source_dataset": "GDP by Industry, current-dollar value added by industry",
+            "source_metadata": {},
+            "collected_at": None,
+        },
+    ]
+
     resp = await c.get("/api/v1/sectors/gdp")
     assert resp.status_code == 200
     data = resp.json()
-    assert "tree" in data
     assert data["tree"]["name"] == "US GDP"
-    assert len(data["tree"]["children"]) == 4
-    assert data["source"] == "Source: Illustrative placeholder"
-    assert data["methodology_type"] == "illustrative"
-    assert "static illustrative tree" in data["methodology_note"]
+    assert [node["name"] for node in data["tree"]["children"]] == [
+        "Services",
+        "Industry",
+        "Government",
+        "Other",
+    ]
+    services = data["tree"]["children"][0]
+    assert [node["name"] for node in services["children"]] == [
+        "Finance & Insurance",
+        "Real Estate",
+    ]
+    assert services["children"][0]["value"] == 8.0
+    assert services["children"][1]["value"] == 12.0
+    assert sum(
+        leaf["value"]
+        for group in data["tree"]["children"]
+        for leaf in group["children"]
+    ) == 100.0
+
+    assert data["source"] == "Source: BEA · Q4 2025"
+    assert data["methodology_type"] == "derived"
+    assert data["latest_observation_date"] == "2025-10-01"
+    assert data["latest_month"] == "Q4 2025"
+    assert data["source_dataset"] == "GDP by Industry, current-dollar value added by industry"
+    assert "percent shares" in data["methodology_note"]
+
+
+async def test_sectors_gdp_empty_snapshot(client):
+    c, mock_conn = client
+    mock_conn.fetch.return_value = []
+
+    resp = await c.get("/api/v1/sectors/gdp")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["tree"]["name"] == "US GDP"
+    assert data["tree"]["children"] == []
+    assert data["source"] == "Source: BEA"
+    assert data["methodology_type"] == "derived"
+    assert data["latest_observation_date"] is None
+    assert data["latest_month"] is None
+    assert "percent shares" in data["methodology_note"]
 
 
 async def test_sentiment_radial_empty(client):
@@ -655,22 +876,3 @@ async def test_overview(client):
     data = resp.json()
     assert "kpis" in data
     assert data["methodology_type"] == "source_backed"
-
-
-@pytest.mark.parametrize(
-    ("path", "note_fragment"),
-    [
-        ("/api/v1/sectors/gdp", "static illustrative tree"),
-    ],
-)
-async def test_illustrative_endpoints_keep_provenance_dates_empty(client, path, note_fragment):
-    c, _ = client
-
-    resp = await c.get(path)
-
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["methodology_type"] == "illustrative"
-    assert data["latest_observation_date"] is None
-    assert data["latest_month"] is None
-    assert note_fragment in data["methodology_note"]
