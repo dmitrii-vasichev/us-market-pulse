@@ -63,7 +63,16 @@ describe("ChartCard", () => {
         <div>chart</div>
       </ChartCard>
     );
-    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-x-hidden");
+    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-hidden");
+  });
+
+  it("can keep chart overflow visible when requested", () => {
+    render(
+      <ChartCard insight="Test" horizontalOverflow="visible">
+        <div>chart</div>
+      </ChartCard>
+    );
+    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-visible");
   });
 
   it("does not render ? button when contextualNote is not provided", () => {

@@ -10,7 +10,7 @@ interface ChartCardProps {
   height?: number;
   animationClass?: string;
   contextualNote?: string;
-  horizontalOverflow?: "auto" | "hidden";
+  horizontalOverflow?: "auto" | "hidden" | "visible";
   children: React.ReactNode;
 }
 
@@ -48,6 +48,12 @@ export default function ChartCard({
       document.removeEventListener("keydown", handleEscape);
     };
   }, [tooltipOpen]);
+
+  const overflowClassName = horizontalOverflow === "auto"
+    ? "overflow-x-auto -mx-1"
+    : horizontalOverflow === "hidden"
+      ? "overflow-hidden"
+      : "overflow-visible";
 
   return (
     <div className={`h-full flex flex-col bg-[#1A1D27] rounded-2xl border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:bg-[#22263A]${animationClass ? ` animate-fade-in-up ${animationClass}` : ""}`}>
@@ -92,11 +98,11 @@ export default function ChartCard({
       </div>
       <div
         data-testid="chart-card-scroll-container"
-        className={`flex-1 min-h-0 ${horizontalOverflow === "hidden" ? "overflow-x-hidden" : "overflow-x-auto -mx-1"}`}
+        className={`flex-1 min-h-0 ${overflowClassName}`}
       >
         <div
           style={{ minHeight: height, minWidth: "280px" }}
-          className={`relative h-full ${horizontalOverflow === "hidden" ? "" : "px-1"}`}
+          className={`relative h-full ${horizontalOverflow === "auto" ? "px-1" : ""}`}
         >
           {children}
         </div>
