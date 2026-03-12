@@ -3,15 +3,19 @@
 from fastapi import APIRouter
 
 from app.db.database import get_pool
+from app.db.queries import get_series_metadata
+from app.models.schemas import CpiCalendarResponse
+from app.services.provenance import build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/cpi", tags=["CPI"])
 
 
-@router.get("/calendar")
+@router.get("/calendar", response_model=CpiCalendarResponse)
 async def cpi_calendar():
     """CPI data for calendar heatmap (Nivo @nivo/calendar format)."""
     pool = await get_pool()
     async with pool.acquire() as conn:
+        meta = await get_series_metadata(conn, "CPIAUCSL")
         rows = await conn.fetch(
             """
             SELECT date, value FROM economic_series
@@ -19,8 +23,23 @@ async def cpi_calendar():
             ORDER BY date ASC
             """
         )
+        latest_date = rows[-1]["date"] if rows else None
+        provenance = build_metadata_provenance(
+            [meta] if meta else [],
+            methodology_type="source_backed",
+            latest_date=latest_date,
+            period_kind="month",
+            fallback_source_name="BLS",
+            fallback_dataset="Consumer Price Index for All Urban Consumers",
+            source_series_ids=["CPIAUCSL"],
+        )
         if len(rows) < 13:
-            return {"data": [], "from_date": None, "to_date": None}
+            return CpiCalendarResponse(
+                data=[],
+                from_date=None,
+                to_date=None,
+                **provenance.model_dump(),
+            )
 
         # Compute YoY % change for each month
         values = [(r["date"], float(r["value"])) for r in rows]
@@ -35,11 +54,12 @@ async def cpi_calendar():
                     "value": round(yoy_change, 2),
                 })
 
-        return {
-            "data": calendar_data,
-            "from_date": calendar_data[0]["day"] if calendar_data else None,
-            "to_date": calendar_data[-1]["day"] if calendar_data else None,
-        }
+        return CpiCalendarResponse(
+            data=calendar_data,
+            from_date=calendar_data[0]["day"] if calendar_data else None,
+            to_date=calendar_data[-1]["day"] if calendar_data else None,
+            **provenance.model_dump(),
+        )
 
 
 @router.get("/categories")
