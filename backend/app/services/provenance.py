@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import calendar
 from datetime import date
-from typing import Literal, Sequence
+from typing import Any, Literal, Mapping, Sequence
 
 from app.models.schemas import (
     FreshnessStatus,
+    MethodologyInput,
     MethodologyType,
     ProvenancePayload,
+)
+from app.services.methodology import (
+    ChartMethodologyDefinition,
+    MethodologyInputDefinition,
 )
 
 PeriodKind = Literal["date", "month", "quarter", "year"]
@@ -84,13 +89,54 @@ def _dedupe_preserve(values: Sequence[str]) -> list[str]:
     return result
 
 
+def _serialize_methodology_input(
+    definition: MethodologyInputDefinition,
+    metadata_row: Mapping[str, Any] | None,
+) -> MethodologyInput:
+    dataset = definition.dataset
+    source = definition.source
+    if metadata_row is not None:
+        dataset = str(metadata_row["title"]) if metadata_row.get("title") else dataset
+        source = str(metadata_row["source"]) if metadata_row.get("source") else source
+
+    return MethodologyInput(
+        key=definition.key,
+        label=definition.label,
+        source=source,
+        dataset=dataset,
+        series_id=definition.series_id,
+        kind=definition.kind,
+        role=definition.role,
+    )
+
+
+def build_methodology_inputs(
+    methodology: ChartMethodologyDefinition,
+    metadata_rows: Sequence[Mapping[str, Any]],
+) -> list[MethodologyInput]:
+    metadata_by_series_id = {
+        str(row["series_id"]): row
+        for row in metadata_rows
+        if row.get("series_id")
+    }
+    return [
+        _serialize_methodology_input(
+            definition,
+            metadata_by_series_id.get(definition.series_id) if definition.series_id else None,
+        )
+        for definition in methodology.inputs
+    ]
+
+
 def build_metadata_provenance(
-    metadata_rows: Sequence[dict],
+    metadata_rows: Sequence[Mapping[str, Any]],
     *,
     methodology_type: MethodologyType,
     latest_date: date | None = None,
     period_kind: PeriodKind | None = None,
     methodology_note: str | None = None,
+    methodology_key: str | None = None,
+    methodology_inputs: list[MethodologyInput] | None = None,
     freshness_status: FreshnessStatus | None = None,
     fallback_source_name: str = "Unknown",
     fallback_dataset: str | None = None,
@@ -122,9 +168,34 @@ def build_metadata_provenance(
         latest_date=latest_date,
         period_kind=period_kind,
         methodology_note=methodology_note,
+        methodology_key=methodology_key,
+        methodology_inputs=methodology_inputs,
         source_dataset=source_dataset,
         source_series_ids=source_series_ids or None,
         freshness_status=freshness_status,
+    )
+
+
+def build_chart_methodology_provenance(
+    methodology: ChartMethodologyDefinition,
+    metadata_rows: Sequence[Mapping[str, Any]],
+    *,
+    latest_date: date | None = None,
+    period_kind: PeriodKind | None = None,
+    freshness_status: FreshnessStatus | None = None,
+) -> ProvenancePayload:
+    return build_metadata_provenance(
+        metadata_rows,
+        methodology_type=methodology.methodology_type,
+        latest_date=latest_date,
+        period_kind=period_kind,
+        methodology_note=methodology.methodology_note,
+        methodology_key=methodology.key,
+        methodology_inputs=build_methodology_inputs(methodology, metadata_rows),
+        freshness_status=freshness_status,
+        fallback_source_name=methodology.fallback_source_name,
+        fallback_dataset=methodology.fallback_dataset,
+        source_series_ids=list(methodology.source_series_ids),
     )
 
 
@@ -135,6 +206,8 @@ def build_provenance(
     latest_date: date | None = None,
     period_kind: PeriodKind = "month",
     methodology_note: str | None = None,
+    methodology_key: str | None = None,
+    methodology_inputs: list[MethodologyInput] | None = None,
     source_dataset: str | None = None,
     source_series_ids: list[str] | None = None,
     freshness_status: FreshnessStatus | None = None,
@@ -151,6 +224,8 @@ def build_provenance(
         latest_observation_date=latest_observation_date,
         latest_month=latest_month,
         methodology_note=methodology_note,
+        methodology_key=methodology_key,
+        methodology_inputs=methodology_inputs or None,
         source_dataset=source_dataset,
         source_series_ids=source_series_ids or None,
         freshness_status=freshness_status,

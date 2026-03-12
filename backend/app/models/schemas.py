@@ -1,11 +1,29 @@
 """Pydantic response models for the API."""
 
 from typing import Literal
+
 from pydantic import BaseModel
 
 
 MethodologyType = Literal["source_backed", "derived", "illustrative"]
 FreshnessStatus = Literal["current", "stale", "unknown"]
+MethodologyInputKind = Literal["stored_series", "derived_policy", "static_policy"]
+
+
+class MethodologyInput(BaseModel):
+    key: str
+    label: str
+    source: str
+    dataset: str | None = None
+    series_id: str | None = None
+    kind: MethodologyInputKind = "stored_series"
+    role: str | None = None
+
+
+class KpiTargetPolicy(BaseModel):
+    target: float
+    max: float
+    ranges: list[float]
 
 
 class SparklinePoint(BaseModel):
@@ -24,6 +42,7 @@ class KpiItem(BaseModel):
     positive_is_good: bool
     format: str
     sparkline: list[SparklinePoint]
+    target_policy: KpiTargetPolicy | None = None
 
 
 class ProvenancePayload(BaseModel):
@@ -32,6 +51,8 @@ class ProvenancePayload(BaseModel):
     latest_observation_date: str | None = None
     latest_month: str | None = None
     methodology_note: str | None = None
+    methodology_key: str | None = None
+    methodology_inputs: list[MethodologyInput] | None = None
     source_dataset: str | None = None
     source_series_ids: list[str] | None = None
     freshness_status: FreshnessStatus | None = None

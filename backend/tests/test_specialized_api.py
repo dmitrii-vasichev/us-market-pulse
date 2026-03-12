@@ -31,6 +31,11 @@ async def test_gdp_components(client):
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] == "2026-01-01"
     assert data["latest_month"] == "Q1 2026"
+    assert data["methodology_key"] == "gdp_waterfall_current_share_split"
+    assert [item["key"] for item in data["methodology_inputs"]] == [
+        "gdp_growth_rate",
+        "component_share_policy",
+    ]
     assert data["source_series_ids"] == ["A191RL1Q225SBEA"]
     assert "fixed backend share assumptions" in data["methodology_note"]
 
@@ -248,6 +253,11 @@ async def test_labor_funnel(client):
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] == "2025-10-01"
     assert data["latest_month"] == "Q4 2025"
+    assert data["methodology_key"] == "labor_funnel_current_share_split"
+    assert [item["key"] for item in data["methodology_inputs"]] == [
+        "gross_domestic_product",
+        "funnel_share_policy",
+    ]
     assert data["source_series_ids"] == ["GDP"]
     assert "fixed backend shares" in data["methodology_note"]
 
