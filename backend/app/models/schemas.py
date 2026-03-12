@@ -16,6 +16,7 @@ class MethodologyInput(BaseModel):
     source: str
     dataset: str | None = None
     series_id: str | None = None
+    unit: str | None = None
     kind: MethodologyInputKind = "stored_series"
     role: str | None = None
 
@@ -188,6 +189,8 @@ class FunnelStage(BaseModel):
     id: str
     label: str
     value: float
+    unit: str | None = None
+    source_input_key: str | None = None
 
 
 class LaborFunnelResponse(ProvenancePayload):

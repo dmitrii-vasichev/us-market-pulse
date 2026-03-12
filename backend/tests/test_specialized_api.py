@@ -328,35 +328,84 @@ async def test_cpi_categories_empty_snapshot_stays_source_backed(client):
 
 async def test_labor_funnel(client):
     c, mock_conn = client
-    mock_conn.fetchrow.side_effect = [
-        {
-            "series_id": "GDP",
-            "title": "Gross Domestic Product",
-            "units": "Billions of Dollars",
-            "frequency": "Quarterly",
-            "source": "FRED",
-            "category": "gdp",
-            "last_updated": None,
-        },
-        {"date": date(2025, 10, 1), "value": Decimal("28000")},
+    mock_conn.fetch.side_effect = [
+        [
+            {
+                "series_id": "GDP",
+                "title": "Gross Domestic Product",
+                "units": "Billions of Dollars",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "gdp",
+                "last_updated": None,
+            },
+            {
+                "series_id": "A023RC1Q027SBEA",
+                "title": "Gross National Income",
+                "units": "Billions of Dollars",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "gdp",
+                "last_updated": None,
+            },
+            {
+                "series_id": "COE",
+                "title": "National Income: Compensation of Employees, Paid",
+                "units": "Billions of Dollars",
+                "frequency": "Quarterly",
+                "source": "FRED",
+                "category": "labor",
+                "last_updated": None,
+            },
+            {
+                "series_id": "PAYEMS",
+                "title": "All Employees, Total Nonfarm",
+                "units": "Thousands of Persons",
+                "frequency": "Monthly",
+                "source": "FRED",
+                "category": "labor",
+                "last_updated": None,
+            },
+        ],
+        [
+            {"series_id": "GDP", "date": date(2025, 10, 1), "value": Decimal("29610.4")},
+            {"series_id": "A023RC1Q027SBEA", "date": date(2025, 10, 1), "value": Decimal("29042.8")},
+            {"series_id": "COE", "date": date(2025, 10, 1), "value": Decimal("17188.5")},
+            {"series_id": "PAYEMS", "date": date(2025, 12, 1), "value": Decimal("159230")},
+        ],
     ]
 
     resp = await c.get("/api/v1/labor/funnel")
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data["stages"]) == 5
-    assert data["stages"][0]["label"] == "Total GDP"
-    assert data["source"] == "Source: FRED · Q4 2025"
+    assert len(data["stages"]) == 4
+    assert [stage["id"] for stage in data["stages"]] == [
+        "gross_domestic_product",
+        "gross_national_income",
+        "employee_compensation",
+        "nonfarm_payroll_employment",
+    ]
+    assert data["stages"][-1] == {
+        "id": "nonfarm_payroll_employment",
+        "label": "Nonfarm Payroll Employment",
+        "value": 159.23,
+        "unit": "millions_persons",
+        "source_input_key": "nonfarm_payroll_employment",
+    }
+    assert data["source"] == "Source: BEA, BLS · Q4 2025"
     assert data["methodology_type"] == "derived"
-    assert data["latest_observation_date"] == "2025-10-01"
+    assert data["latest_observation_date"] == "2025-12-01"
     assert data["latest_month"] == "Q4 2025"
-    assert data["methodology_key"] == "labor_funnel_current_share_split"
+    assert data["methodology_key"] == "labor_funnel_multi_input_alignment"
     assert [item["key"] for item in data["methodology_inputs"]] == [
         "gross_domestic_product",
-        "funnel_share_policy",
+        "gross_national_income",
+        "employee_compensation",
+        "nonfarm_payroll_employment",
+        "aligned_stage_mapping_policy",
     ]
-    assert data["source_series_ids"] == ["GDP"]
-    assert "fixed backend shares" in data["methodology_note"]
+    assert data["source_series_ids"] == ["GDP", "A023RC1Q027SBEA", "COE", "PAYEMS"]
+    assert "converted from thousands to millions of persons" in data["methodology_note"]
 
 
 async def test_labor_ranking(client):

@@ -86,6 +86,8 @@ export interface FunnelStage {
   id: string;
   label: string;
   value: number;
+  unit?: string | null;
+  source_input_key?: string | null;
 }
 
 export interface LaborFunnelResponse extends ProvenanceFields {
