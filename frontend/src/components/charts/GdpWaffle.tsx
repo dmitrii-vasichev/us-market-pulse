@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ResponsiveWaffle } from "@nivo/waffle";
 import { api } from "@/lib/api";
 import { nivoTheme, colorScheme } from "@/lib/nivo-theme";
-import type { TreeNode } from "@/lib/types";
+import type { SectorsGdpResponse, TreeNode } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
@@ -23,12 +23,14 @@ function flattenTree(node: TreeNode): { id: string; label: string; value: number
 }
 
 export default function GdpWaffle() {
-  const [data, setData] = useState<{ id: string; label: string; value: number }[]>([]);
+  const [response, setResponse] = useState<SectorsGdpResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getSectorsGdp().then((d) => setData(flattenTree(d.tree))).catch(() => setError(true));
+    api.getSectorsGdp().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const data = response ? flattenTree(response.tree) : [];
 
   if (error) return <ChartErrorFallback title="GDP by Sector" />;
   if (!data.length) return <ChartCardSkeleton />;
@@ -39,7 +41,11 @@ export default function GdpWaffle() {
     : "Services sectors dominate at 78% of GDP; manufacturing at 11%";
 
   return (
-    <ChartCard insight={insight} source="Source: BEA · Q4 2025">
+    <ChartCard
+      insight={insight}
+      source={response?.source}
+      contextualNote={response?.methodology_note ?? undefined}
+    >
       <ResponsiveWaffle
         data={data}
         total={100}

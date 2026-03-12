@@ -27,9 +27,10 @@ async def test_kpi_summary_empty(client):
     assert "kpis" in data
     assert isinstance(data["kpis"], list)
     assert data["source"] == "Source: FRED"
-    assert data["methodology_type"] == "source_backed"
+    assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] is None
     assert data["latest_month"] is None
+    assert "stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS observations" in data["methodology_note"]
 
 
 async def test_kpi_summary_with_provenance(client):
@@ -67,11 +68,12 @@ async def test_kpi_summary_with_provenance(client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["source"] == "Source: FRED · Mar 10, 2026"
-    assert data["methodology_type"] == "source_backed"
+    assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] == "2026-03-10"
     assert data["latest_month"] is None
     assert data["source_series_ids"] == ["GDP", "CPIAUCSL", "UNRATE", "FEDFUNDS"]
     assert "Real Gross Domestic Product" in data["source_dataset"]
+    assert "static dashboard thresholds" in data["methodology_note"]
 
 
 async def test_meta_series_empty(client):
