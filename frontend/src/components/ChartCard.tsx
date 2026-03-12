@@ -71,6 +71,10 @@ export default function ChartCard({
       : "overflow-visible";
   const sourceLabel = provenance?.source ?? source;
   const methodologyNote = provenance?.methodology_note ?? null;
+  const methodologyInputs = provenance?.methodology_inputs ?? [];
+  const methodologyInputSummary = methodologyInputs.length
+    ? methodologyInputs.map((input) => input.label).join(" • ")
+    : null;
   const freshnessNode = freshnessIndicator ?? (
     getFreshnessMicrocopy(provenance?.freshness_status) ? (
       <span
@@ -81,7 +85,13 @@ export default function ChartCard({
       </span>
     ) : null
   );
-  const hasProvenanceRow = Boolean(sourceLabel || provenance?.methodology_type || freshnessNode || methodologyNote);
+  const hasProvenanceRow = Boolean(
+    sourceLabel
+    || provenance?.methodology_type
+    || freshnessNode
+    || methodologyNote
+    || methodologyInputSummary,
+  );
 
   return (
     <div className={`h-full flex flex-col bg-[#1A1D27] rounded-2xl border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:bg-[#22263A]${animationClass ? ` animate-fade-in-up ${animationClass}` : ""}`}>
@@ -157,6 +167,14 @@ export default function ChartCard({
               className="mt-1.5 text-[10px] leading-relaxed text-[#8B93A7]"
             >
               {methodologyNote}
+            </p>
+          )}
+          {methodologyInputSummary && (
+            <p
+              data-testid="chart-card-methodology-inputs"
+              className="mt-1.5 text-[10px] leading-relaxed text-[#6E768A]"
+            >
+              Inputs: {methodologyInputSummary}
             </p>
           )}
         </div>

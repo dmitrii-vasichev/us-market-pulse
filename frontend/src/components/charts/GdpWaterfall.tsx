@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
-import type { BarCustomLayerProps } from "@nivo/bar";
 import type { AxisTickProps } from "@nivo/axes";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
@@ -99,32 +98,6 @@ export function getGdpWaterfallValueScale(values: number[]) {
   };
 }
 
-// Annotation: callout on Net Exports bar
-// Hidden on mobile (innerWidth < 400 ~ viewport < 640px)
-function NetExportsAnnotation({ bars, innerWidth }: BarCustomLayerProps<BarDatum>) {
-  if (innerWidth < 400) return null;
-
-  const netExportsBar = bars.find(
-    (b) => typeof b.data.id === "string" && b.data.id.toLowerCase().includes("net export"),
-  );
-  if (!netExportsBar) return null;
-
-  const cx = netExportsBar.x + netExportsBar.width / 2;
-  const barTop = netExportsBar.y;
-  // Place annotation above the negative bar (pointing up from the bar top)
-  const lineStartY = barTop - 4;
-  const lineEndY = barTop - 22;
-
-  return (
-    <g>
-      <line x1={cx} y1={lineStartY} x2={cx} y2={lineEndY} stroke="#555D73" strokeWidth={1} />
-      <text x={cx} y={lineEndY - 6} textAnchor="middle" fontSize={11} fill="#555D73">
-        First drag in 3 quarters
-      </text>
-    </g>
-  );
-}
-
 export default function GdpWaterfall() {
   const [data, setData] = useState<GdpComponentsResponse | null>(null);
   const [error, setError] = useState(false);
@@ -151,16 +124,22 @@ export default function GdpWaterfall() {
       ? Math.round((consumer.value / data.total_growth) * 100)
       : null;
   const quarterLabel = formatWaterfallQuarterLabel(data.quarter);
+  const componentLabels = data.methodology_inputs
+    ?.filter((input) => input.kind !== "derived_policy")
+    .map((input) => input.label)
+    .join(", ");
   const insight = consumerShare !== null
     ? `Consumer spending drove ${consumerShare}% of ${quarterLabel ?? "recent"} growth (${data.total_growth}% total)`
     : `Consumer spending remained the largest ${quarterLabel ?? "recent"} growth driver`;
+  const description = componentLabels
+    ? `Stored component contribution inputs for ${componentLabels} are rendered directly from the response payload.`
+    : "Stored component contribution inputs are rendered directly from the response payload.";
 
   return (
     <ChartCard
       insight={insight}
-      description="While overall GDP grew, the composition shifted notably: consumers led growth, while net exports dragged — the first negative contribution in 3 quarters."
+      description={description}
       provenance={data}
-      contextualNote="While consumers drove growth, the negative net exports contribution reflects import demand outpacing exports — typical of an accelerating domestic economy. Watch this spread as global demand shifts in 2026."
     >
       <ResponsiveBar
         data={barData}
@@ -185,7 +164,7 @@ export default function GdpWaterfall() {
         labelTextColor="#FFFFFF"
         animate={true}
         enableGridY={true}
-        layers={["grid", "bars", "axes", "markers", "legends", NetExportsAnnotation]}
+        layers={["grid", "bars", "axes", "markers", "legends"]}
       />
     </ChartCard>
   );
