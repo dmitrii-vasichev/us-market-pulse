@@ -341,3 +341,65 @@ async def test_collect_dimensional_snapshots_reports_partial_failure():
     assert result["datasets_collected"] == 2
     assert result["records_inserted"] == 29
     assert result["errors"] == ["state_indicator_snapshots: upstream join failed"]
+
+
+async def test_collect_dimensional_snapshots_collects_all_phase2_datasets():
+    conn = AsyncMock()
+    client = AsyncMock()
+
+    with (
+        patch(
+            "data_collector.fetch_cpi_category_snapshots",
+            new=AsyncMock(return_value=[{"snapshot_date": date(2025, 12, 1)}]),
+        ) as mock_fetch_cpi,
+        patch(
+            "data_collector.upsert_cpi_category_snapshots",
+            new=AsyncMock(return_value=8),
+        ) as mock_upsert_cpi,
+        patch(
+            "data_collector.fetch_state_indicator_snapshots",
+            new=AsyncMock(return_value=[{"snapshot_date": date(2025, 1, 1)}]),
+        ) as mock_fetch_state,
+        patch(
+            "data_collector.upsert_state_indicator_snapshots",
+            new=AsyncMock(return_value=12),
+        ) as mock_upsert_state,
+        patch(
+            "data_collector.fetch_sector_gdp_snapshots",
+            new=AsyncMock(return_value=[{"snapshot_date": date(2025, 10, 1)}]),
+        ) as mock_fetch_sector,
+        patch(
+            "data_collector.upsert_sector_gdp_snapshots",
+            new=AsyncMock(return_value=22),
+        ) as mock_upsert_sector,
+    ):
+        result = await collect_dimensional_snapshots(
+            conn,
+            client,
+            observation_start="2021-01-01",
+            bea_api_key="bea-key",
+            census_api_key="census-key",
+            census_vintage=2025,
+        )
+
+    assert result == {
+        "datasets_collected": 3,
+        "records_inserted": 42,
+        "errors": [],
+    }
+    mock_fetch_cpi.assert_awaited_once_with(client, [2021, 2022, 2023, 2024, 2025])
+    mock_upsert_cpi.assert_awaited_once_with(conn, [{"snapshot_date": date(2025, 12, 1)}])
+    mock_fetch_state.assert_awaited_once_with(
+        client,
+        [2021, 2022, 2023, 2024, 2025],
+        bea_api_key="bea-key",
+        census_vintage=2025,
+        census_api_key="census-key",
+    )
+    mock_upsert_state.assert_awaited_once_with(conn, [{"snapshot_date": date(2025, 1, 1)}])
+    mock_fetch_sector.assert_awaited_once_with(
+        client,
+        [2021, 2022, 2023, 2024, 2025, 2026],
+        bea_api_key="bea-key",
+    )
+    mock_upsert_sector.assert_awaited_once_with(conn, [{"snapshot_date": date(2025, 10, 1)}])
