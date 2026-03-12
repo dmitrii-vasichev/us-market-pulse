@@ -1,5 +1,17 @@
 export type MethodologyType = "source_backed" | "derived" | "illustrative";
 export type FreshnessStatus = "current" | "stale" | "unknown";
+export type MethodologyInputKind = "stored_series" | "derived_policy" | "static_policy";
+
+export interface MethodologyInput {
+  key: string;
+  label: string;
+  source: string;
+  dataset?: string | null;
+  series_id?: string | null;
+  unit?: string | null;
+  kind?: MethodologyInputKind;
+  role?: string | null;
+}
 
 export interface ProvenanceFields {
   source: string;
@@ -7,6 +19,8 @@ export interface ProvenanceFields {
   latest_observation_date?: string | null;
   latest_month?: string | null;
   methodology_note?: string | null;
+  methodology_key?: string | null;
+  methodology_inputs?: MethodologyInput[] | null;
   source_dataset?: string | null;
   source_series_ids?: string[] | null;
   freshness_status?: FreshnessStatus | null;
