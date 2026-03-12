@@ -59,17 +59,17 @@ const CHART_RUNTIME_EXPECTATIONS: ChartRuntimeExpectation[] = [
   { id: "overview.cpi-calendar", page: "overview", route: "/", component: "CpiCalendar", endpoint: "/api/v1/cpi/calendar", methodology_type: "source_backed", public: true },
   { id: "overview.economic-funnel", page: "overview", route: "/", component: "EconomicFunnel", endpoint: "/api/v1/labor/funnel", methodology_type: "derived", public: true },
   { id: "overview.bullet-targets", page: "overview", route: "/", component: "BulletTargets", endpoint: "/api/v1/kpi/summary", methodology_type: "derived", public: true },
-  { id: "overview.gdp-waffle", page: "overview", route: "/", component: "GdpWaffle", endpoint: "/api/v1/sectors/gdp", methodology_type: "illustrative", public: false },
+  { id: "overview.gdp-waffle", page: "overview", route: "/", component: "GdpWaffle", endpoint: "/api/v1/sectors/gdp", methodology_type: "derived", public: true },
   { id: "labor.unemployment-bump", page: "labor", route: "/labor", component: "UnemploymentBump", endpoint: "/api/v1/labor/ranking", methodology_type: "source_backed", public: true },
-  { id: "labor.cpi-heatmap", page: "labor", route: "/labor", component: "CpiHeatmap", endpoint: "/api/v1/cpi/categories", methodology_type: "illustrative", public: false },
-  { id: "labor.state-scatter", page: "labor", route: "/labor", component: "StateScatter", endpoint: "/api/v1/states/comparison", methodology_type: "illustrative", public: false },
+  { id: "labor.cpi-heatmap", page: "labor", route: "/labor", component: "CpiHeatmap", endpoint: "/api/v1/cpi/categories", methodology_type: "source_backed", public: true },
+  { id: "labor.state-scatter", page: "labor", route: "/labor", component: "StateScatter", endpoint: "/api/v1/states/comparison", methodology_type: "derived", public: true },
   { id: "labor.economic-funnel", page: "labor", route: "/labor", component: "EconomicFunnel", endpoint: "/api/v1/labor/funnel", methodology_type: "derived", public: true },
   { id: "labor.cpi-calendar", page: "labor", route: "/labor", component: "CpiCalendar", endpoint: "/api/v1/cpi/calendar", methodology_type: "source_backed", public: true },
   { id: "markets.rates-line", page: "markets", route: "/markets", component: "RatesLine", endpoint: "/api/v1/rates/history", methodology_type: "source_backed", public: true },
-  { id: "markets.sector-treemap", page: "markets", route: "/markets", component: "SectorTreemap", endpoint: "/api/v1/sectors/gdp", methodology_type: "illustrative", public: false },
+  { id: "markets.sector-treemap", page: "markets", route: "/markets", component: "SectorTreemap", endpoint: "/api/v1/sectors/gdp", methodology_type: "derived", public: true },
   { id: "markets.sentiment-radial", page: "markets", route: "/markets", component: "SentimentRadial", endpoint: "/api/v1/sentiment/radial", methodology_type: "source_backed", public: true },
   { id: "markets.sp500-area", page: "markets", route: "/markets", component: "Sp500Area", endpoint: "/api/v1/series/SP500", methodology_type: "source_backed", public: true },
-  { id: "markets.gdp-waffle", page: "markets", route: "/markets", component: "GdpWaffle", endpoint: "/api/v1/sectors/gdp", methodology_type: "illustrative", public: false },
+  { id: "markets.gdp-waffle", page: "markets", route: "/markets", component: "GdpWaffle", endpoint: "/api/v1/sectors/gdp", methodology_type: "derived", public: true },
 ];
 
 function readJson<T>(targetPath: string): T {
