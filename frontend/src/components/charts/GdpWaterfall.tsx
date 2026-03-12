@@ -145,16 +145,13 @@ export default function GdpWaterfall() {
   const insight = consumerShare !== null
     ? `Consumer spending drove ${consumerShare}% of Q4 growth (${data.total_growth}% total)`
     : "Consumer spending drove nearly half of Q4 growth";
-  const contextualNote = data.methodology_note
-    ? `${data.methodology_note} While consumers drove growth, the negative net exports contribution reflects import demand outpacing exports — typical of an accelerating domestic economy. Watch this spread as global demand shifts in 2026.`
-    : "While consumers drove growth, the negative net exports contribution reflects import demand outpacing exports — typical of an accelerating domestic economy. Watch this spread as global demand shifts in 2026.";
 
   return (
     <ChartCard
       insight={insight}
       description="While overall GDP grew, the composition shifted notably: consumers led growth, while net exports dragged — the first negative contribution in 3 quarters."
-      source={data.source}
-      contextualNote={contextualNote}
+      provenance={data}
+      contextualNote="While consumers drove growth, the negative net exports contribution reflects import demand outpacing exports — typical of an accelerating domestic economy. Watch this spread as global demand shifts in 2026."
     >
       <ResponsiveBar
         data={barData}
