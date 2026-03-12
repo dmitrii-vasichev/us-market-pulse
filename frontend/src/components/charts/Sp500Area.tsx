@@ -42,7 +42,7 @@ export default function Sp500Area() {
     : "S&P 500 has returned to pre-2022 highs despite rate headwinds";
 
   return (
-    <ChartCard insight={insight} source="Source: S&P · Mar 2026" height={350}>
+    <ChartCard insight={insight} provenance={data} height={350}>
       <ResponsiveLine
         data={lineData}
         theme={nivoTheme}

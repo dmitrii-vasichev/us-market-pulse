@@ -41,6 +41,7 @@ const mockApi = {
   getLaborRanking: jest.fn(),
   getCpiCategories: jest.fn(),
   getCpiCalendar: jest.fn(),
+  getGdpQuarterly: jest.fn(),
   getStatesComparison: jest.fn(),
   getRatesHistory: jest.fn(),
   getSectorsGdp: jest.fn(),
@@ -65,6 +66,7 @@ jest.mock("@/lib/nivo-theme", () => ({
 import UnemploymentBump from "@/components/charts/UnemploymentBump";
 import CpiCalendar from "@/components/charts/CpiCalendar";
 import CpiHeatmap from "@/components/charts/CpiHeatmap";
+import GdpQuarterly from "@/components/charts/GdpQuarterly";
 import StateScatter from "@/components/charts/StateScatter";
 import RatesLine from "@/components/charts/RatesLine";
 import SectorTreemap from "@/components/charts/SectorTreemap";
@@ -77,6 +79,8 @@ beforeEach(() => jest.clearAllMocks());
 describe("UnemploymentBump", () => {
   it("renders chart after data loads", async () => {
     mockApi.getLaborRanking.mockResolvedValue({
+      source: "Source: BLS · Dec 2025",
+      methodology_type: "source_backed",
       data: [{ id: "Colorado", data: [{ x: "Jan", y: 1 }] }],
     });
     await act(async () => {
@@ -85,6 +89,8 @@ describe("UnemploymentBump", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nivo-bump")).toBeTruthy();
     });
+    expect(screen.getByText("Source: BLS · Dec 2025")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
   });
 
   it("shows error state on failure", async () => {
@@ -134,6 +140,8 @@ describe("CpiHeatmap", () => {
 describe("CpiCalendar", () => {
   it("renders without clipping chart overflow and provides contextual tooltip content", async () => {
     mockApi.getCpiCalendar.mockResolvedValue({
+      source: "Source: FRED · Jan 2026",
+      methodology_type: "source_backed",
       data: [
         { day: "2024-01-01", value: 3.4 },
         { day: "2025-02-01", value: 3.1 },
@@ -150,6 +158,8 @@ describe("CpiCalendar", () => {
     });
 
     expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-visible");
+    expect(screen.getByText("Source: FRED · Jan 2026")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
 
     const calendarProps = mockResponsiveCalendar.mock.calls[0]?.[0] as {
       tooltip: (props: { day: string; value: string; color: string }) => React.JSX.Element | null;
@@ -161,6 +171,27 @@ describe("CpiCalendar", () => {
     expect(screen.getByText("Annual CPI change")).toBeTruthy();
     expect(screen.getByText("2.90%")).toBeTruthy();
     expect(screen.getByText("YoY CPI-U, all items, versus January 2025.")).toBeTruthy();
+  });
+});
+
+describe("GdpQuarterly", () => {
+  it("renders chart with payload-driven provenance", async () => {
+    mockApi.getGdpQuarterly.mockResolvedValue({
+      source: "Source: FRED · Q4 2025",
+      methodology_type: "source_backed",
+      data: [{ quarter: "2025-10-01", value: 2.3 }],
+    });
+
+    await act(async () => {
+      render(<GdpQuarterly />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("nivo-bar")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Source: FRED · Q4 2025")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
   });
 });
 
@@ -200,6 +231,8 @@ describe("StateScatter", () => {
 describe("RatesLine", () => {
   it("renders chart after data loads", async () => {
     mockApi.getRatesHistory.mockResolvedValue({
+      source: "Source: FRED · Jan 2026",
+      methodology_type: "source_backed",
       series: [{ id: "Fed Funds Rate", data: [{ x: "2025-01", y: 5.25 }] }],
     });
     await act(async () => {
@@ -208,6 +241,8 @@ describe("RatesLine", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nivo-line")).toBeTruthy();
     });
+    expect(screen.getByText("Source: FRED · Jan 2026")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
   });
 });
 
@@ -268,6 +303,8 @@ describe("GdpWaffle", () => {
 describe("SentimentRadial", () => {
   it("renders chart after data loads", async () => {
     mockApi.getSentimentRadial.mockResolvedValue({
+      source: "Source: FRED · Mar 2026",
+      methodology_type: "source_backed",
       current: "67.5",
       data: [
         {
@@ -285,12 +322,16 @@ describe("SentimentRadial", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nivo-radar")).toBeTruthy();
     });
+    expect(screen.getByText("Source: FRED · Mar 2026")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
   });
 });
 
 describe("Sp500Area", () => {
   it("renders chart after data loads", async () => {
     mockApi.getSeriesData.mockResolvedValue({
+      source: "Source: FRED · Mar 2026",
+      methodology_type: "source_backed",
       data: [
         { date: "2025-01-01", value: 4800 },
         { date: "2025-02-01", value: 4900 },
@@ -302,5 +343,7 @@ describe("Sp500Area", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nivo-line")).toBeTruthy();
     });
+    expect(screen.getByText("Source: FRED · Mar 2026")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
   });
 });
