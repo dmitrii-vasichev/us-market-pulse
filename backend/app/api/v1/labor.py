@@ -4,52 +4,25 @@ import httpx
 from fastapi import APIRouter
 
 from app.db.database import get_pool
-from app.db.queries import get_series_metadata
 from app.models.schemas import LaborFunnelResponse, LaborRankingResponse
+from app.services.labor_funnel import get_labor_funnel_response
 from app.services.labor_ranking import (
     STATE_UNEMPLOYMENT_SERIES_IDS,
     build_labor_ranking_response,
     fetch_bls_series,
     get_bls_year_range,
 )
-from app.services.methodology import (
-    LABOR_FUNNEL_CURRENT_METHODOLOGY,
-    LABOR_FUNNEL_STAGE_SHARES,
-)
-from app.services.provenance import build_chart_methodology_provenance
 
 router = APIRouter(prefix="/api/v1/labor", tags=["Labor"])
 
 
 @router.get("/funnel", response_model=LaborFunnelResponse)
 async def labor_funnel():
-    """Economic flow funnel: GDP → Consumer → Business → Government → Net Exports."""
+    """Economic flow funnel: GDP → income → compensation → payroll employment."""
     pool = await get_pool()
     async with pool.acquire() as conn:
-        meta = await get_series_metadata(conn, "GDP")
-        gdp_row = await conn.fetchrow(
-            "SELECT date, value FROM economic_series WHERE series_id = 'GDP' AND value IS NOT NULL ORDER BY date DESC LIMIT 1"
-        )
-        gdp_val = float(gdp_row["value"]) if gdp_row else 28000
-
-        stages = [
-            {
-                "id": stage.id,
-                "label": stage.label,
-                "value": round(gdp_val * stage.share),
-            }
-            for stage in LABOR_FUNNEL_STAGE_SHARES
-        ]
-        provenance = build_chart_methodology_provenance(
-            LABOR_FUNNEL_CURRENT_METHODOLOGY,
-            [meta] if meta else [],
-            latest_date=gdp_row["date"] if gdp_row else None,
-            period_kind="quarter",
-        )
-        return LaborFunnelResponse(
-            stages=stages,
-            **provenance.model_dump(),
-        )
+        response = await get_labor_funnel_response(conn)
+        return LaborFunnelResponse(**response)
 
 
 @router.get("/ranking", response_model=LaborRankingResponse)

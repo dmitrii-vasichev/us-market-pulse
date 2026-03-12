@@ -181,13 +181,15 @@ describe("CpiCalendar", () => {
 describe("EconomicFunnel", () => {
   it("renders derived provenance metadata alongside the chart", async () => {
     mockApi.getLaborFunnel.mockResolvedValue({
-      source: "Source: FRED · Q4 2025",
+      source: "Source: BEA, BLS · Q4 2025",
       methodology_type: "derived",
-      methodology_note: "Derived from stored GDP levels and fixed backend shares.",
+      methodology_note:
+        "Funnel stages are built from stored GDP, gross national income, compensation of employees, and payroll inputs. GDP, GNI, and compensation use the latest quarter with all BEA series present, while payroll employment uses the latest PAYEMS month inside that same quarter and is converted from thousands to millions of persons for the final stage.",
       stages: [
-        { id: "gdp", label: "Total GDP", value: 28000 },
-        { id: "gni", label: "Gross National Income", value: 19040 },
-        { id: "comp", label: "Employee Compensation", value: 17360 },
+        { id: "gross_domestic_product", label: "Gross Domestic Product", value: 29610.4, unit: "billions_usd" },
+        { id: "gross_national_income", label: "Gross National Income", value: 29042.8, unit: "billions_usd" },
+        { id: "employee_compensation", label: "Employee Compensation", value: 17188.5, unit: "billions_usd" },
+        { id: "nonfarm_payroll_employment", label: "Nonfarm Payroll Employment", value: 159.2, unit: "millions_persons" },
       ],
     });
 
@@ -199,10 +201,10 @@ describe("EconomicFunnel", () => {
       expect(screen.getByTestId("nivo-funnel")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Source: FRED · Q4 2025")).toBeInTheDocument();
+    expect(screen.getByText("Source: BEA, BLS · Q4 2025")).toBeInTheDocument();
     expect(screen.getByText("Derived")).toBeInTheDocument();
     expect(
-      screen.getByText("Derived from stored GDP levels and fixed backend shares."),
+      screen.getByText(/latest PAYEMS month inside that same quarter/i),
     ).toBeInTheDocument();
   });
 });

@@ -2,7 +2,7 @@ from datetime import date
 
 from app.services.methodology import (
     KPI_SUMMARY_CURRENT_METHODOLOGY,
-    LABOR_FUNNEL_CURRENT_METHODOLOGY,
+    LABOR_FUNNEL_DOCUMENTED_METHODOLOGY,
 )
 from app.services.provenance import (
     build_chart_methodology_provenance,
@@ -108,15 +108,20 @@ def test_build_chart_methodology_provenance_serializes_structured_inputs():
 
 def test_build_chart_methodology_provenance_uses_definition_fallbacks_when_metadata_missing():
     provenance = build_chart_methodology_provenance(
-        LABOR_FUNNEL_CURRENT_METHODOLOGY,
+        LABOR_FUNNEL_DOCUMENTED_METHODOLOGY,
         [],
         latest_date=None,
         period_kind="quarter",
     )
 
-    assert provenance.source == "Source: FRED"
-    assert provenance.source_dataset == "Gross Domestic Product"
-    assert provenance.methodology_key == "labor_funnel_current_share_split"
+    assert provenance.source == "Source: BEA, BLS"
+    assert provenance.source_dataset == (
+        "Gross Domestic Product; Gross National Income; Compensation of employees; "
+        "All Employees, Total Nonfarm"
+    )
+    assert provenance.methodology_key == "labor_funnel_multi_input_alignment"
     assert provenance.methodology_inputs is not None
     assert provenance.methodology_inputs[0].dataset == "Gross Domestic Product"
-    assert provenance.methodology_inputs[1].kind == "derived_policy"
+    assert provenance.methodology_inputs[0].unit == "Billions of Dollars"
+    assert provenance.methodology_inputs[-1].kind == "derived_policy"
+    assert provenance.methodology_inputs[-1].source == "Backend policy"
