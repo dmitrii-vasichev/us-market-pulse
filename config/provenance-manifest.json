@@ -1,8 +1,8 @@
 {
   "$schema": "./provenance-manifest.schema.json",
-  "version": 2,
+  "version": 3,
   "inventory_source": "docs/provenance/source-backed-inventory.md",
-  "policy_note": "The public field represents allowed public visibility under the remediation policy. current_runtime_visibility records whether a chart is still rendered on the public site before remediation changes are applied. phase_2_target_contract captures the approved replacement dataset contract for charts that remain illustrative at runtime after Phase 1.",
+  "policy_note": "The public field represents allowed public visibility under the remediation policy. current_runtime_visibility records whether a chart is still rendered on the public site before remediation changes are applied. phase_2_target_contract captures the approved replacement dataset contract for charts that remain illustrative at runtime after Phase 1. phase_3_target_contract captures the approved post-remediation methodology contract for the remaining derived charts whose current runtime implementation is still unresolved after Phase 2.",
   "charts": [
     {
       "id": "overview.gdp-waterfall",
@@ -40,7 +40,32 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/gdp.py"
         }
-      ]
+      ],
+      "phase_3_target_contract": {
+        "public": true,
+        "methodology_type": "source_backed",
+        "freshness_cadence": "quarterly",
+        "methodology_note_required": false,
+        "source_claim_template": "Source: BEA Contributions to Real GDP Growth · Q<quarter> <year>",
+        "upstream_sources": [
+          {
+            "provider": "BEA via FRED",
+            "dataset": "NIPA Table 1.1.2 Contributions to Percent Change in Real Gross Domestic Product",
+            "kind": "stored_series",
+            "notes": "Stored contribution component series should back consumer spending, business investment, government, net exports, and inventory bars directly."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.economic_series",
+            "reference": "Quarterly GDP component contribution observations stored per source series"
+          },
+          {
+            "layer": "postgres.series_metadata",
+            "reference": "Metadata rows for the approved GDP contribution component series"
+          }
+        ]
+      }
     },
     {
       "id": "overview.gdp-quarterly",
@@ -145,7 +170,43 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/labor.py"
         }
-      ]
+      ],
+      "phase_3_target_contract": {
+        "public": true,
+        "methodology_type": "derived",
+        "freshness_cadence": "mixed",
+        "methodology_note_required": true,
+        "source_claim_template": "Source: BEA, BLS · <latest aligned period>",
+        "transformation_summary": "Build the funnel from stored GDP, gross national income, compensation, and employment inputs with documented unit conversions and stage mapping rather than fixed share assumptions.",
+        "upstream_sources": [
+          {
+            "provider": "BEA via FRED",
+            "dataset": "Gross Domestic Product; Gross National Income; Compensation of employees",
+            "kind": "stored_series",
+            "notes": "Stored national income inputs should define the first three funnel stages directly."
+          },
+          {
+            "provider": "BLS",
+            "dataset": "Employment series used for the workforce stage",
+            "kind": "stored_series",
+            "notes": "The final stage should use a stored labor input instead of inferring workforce impact from GDP shares."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.economic_series",
+            "reference": "Quarterly and monthly national income / labor inputs used by the funnel stages"
+          },
+          {
+            "layer": "postgres.series_metadata",
+            "reference": "Metadata rows for approved funnel input series"
+          },
+          {
+            "layer": "backend_service",
+            "reference": "Backend-owned funnel methodology mapping and unit conversions"
+          }
+        ]
+      }
     },
     {
       "id": "overview.bullet-targets",
@@ -189,7 +250,37 @@
           "layer": "frontend_inline",
           "reference": "frontend/src/components/charts/BulletTargets.tsx"
         }
-      ]
+      ],
+      "phase_3_target_contract": {
+        "public": true,
+        "methodology_type": "derived",
+        "freshness_cadence": "mixed",
+        "methodology_note_required": true,
+        "source_claim_template": "Source: BEA, BLS, Federal Reserve · <latest aligned period>",
+        "transformation_summary": "Compute KPI measures from stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS series, then attach backend-owned target bands and markers through the shared KPI contract rather than a frontend-only threshold map.",
+        "upstream_sources": [
+          {
+            "provider": "Stored dashboard KPI inputs",
+            "dataset": "GDP, CPIAUCSL, UNRATE, FEDFUNDS",
+            "kind": "stored_series",
+            "notes": "The bullet chart should continue to consume stored KPI inputs through the shared summary contract."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.economic_series",
+            "reference": "GDP, CPIAUCSL, UNRATE, FEDFUNDS observations"
+          },
+          {
+            "layer": "postgres.series_metadata",
+            "reference": "GDP, CPIAUCSL, UNRATE, FEDFUNDS metadata rows"
+          },
+          {
+            "layer": "backend_service",
+            "reference": "Backend-owned KPI target policy and bullet chart payload mapping"
+          }
+        ]
+      }
     },
     {
       "id": "overview.gdp-waffle",
@@ -446,7 +537,43 @@
           "layer": "backend_inline",
           "reference": "backend/app/api/v1/labor.py"
         }
-      ]
+      ],
+      "phase_3_target_contract": {
+        "public": true,
+        "methodology_type": "derived",
+        "freshness_cadence": "mixed",
+        "methodology_note_required": true,
+        "source_claim_template": "Source: BEA, BLS · <latest aligned period>",
+        "transformation_summary": "Build the funnel from stored GDP, gross national income, compensation, and employment inputs with documented unit conversions and stage mapping rather than fixed share assumptions.",
+        "upstream_sources": [
+          {
+            "provider": "BEA via FRED",
+            "dataset": "Gross Domestic Product; Gross National Income; Compensation of employees",
+            "kind": "stored_series",
+            "notes": "Stored national income inputs should define the first three funnel stages directly."
+          },
+          {
+            "provider": "BLS",
+            "dataset": "Employment series used for the workforce stage",
+            "kind": "stored_series",
+            "notes": "The final stage should use a stored labor input instead of inferring workforce impact from GDP shares."
+          }
+        ],
+        "storage_locations": [
+          {
+            "layer": "postgres.economic_series",
+            "reference": "Quarterly and monthly national income / labor inputs used by the funnel stages"
+          },
+          {
+            "layer": "postgres.series_metadata",
+            "reference": "Metadata rows for approved funnel input series"
+          },
+          {
+            "layer": "backend_service",
+            "reference": "Backend-owned funnel methodology mapping and unit conversions"
+          }
+        ]
+      }
     },
     {
       "id": "labor.cpi-calendar",

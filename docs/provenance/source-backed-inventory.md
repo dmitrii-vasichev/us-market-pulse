@@ -1,8 +1,8 @@
 # Source-Backed Dashboard Provenance Inventory
 
 **Date:** 2026-03-12  
-**Status:** Active baseline with Phase 2 contract addendum  
-**Phase:** Source-Backed Remediation Phase 1 audit, updated during Phase 2 / Task 1  
+**Status:** Active baseline with Phase 2 rollout and Phase 3 contract addendum  
+**Phase:** Source-Backed Remediation baseline, updated through Phase 3 / Task 1  
 **Reference PRD:** `docs/prd-source-backed-dashboard-remediation.md`
 
 ## Scope
@@ -53,11 +53,11 @@ The goal is to document, for each placement:
 
 | Chart ID | Location | Component | Endpoint | Current source/date claim | Actual upstream dataset | Storage path | Methodology | Remediation status | Integrity gap |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `overview.gdp-waterfall` | Overview / grid card 1 | `GdpWaterfall` | `/api/v1/gdp/components` | `Source: BEA · Q4 2025` | `A191RL1Q225SBEA` from `economic_series`, redistributed into hardcoded 45/25/15/-5/20 component shares in `backend/app/api/v1/gdp.py` | `economic_series` + `series_metadata` for `A191RL1Q225SBEA` | `derived` | Reclassify as derived and add methodology note in Phase 3 | UI implies direct BEA component observations, but backend fabricates component contributions from a single stored growth series. |
+| `overview.gdp-waterfall` | Overview / grid card 1 | `GdpWaterfall` | `/api/v1/gdp/components` | `Source: BEA · Q4 2025` | `A191RL1Q225SBEA` from `economic_series`, redistributed into hardcoded 45/25/15/-5/20 component shares in `backend/app/api/v1/gdp.py` | `economic_series` + `series_metadata` for `A191RL1Q225SBEA` | `derived` | Phase 3 target contract locked in Task 1; approve source-backed upgrade to stored BEA component contributions | Current endpoint still fabricates component contributions from a single stored growth series. The approved target state is a source-backed chart built from stored contribution component inputs, not a share split. |
 | `overview.gdp-quarterly` | Overview / grid card 2 | `GdpQuarterly` | `/api/v1/gdp/quarterly` | `Source: BEA · Q4 2025` | Stored quarterly growth series `A191RL1Q225SBEA` (seeded as `source = FRED`, BEA-origin economic release) | `economic_series` + `series_metadata` for `A191RL1Q225SBEA` | `source_backed` | Keep public; add shared provenance payload/footer in Phase 1 | Data is traceable, but the source/date footer is hardcoded in the frontend instead of coming from the payload. |
 | `overview.cpi-calendar` | Overview / grid card 3 | `CpiCalendar` | `/api/v1/cpi/calendar` | `Source: BLS · Jan 2026` | Stored monthly CPI index `CPIAUCSL` transformed into YoY values at response time | `economic_series` + `series_metadata` for `CPIAUCSL` | `source_backed` | Keep public; add shared provenance payload/footer in Phase 1 | Underlying data is stored and traceable, but the displayed month is hardcoded and never validated against the payload. |
-| `overview.economic-funnel` | Overview / grid card 4 | `EconomicFunnel` | `/api/v1/labor/funnel` | `Source: BEA, BLS · Q4 2025` | Stored GDP level `GDP` multiplied by fixed stage shares (`0.68`, `0.18`, `0.17`, `0.03`) in backend code | `economic_series` + `series_metadata` for `GDP`; no persisted funnel dataset | `derived` | Reclassify as derived and document methodology in Phase 3 | Footer claims BEA and BLS inputs, but the backend only reads GDP and synthesizes the rest of the funnel. |
-| `overview.bullet-targets` | Overview / grid card 5 | `BulletTargets` | `/api/v1/kpi/summary` plus frontend target map | `Source: Federal Reserve · Mar 2026` | KPI summary derived from stored `GDP`, `CPIAUCSL`, `UNRATE`, and `FEDFUNDS`; target thresholds are hardcoded in `frontend/src/components/charts/BulletTargets.tsx` | `economic_series` + `series_metadata` for KPI series; hardcoded target thresholds in frontend | `derived` | Reclassify as derived; move provenance and target logic under explicit methodology | Footer implies a single Federal Reserve source, but the chart mixes multiple stored series with frontend-only target assumptions. |
+| `overview.economic-funnel` | Overview / grid card 4 | `EconomicFunnel` | `/api/v1/labor/funnel` | `Source: BEA, BLS · Q4 2025` | Stored GDP level `GDP` multiplied by fixed stage shares (`0.68`, `0.18`, `0.17`, `0.03`) in backend code | `economic_series` + `series_metadata` for `GDP`; no persisted funnel dataset | `derived` | Phase 3 target contract locked in Task 1; remain derived with documented multi-input BEA/BLS methodology | Current endpoint claims BEA and BLS inputs, but only reads GDP and synthesizes the rest of the funnel. The approved target state remains derived, but from stored GDP, income, compensation, and workforce inputs with documented stage mapping. |
+| `overview.bullet-targets` | Overview / grid card 5 | `BulletTargets` | `/api/v1/kpi/summary` plus frontend target map | `Source: Federal Reserve · Mar 2026` | KPI summary derived from stored `GDP`, `CPIAUCSL`, `UNRATE`, and `FEDFUNDS`; target thresholds are hardcoded in `frontend/src/components/charts/BulletTargets.tsx` | `economic_series` + `series_metadata` for KPI series; hardcoded target thresholds in frontend | `derived` | Phase 3 target contract locked in Task 1; remain derived with backend-owned KPI target policy | Current footer implies a single Federal Reserve source, but the chart mixes multiple stored series with frontend-only target assumptions. The approved target state keeps the shared KPI endpoint and moves target bands/markers into the backend contract. |
 | `overview.gdp-waffle` | Overview / grid card 6 | `GdpWaffle` | `/api/v1/sectors/gdp` | `Source: BEA · Q4 2025` | Stored BEA GDP-by-industry hierarchy snapshot transformed into public percentage shares at response time | `sector_gdp_snapshots`; derivation logic in `backend/app/services/sector_gdp.py` | `derived` | Restored to public with payload-driven provenance in Phase 2 | Public chart now uses stored BEA inputs; the remaining caveat is explicit derivation from current-dollar snapshot rows into share percentages. |
 
 ### Labor
@@ -67,7 +67,7 @@ The goal is to document, for each placement:
 | `labor.unemployment-bump` | Labor / hero card | `UnemploymentBump` | `/api/v1/labor/ranking` | Dynamic payload value, currently `Source: BLS · <latest month>` | Ten state unemployment series (`LASST...`) ranked from stored monthly observations; falls back to live BLS API if the database has no complete set | `economic_series` + `series_metadata` for BLS state series; optional runtime BLS API fallback | `source_backed` | Keep public; formalize provenance fields in shared contract | This is the only placement already using payload-driven source/date, but methodology type is missing and the fallback path is implicit rather than explicitly classified. |
 | `labor.cpi-heatmap` | Labor / grid card 2 | `CpiHeatmap` | `/api/v1/cpi/categories` | `Source: BLS CPI Relative Importance · Dec 2025` | Stored annual CPI relative importance snapshot rows served directly from the latest category snapshot | `cpi_category_snapshots`; response builder in `backend/app/services/cpi_categories.py` | `source_backed` | Restored to public with payload-driven provenance in Phase 2 | Public chart now renders stored BLS category weights and no longer depends on static backend approximations. |
 | `labor.state-scatter` | Labor / grid card 3 | `StateScatter` | `/api/v1/states/comparison` | `Source: BLS, BEA, Census · 2025` | Stored annual unemployment, GDP, and population snapshot rows combined into GDP-per-capita scatter points for the curated state set | `state_indicator_snapshots`; derivation logic in `backend/app/services/state_comparison.py` | `derived` | Restored to public with payload-driven provenance in Phase 2 | Public chart now uses stored state inputs; the remaining caveat is explicit GDP-per-capita derivation rather than a raw source-issued scatter dataset. |
-| `labor.economic-funnel` | Labor / grid card 4 | `EconomicFunnel` | `/api/v1/labor/funnel` | `Source: BEA, BLS · Q4 2025` | Stored GDP level `GDP` multiplied by fixed stage shares (`0.68`, `0.18`, `0.17`, `0.03`) in backend code | `economic_series` + `series_metadata` for `GDP`; no persisted funnel dataset | `derived` | Reclassify as derived and document methodology in Phase 3 | Same integrity gap as `overview.economic-funnel`: claimed multi-source funnel, actual single-series GDP approximation. |
+| `labor.economic-funnel` | Labor / grid card 4 | `EconomicFunnel` | `/api/v1/labor/funnel` | `Source: BEA, BLS · Q4 2025` | Stored GDP level `GDP` multiplied by fixed stage shares (`0.68`, `0.18`, `0.17`, `0.03`) in backend code | `economic_series` + `series_metadata` for `GDP`; no persisted funnel dataset | `derived` | Phase 3 target contract locked in Task 1; remain derived with documented multi-input BEA/BLS methodology | Same gap as `overview.economic-funnel`: current runtime is still a single-series GDP approximation, while the approved target state uses stored BEA and BLS inputs with explicit unit conversions. |
 | `labor.cpi-calendar` | Labor / grid card 5 | `CpiCalendar` | `/api/v1/cpi/calendar` | `Source: BLS · Jan 2026` | Stored monthly CPI index `CPIAUCSL` transformed into YoY values at response time | `economic_series` + `series_metadata` for `CPIAUCSL` | `source_backed` | Keep public; add shared provenance payload/footer in Phase 1 | Same integrity gap as `overview.cpi-calendar`: source/date are hardcoded in the component rather than emitted by the API. |
 
 ### Markets
@@ -83,15 +83,15 @@ The goal is to document, for each placement:
 ## Cross-Cutting Findings
 
 1. Phase 2 removed the last public `illustrative` placements by restoring `GdpWaffle`, `SectorTreemap`, `CpiHeatmap`, and `StateScatter` to payload-driven rendering.
-2. The remaining provenance nuance is concentrated in `derived` charts, where the dashboard transforms stored source-backed inputs into presentation-specific datasets and therefore must keep methodology notes visible.
-3. The shared provenance footer pattern is now centralized through chart payloads rather than per-component source/date literals.
-4. Shared endpoints such as `/api/v1/sectors/gdp` still require regression coverage because one payload contract powers multiple public surfaces.
-5. `labor.unemployment-bump` is no longer a special-case template; public charts now consistently consume backend-provided provenance fields.
+2. The remaining unresolved methodology work is limited to `overview.gdp-waterfall`, both `EconomicFunnel` placements, and `overview.bullet-targets`.
+3. Phase 3 now has an approved target contract for each unresolved chart, recorded in both the manifest and this inventory before implementation starts.
+4. The shared provenance footer pattern is now centralized through chart payloads rather than per-component source/date literals.
+5. Shared endpoints such as `/api/v1/sectors/gdp` still require regression coverage because one payload contract powers multiple public surfaces.
 
 ## Recommended Follow-On Mapping
 
 - Use the chart IDs in this document as the canonical IDs for `config/provenance-manifest.json` in Task 2.
-- Use the methodology classifications here to drive shared backend provenance fields in Tasks 3 and 4.
+- Use the methodology classifications and `phase_3_target_contract` entries here to drive Phase 3 backend contract work for the unresolved derived charts.
 - No public chart placement remains on an `illustrative` methodology after Phase 2 Task 7.
 - Treat every row marked `derived` as requiring methodology note support before public provenance work is considered complete.
 
@@ -110,3 +110,19 @@ These contracts lock the production-source mapping for every chart that remains 
 - `config/provenance-manifest.json` keeps the current runtime fields (`public`, `methodology_type`, `current_runtime_visibility`) untouched for still-illustrative charts.
 - The new `phase_2_target_contract` field records the approved production contract that later Phase 2 tasks must implement.
 - The approved target source claims are `Source: BLS CPI Relative Importance · Dec <year>` for `labor.cpi-heatmap`, `Source: BLS, BEA, Census · <year>` for `labor.state-scatter`, and `Source: BEA GDP by Industry · Q<quarter> <year>` for the shared sector GDP surfaces.
+
+## Approved Phase 3 Methodology Contracts
+
+These contracts lock the post-Phase-3 target state for the remaining charts whose current runtime implementation is still methodologically unresolved after Phase 2. Runtime classification remains unchanged until the actual endpoint and UI work ships in later Phase 3 tasks.
+
+| Chart IDs | Target production methodology | Approved upstream datasets | Freshness cadence | Deterministic transformation or policy that remains part of the contract | Planned storage | Assumptions removed in Phase 3 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `overview.gdp-waterfall` | `source_backed` | BEA NIPA Table 1.1.2 contributions to percent change in real GDP, or equivalent stored FRED contribution component series for consumer spending, business investment, government, net exports, and inventory | `quarterly` | No synthetic share split remains in the target contract; the chart should render stored contribution inputs directly. | `postgres.economic_series` + `postgres.series_metadata` | Remove the fixed backend `45/25/15/-5/20` redistribution logic. |
+| `overview.economic-funnel`, `labor.economic-funnel` | `derived` | Stored BEA GDP, gross national income, and compensation inputs plus a stored BLS employment input for the workforce stage | `mixed` | Build the GDP → income → compensation → workforce funnel from stored inputs with documented unit conversions and stage mapping, rather than a single-series GDP share split. | `postgres.economic_series` + `postgres.series_metadata` + backend methodology service | Remove the current single-GDP share split and unsupported multi-source source claim. |
+| `overview.bullet-targets` | `derived` | Stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS inputs served through `/api/v1/kpi/summary` | `mixed` | Compute KPI measures from stored inputs and attach backend-owned target bands and markers through the shared KPI payload, rather than a frontend-only threshold map. | `postgres.economic_series` + `postgres.series_metadata` + backend methodology service | Remove the hardcoded frontend target map and the misleading single-source Federal Reserve claim. |
+
+### Manifest Alignment Notes
+
+- `config/provenance-manifest.json` now records `phase_3_target_contract` for `overview.gdp-waterfall`, `overview.economic-funnel`, `labor.economic-funnel`, and `overview.bullet-targets`.
+- `phase_3_target_contract` captures the approved post-remediation methodology contract while the runtime `methodology_type` fields still reflect the current pre-implementation state.
+- The approved target source claims are `Source: BEA Contributions to Real GDP Growth · Q<quarter> <year>` for `overview.gdp-waterfall`, `Source: BEA, BLS · <latest aligned period>` for both `EconomicFunnel` placements, and `Source: BEA, BLS, Federal Reserve · <latest aligned period>` for `overview.bullet-targets`.
