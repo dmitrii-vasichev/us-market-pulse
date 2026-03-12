@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://us-market-pulse.local/config/provenance-manifest.schema.json",
+  "title": "US Market Pulse Provenance Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "version",
+    "inventory_source",
+    "policy_note",
+    "charts"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "inventory_source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_note": {
+      "type": "string",
+      "minLength": 1
+    },
+    "charts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/chartEntry"
+      }
+    }
+  },
+  "$defs": {
+    "upstreamSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "dataset",
+        "kind"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataset": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "stored_series",
+            "live_api_fallback",
+            "inline_approximation",
+            "frontend_assumption"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "storageLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layer",
+        "reference"
+      ],
+      "properties": {
+        "layer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "chartEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "page",
+        "route",
+        "placement",
+        "component",
+        "endpoint",
+        "current_source_claim",
+        "current_runtime_visibility",
+        "public",
+        "methodology_type",
+        "freshness_cadence",
+        "methodology_note_required",
+        "phase_1_requirement",
+        "remediation_status",
+        "upstream_sources",
+        "storage_locations"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$"
+        },
+        "page": {
+          "type": "string",
+          "enum": [
+            "overview",
+            "labor",
+            "markets"
+          ]
+        },
+        "route": {
+          "type": "string",
+          "enum": [
+            "/",
+            "/labor",
+            "/markets"
+          ]
+        },
+        "placement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
+          "type": "string",
+          "pattern": "^/api/v1/"
+        },
+        "current_source_claim": {
+          "type": "string",
+          "minLength": 1
+        },
+        "current_runtime_visibility": {
+          "type": "string",
+          "enum": [
+            "public",
+            "hidden",
+            "internal"
+          ]
+        },
+        "public": {
+          "type": "boolean"
+        },
+        "methodology_type": {
+          "type": "string",
+          "enum": [
+            "source_backed",
+            "derived",
+            "illustrative"
+          ]
+        },
+        "freshness_cadence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "methodology_note_required": {
+          "type": "boolean"
+        },
+        "phase_1_requirement": {
+          "type": "string",
+          "enum": [
+            "dynamic_payload_attribution",
+            "unavailable_state"
+          ]
+        },
+        "remediation_status": {
+          "type": "string",
+          "enum": [
+            "phase_1_dynamic_attribution",
+            "phase_2_replace_or_hide",
+            "phase_3_methodology_note"
+          ]
+        },
+        "upstream_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/upstreamSource"
+          }
+        },
+        "storage_locations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/storageLocation"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "methodology_type": {
+                "const": "illustrative"
+              }
+            },
+            "required": [
+              "methodology_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "public": {
+                "const": false
+              },
+              "methodology_note_required": {
+                "const": false
+              },
+              "phase_1_requirement": {
+                "const": "unavailable_state"
+              },
+              "remediation_status": {
+                "const": "phase_2_replace_or_hide"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "methodology_type": {
+                "const": "derived"
+              }
+            },
+            "required": [
+              "methodology_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "methodology_note_required": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "public": {
+                "const": false
+              }
+            },
+            "required": [
+              "public"
+            ]
+          },
+          "then": {
+            "properties": {
+              "phase_1_requirement": {
+                "const": "unavailable_state"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
