@@ -8,6 +8,7 @@ from pydantic import BaseModel
 MethodologyType = Literal["source_backed", "derived", "illustrative"]
 FreshnessStatus = Literal["current", "stale", "unknown"]
 MethodologyInputKind = Literal["stored_series", "derived_policy", "static_policy"]
+KpiTargetMeasureField = Literal["current_value", "change_percent"]
 
 
 class MethodologyInput(BaseModel):
@@ -25,6 +26,11 @@ class KpiTargetPolicy(BaseModel):
     target: float
     max: float
     ranges: list[float]
+    markers: list[float]
+    measure: float
+    measure_field: KpiTargetMeasureField
+    measure_label: str
+    policy_note: str | None = None
 
 
 class SparklinePoint(BaseModel):

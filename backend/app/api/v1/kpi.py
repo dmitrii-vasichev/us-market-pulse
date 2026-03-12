@@ -6,8 +6,7 @@ from app.db.database import get_pool
 from app.db.queries import get_last_collection_run, get_series_metadata, get_latest_series_observation_date
 from app.models.schemas import KpiSummaryResponse
 from app.services.kpi_calculator import KPI_DEFINITIONS, compute_all_kpis
-from app.services.methodology import KPI_SUMMARY_CURRENT_METHODOLOGY, KPI_TARGET_POLICIES
-from app.services.provenance import build_chart_methodology_provenance
+from app.services.kpi_targets import attach_kpi_target_policies, build_kpi_summary_provenance
 
 router = APIRouter(prefix="/api/v1/kpi", tags=["KPI"])
 
@@ -34,20 +33,9 @@ async def kpi_summary():
         if last_run and last_run.get("run_date"):
             updated_at = str(last_run["run_date"])
 
-        kpis_with_policy = [
-            {
-                **kpi,
-                "target_policy": (
-                    KPI_TARGET_POLICIES[kpi["key"]].model_dump()
-                    if kpi["key"] in KPI_TARGET_POLICIES
-                    else None
-                ),
-            }
-            for kpi in kpis
-        ]
+        kpis_with_policy = attach_kpi_target_policies(kpis)
         latest_date = max(latest_dates, default=None)
-        provenance = build_chart_methodology_provenance(
-            KPI_SUMMARY_CURRENT_METHODOLOGY,
+        provenance = build_kpi_summary_provenance(
             metadata_rows,
             latest_date=latest_date,
         )
