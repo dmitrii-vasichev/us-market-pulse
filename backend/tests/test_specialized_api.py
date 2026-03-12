@@ -18,19 +18,42 @@ async def test_gdp_components(client):
 
 async def test_gdp_quarterly(client):
     c, mock_conn = client
+    mock_conn.fetchrow.return_value = {
+        "series_id": "A191RL1Q225SBEA",
+        "title": "Real GDP Growth Rate (Contributions by Component)",
+        "units": "Percent",
+        "frequency": "Quarterly",
+        "source": "FRED",
+        "category": "gdp",
+        "last_updated": None,
+    }
     mock_conn.fetch.return_value = [
-        {"date": date(2025, 7, 1), "value": Decimal("2.1")},
         {"date": date(2025, 10, 1), "value": Decimal("2.3")},
+        {"date": date(2025, 7, 1), "value": Decimal("2.1")},
     ]
 
     resp = await c.get("/api/v1/gdp/quarterly")
     assert resp.status_code == 200
     data = resp.json()
     assert len(data["data"]) == 2
+    assert data["source"] == "Source: FRED · Q4 2025"
+    assert data["methodology_type"] == "source_backed"
+    assert data["latest_observation_date"] == "2025-10-01"
+    assert data["latest_month"] == "Q4 2025"
+    assert data["source_series_ids"] == ["A191RL1Q225SBEA"]
 
 
 async def test_cpi_calendar(client):
     c, mock_conn = client
+    mock_conn.fetchrow.return_value = {
+        "series_id": "CPIAUCSL",
+        "title": "Consumer Price Index for All Urban Consumers",
+        "units": "Index 1982-1984=100",
+        "frequency": "Monthly",
+        "source": "FRED",
+        "category": "inflation",
+        "last_updated": None,
+    }
     # Need at least 13 months of data for YoY calculation
     rows = [
         {"date": date(2025, i, 1), "value": Decimal(str(300 + i * 0.3))}
@@ -44,6 +67,11 @@ async def test_cpi_calendar(client):
     assert resp.status_code == 200
     data = resp.json()
     assert "data" in data
+    assert data["source"] == "Source: FRED · Jan 2026"
+    assert data["methodology_type"] == "source_backed"
+    assert data["latest_observation_date"] == "2026-01-01"
+    assert data["latest_month"] == "Jan 2026"
+    assert data["source_series_ids"] == ["CPIAUCSL"]
 
 
 async def test_cpi_categories(client):
@@ -124,9 +152,48 @@ async def test_states_comparison(client):
 
 async def test_rates_history(client):
     c, mock_conn = client
-    mock_conn.fetch.return_value = [
-        {"date": date(2026, 1, i + 1), "value": Decimal("4.25")}
-        for i in range(5)
+    mock_conn.fetch.side_effect = [
+        [
+            {
+                "series_id": "FEDFUNDS",
+                "title": "Federal Funds Effective Rate",
+                "units": "Percent",
+                "frequency": "Daily",
+                "source": "FRED",
+                "category": "rates",
+                "last_updated": None,
+            },
+            {
+                "series_id": "MORTGAGE30US",
+                "title": "30-Year Fixed Rate Mortgage Average",
+                "units": "Percent",
+                "frequency": "Weekly",
+                "source": "FRED",
+                "category": "rates",
+                "last_updated": None,
+            },
+            {
+                "series_id": "DGS10",
+                "title": "10-Year Treasury Constant Maturity Rate",
+                "units": "Percent",
+                "frequency": "Daily",
+                "source": "FRED",
+                "category": "rates",
+                "last_updated": None,
+            },
+        ],
+        [
+            {"date": date(2026, 1, i), "value": Decimal("4.25")}
+            for i in range(5, 0, -1)
+        ],
+        [
+            {"date": date(2026, 1, i), "value": Decimal("6.80")}
+            for i in range(5, 0, -1)
+        ],
+        [
+            {"date": date(2026, 1, i), "value": Decimal("4.10")}
+            for i in range(5, 0, -1)
+        ],
     ]
 
     resp = await c.get("/api/v1/rates/history")
@@ -134,6 +201,11 @@ async def test_rates_history(client):
     data = resp.json()
     assert len(data["series"]) == 3
     assert data["series"][0]["id"] == "Fed Funds Rate"
+    assert data["source"] == "Source: FRED · Jan 5, 2026"
+    assert data["methodology_type"] == "source_backed"
+    assert data["latest_observation_date"] == "2026-01-05"
+    assert data["latest_month"] is None
+    assert data["source_series_ids"] == ["FEDFUNDS", "MORTGAGE30US", "DGS10"]
 
 
 async def test_sectors_gdp(client):
@@ -148,16 +220,37 @@ async def test_sectors_gdp(client):
 
 async def test_sentiment_radial_empty(client):
     c, mock_conn = client
+    mock_conn.fetchrow.return_value = {
+        "series_id": "UMCSENT",
+        "title": "University of Michigan: Consumer Sentiment",
+        "units": "Index",
+        "frequency": "Monthly",
+        "source": "FRED",
+        "category": "sentiment",
+        "last_updated": None,
+    }
     mock_conn.fetch.return_value = []
 
     resp = await c.get("/api/v1/sentiment/radial")
     assert resp.status_code == 200
     data = resp.json()
     assert data["data"] == []
+    assert data["source"] == "Source: FRED"
+    assert data["methodology_type"] == "source_backed"
+    assert data["latest_observation_date"] is None
 
 
 async def test_sentiment_radial_with_data(client):
     c, mock_conn = client
+    mock_conn.fetchrow.return_value = {
+        "series_id": "UMCSENT",
+        "title": "University of Michigan: Consumer Sentiment",
+        "units": "Index",
+        "frequency": "Monthly",
+        "source": "FRED",
+        "category": "sentiment",
+        "last_updated": None,
+    }
     mock_conn.fetch.return_value = [
         {"date": date(2026, 3, 1), "value": Decimal("67.8")},
         {"date": date(2026, 2, 1), "value": Decimal("66.5")},
@@ -169,14 +262,30 @@ async def test_sentiment_radial_with_data(client):
     data = resp.json()
     assert len(data["data"]) == 3
     assert data["current"] == 67.8
+    assert data["source"] == "Source: FRED · Mar 2026"
+    assert data["methodology_type"] == "source_backed"
+    assert data["latest_observation_date"] == "2026-03-01"
+    assert data["latest_month"] == "Mar 2026"
+    assert data["source_series_ids"] == ["UMCSENT"]
 
 
 async def test_overview(client):
     c, mock_conn = client
     mock_conn.fetch.return_value = []
-    mock_conn.fetchrow.return_value = None
+    mock_conn.fetchrow.side_effect = [
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    ]
 
     resp = await c.get("/api/v1/overview")
     assert resp.status_code == 200
     data = resp.json()
     assert "kpis" in data
+    assert data["methodology_type"] == "source_backed"

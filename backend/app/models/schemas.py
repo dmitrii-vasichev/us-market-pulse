@@ -27,11 +27,6 @@ class KpiItem(BaseModel):
     sparkline: list[SparklinePoint]
 
 
-class KpiSummaryResponse(BaseModel):
-    kpis: list[KpiItem]
-    updated_at: str | None = None
-
-
 class ProvenancePayload(BaseModel):
     source: str
     methodology_type: MethodologyType
@@ -43,12 +38,17 @@ class ProvenancePayload(BaseModel):
     freshness_status: FreshnessStatus | None = None
 
 
+class KpiSummaryResponse(ProvenancePayload):
+    kpis: list[KpiItem]
+    updated_at: str | None = None
+
+
 class SeriesPoint(BaseModel):
     date: str
     value: float
 
 
-class SeriesResponse(BaseModel):
+class SeriesResponse(ProvenancePayload):
     series_id: str
     title: str
     units: str | None = None
@@ -57,6 +57,26 @@ class SeriesResponse(BaseModel):
 
 class MultiSeriesResponse(BaseModel):
     series: list[SeriesResponse]
+
+
+class GdpQuarterlyItem(BaseModel):
+    quarter: str
+    value: float
+
+
+class GdpQuarterlyResponse(ProvenancePayload):
+    data: list[GdpQuarterlyItem]
+
+
+class CpiCalendarItem(BaseModel):
+    day: str
+    value: float
+
+
+class CpiCalendarResponse(ProvenancePayload):
+    data: list[CpiCalendarItem]
+    from_date: str | None = None
+    to_date: str | None = None
 
 
 class SeriesMetadataItem(BaseModel):
@@ -80,6 +100,37 @@ class LastUpdateResponse(BaseModel):
     records_inserted: int | None = None
 
 
+class RatePoint(BaseModel):
+    x: str
+    y: float
+
+
+class RateSeries(BaseModel):
+    id: str
+    curve: str
+    data: list[RatePoint]
+
+
+class RatesHistoryResponse(ProvenancePayload):
+    series: list[RateSeries]
+
+
+class SentimentDataPoint(BaseModel):
+    x: str
+    y: float
+
+
+class SentimentSeries(BaseModel):
+    id: str
+    data: list[SentimentDataPoint]
+
+
+class SentimentRadialResponse(ProvenancePayload):
+    data: list[SentimentSeries]
+    max_value: float
+    current: float | None = None
+
+
 class LaborRankingPoint(BaseModel):
     x: str
     y: int
@@ -93,3 +144,8 @@ class LaborRankingSeries(BaseModel):
 class LaborRankingResponse(ProvenancePayload):
     data: list[LaborRankingSeries]
     states: list[str]
+
+
+class OverviewResponse(ProvenancePayload):
+    kpis: list[KpiItem]
+    updated_at: str | None = None
