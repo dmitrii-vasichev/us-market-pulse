@@ -6,7 +6,7 @@ import type { BarCustomLayerProps } from "@nivo/bar";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import { formatQuarter } from "@/lib/formatters";
-import type { GdpQuarterlyItem } from "@/lib/types";
+import type { GdpQuarterlyItem, GdpQuarterlyResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
@@ -41,12 +41,14 @@ function Q1ContractionAnnotation({ bars, innerWidth }: BarCustomLayerProps<BarDa
 }
 
 export default function GdpQuarterly() {
-  const [data, setData] = useState<GdpQuarterlyItem[]>([]);
+  const [response, setResponse] = useState<GdpQuarterlyResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getGdpQuarterly().then((d) => setData(d.data)).catch(() => setError(true));
+    api.getGdpQuarterly().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const data: GdpQuarterlyItem[] = response?.data ?? [];
 
   if (error) return <ChartErrorFallback title="Quarterly GDP Growth" />;
   if (!data.length) return <ChartCardSkeleton />;
@@ -69,7 +71,7 @@ export default function GdpQuarterly() {
     <ChartCard
       insight={insight}
       description="Q1 2025 marked a contraction driven by inventory drawdown. The subsequent recovery was unusually strong, setting a high baseline for Q4 comparisons."
-      source="Source: BEA · Q4 2025"
+      provenance={response ?? undefined}
     >
       <ResponsiveBar
         data={barData}
