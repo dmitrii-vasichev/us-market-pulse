@@ -3,12 +3,14 @@ from pathlib import Path
 
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from app.services.methodology import PHASE_3_APPROVED_SERIES_IDS
 from seed_metadata import SERIES
 
 
 def test_series_count():
-    assert len(SERIES) == 26
+    assert len(SERIES) == 33
 
 
 def test_all_series_have_required_fields():
@@ -23,6 +25,8 @@ def test_series_ids_match_prd():
         "GDP", "A191RL1Q225SBEA", "CPIAUCSL", "UNRATE", "FEDFUNDS",
         "MORTGAGE30US", "DGS10", "MSPUS", "HOUST", "RSAFS",
         "PAYEMS", "DCOILWTICO", "SP500", "UMCSENT", "JTSJOL", "INDPRO",
+        "DPCERY2Q224SBEA", "A007RY2Q224SBEA", "A822RY2Q224SBEA",
+        "A019RY2Q224SBEA", "A014RY2Q224SBEA", "A023RC1Q027SBEA", "COE",
         "LASST060000000000003", "LASST360000000000003", "LASST480000000000003",
         "LASST120000000000003", "LASST170000000000003", "LASST420000000000003",
         "LASST390000000000003", "LASST080000000000003", "LASST320000000000003",
@@ -30,6 +34,7 @@ def test_series_ids_match_prd():
     }
     actual_ids = {s["series_id"] for s in SERIES}
     assert actual_ids == expected_ids
+    assert set(PHASE_3_APPROVED_SERIES_IDS) <= actual_ids
 
 
 def test_categories_are_valid():

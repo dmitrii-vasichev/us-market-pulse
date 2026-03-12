@@ -19,7 +19,10 @@ from collectors.state_indicators import (
     parse_census_population_response,
     parse_state_gdp_response,
 )
+from app.services.labor_ranking import get_bls_year_range
+from app.services.methodology import PHASE_3_APPROVED_SERIES
 from data_collector import (
+    collect,
     collect_dimensional_snapshots,
     fetch_bls_series,
     fetch_fred_series,
@@ -407,3 +410,80 @@ async def test_collect_dimensional_snapshots_collects_all_phase2_datasets():
         bea_api_key="bea-key",
     )
     mock_upsert_sector.assert_awaited_once_with(conn, [{"snapshot_date": date(2025, 10, 1)}])
+
+
+async def test_collect_fetches_phase3_series_via_existing_regular_pipeline():
+    conn = AsyncMock()
+    client = AsyncMock()
+    fred_series = [
+        {
+            "series_id": series.series_id,
+            "title": series.title,
+            "source": series.source,
+        }
+        for series in PHASE_3_APPROVED_SERIES
+    ]
+    bls_series = [
+        {
+            "series_id": "LASST080000000000003",
+            "title": "Colorado Unemployment Rate",
+            "source": "BLS",
+        }
+    ]
+    series_list = fred_series + bls_series
+
+    client_factory = MagicMock()
+    client_factory.__aenter__ = AsyncMock(return_value=client)
+    client_factory.__aexit__ = AsyncMock(return_value=None)
+
+    with (
+        patch("data_collector.asyncpg.connect", new=AsyncMock(return_value=conn)),
+        patch("data_collector.get_active_series", new=AsyncMock(return_value=series_list)),
+        patch("data_collector.httpx.AsyncClient", return_value=client_factory),
+        patch(
+            "data_collector.fetch_fred_series",
+            new=AsyncMock(return_value=[{"date": "2025-10-01", "value": "1.0"}]),
+        ) as mock_fetch_fred,
+        patch("data_collector.upsert_observations", new=AsyncMock(return_value=1)) as mock_upsert,
+        patch("data_collector.update_last_updated", new=AsyncMock()) as mock_update_last_updated,
+        patch(
+            "data_collector.fetch_bls_series",
+            new=AsyncMock(
+                return_value={
+                    "LASST080000000000003": [
+                        {"date": "2025-12-01", "value": "3.8"},
+                    ]
+                }
+            ),
+        ) as mock_fetch_bls,
+        patch(
+            "data_collector.collect_dimensional_snapshots",
+            new=AsyncMock(return_value={"datasets_collected": 3, "records_inserted": 0, "errors": []}),
+        ),
+        patch("data_collector.log_collection_run", new=AsyncMock()),
+        patch("data_collector.asyncio.sleep", new=AsyncMock()),
+    ):
+        result = await collect(
+            database_url="postgres://example.test/db",
+            fred_api_key="fred-key",
+            bea_api_key="bea-key",
+            census_api_key="census-key",
+            census_vintage=2025,
+        )
+
+    fetched_fred_ids = [call.args[1] for call in mock_fetch_fred.await_args_list]
+    start_year, end_year = get_bls_year_range()
+
+    assert fetched_fred_ids == [series["series_id"] for series in fred_series]
+    mock_fetch_bls.assert_awaited_once_with(
+        client,
+        ["LASST080000000000003"],
+        start_year,
+        end_year,
+    )
+    assert mock_upsert.await_count == len(series_list)
+    assert mock_update_last_updated.await_count == len(series_list)
+    assert result["status"] == "success"
+    assert result["series_collected"] == len(series_list)
+    assert result["dimensional_datasets_collected"] == 3
+    assert result["records_inserted"] == len(series_list)
