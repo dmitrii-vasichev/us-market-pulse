@@ -82,6 +82,12 @@ const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const MANIFEST_PATH = path.join(REPO_ROOT, "config", "provenance-manifest.json");
 const SCHEMA_PATH = path.join(REPO_ROOT, "config", "provenance-manifest.schema.json");
 const CHART_COMPONENTS_DIR = path.join(REPO_ROOT, "frontend", "src", "components", "charts");
+const RESTORED_PHASE_2_COMPONENTS = [
+  "CpiHeatmap.tsx",
+  "StateScatter.tsx",
+  "SectorTreemap.tsx",
+  "GdpWaffle.tsx",
+];
 
 const CHART_RUNTIME_EXPECTATIONS: ChartRuntimeExpectation[] = [
   { id: "overview.gdp-waterfall", page: "overview", route: "/", component: "GdpWaterfall", endpoint: "/api/v1/gdp/components", methodology_type: "derived", public: true },
@@ -591,6 +597,22 @@ describe("provenance manifest enforcement", () => {
       }
       if (/<ChartCard(?:.|\n)*?\bsource=/.test(content)) {
         violations.push(`${fileName}: ChartCard source prop`);
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
+  it("prevents restored Phase 2 charts from reintroducing illustrative unavailable-state branches", () => {
+    const violations: string[] = [];
+
+    for (const fileName of RESTORED_PHASE_2_COMPONENTS) {
+      const content = fs.readFileSync(path.join(CHART_COMPONENTS_DIR, fileName), "utf8");
+      if (content.includes("ChartUnavailableState")) {
+        violations.push(`${fileName}: ChartUnavailableState import or usage reintroduced`);
+      }
+      if (/methodology_type\s*===\s*["']illustrative["']/.test(content)) {
+        violations.push(`${fileName}: illustrative methodology gating reintroduced`);
       }
     }
 
