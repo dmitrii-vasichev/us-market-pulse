@@ -94,16 +94,134 @@ async def test_cpi_calendar(client):
 
 
 async def test_cpi_categories(client):
-    c, _ = client
+    c, mock_conn = client
+    mock_conn.fetch.return_value = [
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "housing",
+            "category_label": "Housing",
+            "display_order": 1,
+            "relative_importance": Decimal("34.9"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "food",
+            "category_label": "Food & Beverages",
+            "display_order": 2,
+            "relative_importance": Decimal("14.3"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "transport",
+            "category_label": "Transportation",
+            "display_order": 3,
+            "relative_importance": Decimal("16.7"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "medical",
+            "category_label": "Medical Care",
+            "display_order": 4,
+            "relative_importance": Decimal("8.9"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "education",
+            "category_label": "Education & Communication",
+            "display_order": 5,
+            "relative_importance": Decimal("6.1"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "recreation",
+            "category_label": "Recreation",
+            "display_order": 6,
+            "relative_importance": Decimal("5.6"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "apparel",
+            "category_label": "Apparel",
+            "display_order": 7,
+            "relative_importance": Decimal("2.6"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 12, 1),
+            "period_label": "Dec 2025",
+            "category_key": "other",
+            "category_label": "Other Goods & Services",
+            "display_order": 8,
+            "relative_importance": Decimal("10.6"),
+            "source_provider": "BLS",
+            "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+            "source_metadata": {"release_year": 2025},
+            "collected_at": None,
+        },
+    ]
+
     resp = await c.get("/api/v1/cpi/categories")
     assert resp.status_code == 200
     data = resp.json()
     assert len(data["categories"]) == 8
-    assert data["total"] == 100.0
-    assert data["source"] == "Source: Illustrative placeholder"
-    assert data["methodology_type"] == "illustrative"
+    assert data["categories"][0] == {"id": "housing", "label": "Housing", "value": 34.9}
+    assert data["total"] == 99.7
+    assert data["source"] == "Source: BLS CPI Relative Importance · Dec 2025"
+    assert data["methodology_type"] == "source_backed"
+    assert data["latest_observation_date"] == "2025-12-01"
+    assert data["latest_month"] == "Dec 2025"
+    assert data["source_dataset"] == "Consumer Price Index Relative Importance tables, U.S. city average, major groups"
+    assert data["source_series_ids"] is None
+    assert data["methodology_note"] is None
+
+
+async def test_cpi_categories_empty_snapshot_stays_source_backed(client):
+    c, mock_conn = client
+    mock_conn.fetch.return_value = []
+
+    resp = await c.get("/api/v1/cpi/categories")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["categories"] == []
+    assert data["total"] == 0.0
+    assert data["source"] == "Source: BLS CPI Relative Importance"
+    assert data["methodology_type"] == "source_backed"
     assert data["latest_observation_date"] is None
-    assert "static illustrative values" in data["methodology_note"]
+    assert data["methodology_note"] is None
 
 
 async def test_labor_funnel(client):
@@ -340,7 +458,6 @@ async def test_overview(client):
 @pytest.mark.parametrize(
     ("path", "note_fragment"),
     [
-        ("/api/v1/cpi/categories", "static illustrative values"),
         ("/api/v1/states/comparison", "static illustrative sample values"),
         ("/api/v1/sectors/gdp", "static illustrative tree"),
     ],
