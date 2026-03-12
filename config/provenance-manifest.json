@@ -217,7 +217,7 @@
       "placement": "grid-card-5",
       "component": "BulletTargets",
       "endpoint": "/api/v1/kpi/summary",
-      "current_source_claim": "Source: Federal Reserve · Mar 2026",
+      "current_source_claim": "Source: BEA, BLS, Federal Reserve · Mar 10, 2026",
       "current_runtime_visibility": "public",
       "public": true,
       "methodology_type": "derived",
@@ -230,13 +230,7 @@
           "provider": "Stored dashboard KPI inputs",
           "dataset": "GDP, CPIAUCSL, UNRATE, FEDFUNDS",
           "kind": "stored_series",
-          "notes": "Chart draws measures from KPI summary output computed from stored series."
-        },
-        {
-          "provider": "Frontend assumption",
-          "dataset": "Static target thresholds in BulletTargets.tsx",
-          "kind": "frontend_assumption",
-          "notes": "Targets are hardcoded in the chart component rather than sourced from a dataset."
+          "notes": "Chart measures, target bands, and markers are derived from stored KPI inputs plus backend-owned policy definitions in the shared summary response."
         }
       ],
       "storage_locations": [
@@ -249,8 +243,8 @@
           "reference": "GDP, CPIAUCSL, UNRATE, FEDFUNDS metadata rows"
         },
         {
-          "layer": "frontend_inline",
-          "reference": "frontend/src/components/charts/BulletTargets.tsx"
+          "layer": "backend_service",
+          "reference": "backend/app/services/kpi_targets.py"
         }
       ],
       "phase_3_target_contract": {
