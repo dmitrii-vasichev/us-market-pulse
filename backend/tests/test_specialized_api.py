@@ -805,6 +805,120 @@ async def test_sectors_gdp_empty_snapshot(client):
     assert "percent shares" in data["methodology_note"]
 
 
+async def test_phase2_replacement_endpoints_keep_stored_source_provenance(client):
+    c, mock_conn = client
+    mock_conn.fetch.side_effect = [
+        [
+            {
+                "snapshot_date": date(2025, 12, 1),
+                "period_label": "Dec 2025",
+                "category_key": "housing",
+                "category_label": "Housing",
+                "display_order": 1,
+                "relative_importance": Decimal("34.9"),
+                "source_provider": "BLS",
+                "source_dataset": "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+                "source_metadata": {"release_year": 2025},
+                "collected_at": None,
+            }
+        ],
+        [
+            {
+                "snapshot_date": date(2025, 1, 1),
+                "period_label": "2025",
+                "state_code": "CO",
+                "state_name": "Colorado",
+                "display_order": 8,
+                "unemployment_rate": Decimal("3.2"),
+                "gdp_current_dollars": Decimal("435000000000"),
+                "population": 5800000,
+                "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+                "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+                "source_metadata": {"year": 2025},
+                "collected_at": None,
+            }
+        ],
+        [
+            {
+                "snapshot_date": date(2025, 10, 1),
+                "period_label": "Q4 2025",
+                "node_key": "root",
+                "parent_node_key": None,
+                "node_label": "US GDP",
+                "depth": 0,
+                "display_order": 0,
+                "value_current_dollars": Decimal("1000"),
+                "source_provider": "BEA",
+                "source_dataset": "GDP by Industry, current-dollar value added by industry",
+                "source_metadata": {},
+                "collected_at": None,
+            },
+            {
+                "snapshot_date": date(2025, 10, 1),
+                "period_label": "Q4 2025",
+                "node_key": "services",
+                "parent_node_key": "root",
+                "node_label": "Services",
+                "depth": 1,
+                "display_order": 1,
+                "value_current_dollars": Decimal("1000"),
+                "source_provider": "BEA",
+                "source_dataset": "GDP by Industry, current-dollar value added by industry",
+                "source_metadata": {},
+                "collected_at": None,
+            },
+            {
+                "snapshot_date": date(2025, 10, 1),
+                "period_label": "Q4 2025",
+                "node_key": "services.real-estate",
+                "parent_node_key": "services",
+                "node_label": "Real Estate",
+                "depth": 2,
+                "display_order": 7,
+                "value_current_dollars": Decimal("1000"),
+                "source_provider": "BEA",
+                "source_dataset": "GDP by Industry, current-dollar value added by industry",
+                "source_metadata": {},
+                "collected_at": None,
+            },
+        ],
+    ]
+
+    expectations = [
+        (
+            "/api/v1/cpi/categories",
+            "source_backed",
+            "Source: BLS CPI Relative Importance · Dec 2025",
+            "Consumer Price Index Relative Importance tables, U.S. city average, major groups",
+        ),
+        (
+            "/api/v1/states/comparison",
+            "derived",
+            "Source: BLS, BEA, Census · 2025",
+            "Local Area Unemployment Statistics annual average unemployment rate by state; "
+            "Annual current-dollar GDP by state; Annual state population estimates",
+        ),
+        (
+            "/api/v1/sectors/gdp",
+            "derived",
+            "Source: BEA · Q4 2025",
+            "GDP by Industry, current-dollar value added by industry",
+        ),
+    ]
+
+    for path, methodology_type, source_label, source_dataset in expectations:
+        resp = await c.get(path)
+        assert resp.status_code == 200
+        payload = resp.json()
+        assert payload["methodology_type"] == methodology_type
+        assert payload["methodology_type"] != "illustrative"
+        assert payload["source"] == source_label
+        assert payload["source_dataset"] == source_dataset
+        assert payload["latest_observation_date"] is not None
+        if methodology_type == "derived":
+            assert payload["methodology_note"] is not None
+
+
 async def test_sentiment_radial_empty(client):
     c, mock_conn = client
     mock_conn.fetchrow.return_value = {
