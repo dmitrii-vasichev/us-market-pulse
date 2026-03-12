@@ -1,5 +1,5 @@
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -346,6 +346,10 @@ async def test_collect_dimensional_snapshots_reports_partial_failure():
 async def test_collect_dimensional_snapshots_collects_all_phase2_datasets():
     conn = AsyncMock()
     client = AsyncMock()
+    current_year = datetime.now(timezone.utc).year
+    latest_complete_year = current_year - 1
+    annual_years = list(range(2021, latest_complete_year + 1))
+    sector_years = list(range(2021, current_year + 1))
 
     with (
         patch(
@@ -387,11 +391,11 @@ async def test_collect_dimensional_snapshots_collects_all_phase2_datasets():
         "records_inserted": 42,
         "errors": [],
     }
-    mock_fetch_cpi.assert_awaited_once_with(client, [2021, 2022, 2023, 2024, 2025])
+    mock_fetch_cpi.assert_awaited_once_with(client, annual_years)
     mock_upsert_cpi.assert_awaited_once_with(conn, [{"snapshot_date": date(2025, 12, 1)}])
     mock_fetch_state.assert_awaited_once_with(
         client,
-        [2021, 2022, 2023, 2024, 2025],
+        annual_years,
         bea_api_key="bea-key",
         census_vintage=2025,
         census_api_key="census-key",
@@ -399,7 +403,7 @@ async def test_collect_dimensional_snapshots_collects_all_phase2_datasets():
     mock_upsert_state.assert_awaited_once_with(conn, [{"snapshot_date": date(2025, 1, 1)}])
     mock_fetch_sector.assert_awaited_once_with(
         client,
-        [2021, 2022, 2023, 2024, 2025, 2026],
+        sector_years,
         bea_api_key="bea-key",
     )
     mock_upsert_sector.assert_awaited_once_with(conn, [{"snapshot_date": date(2025, 10, 1)}])
