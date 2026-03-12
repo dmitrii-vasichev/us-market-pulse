@@ -35,6 +35,21 @@ def test_build_provenance_formats_quarterly_metadata():
     assert provenance.methodology_note == "Derived from stored GDP growth inputs."
 
 
+def test_build_provenance_formats_annual_metadata():
+    provenance = build_provenance(
+        source_name="BLS, BEA, Census",
+        methodology_type="derived",
+        latest_date=date(2025, 1, 1),
+        period_kind="year",
+        methodology_note="Computed from stored annual inputs.",
+    )
+
+    assert provenance.source == "Source: BLS, BEA, Census · 2025"
+    assert provenance.latest_observation_date == "2025-01-01"
+    assert provenance.latest_month == "2025"
+    assert provenance.methodology_note == "Computed from stored annual inputs."
+
+
 def test_build_provenance_omits_latest_fields_when_date_missing():
     provenance = build_provenance(
         source_name="BLS",

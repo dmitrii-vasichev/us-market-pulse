@@ -300,15 +300,217 @@ async def test_labor_ranking(client):
 
 
 async def test_states_comparison(client):
-    c, _ = client
+    c, mock_conn = client
+    mock_conn.fetch.return_value = [
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "CA",
+            "state_name": "California",
+            "display_order": 1,
+            "unemployment_rate": Decimal("5.1"),
+            "gdp_current_dollars": Decimal("3239000000000"),
+            "population": 39500000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "TX",
+            "state_name": "Texas",
+            "display_order": 2,
+            "unemployment_rate": Decimal("4.0"),
+            "gdp_current_dollars": Decimal("2040000000000"),
+            "population": 30000000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "NY",
+            "state_name": "New York",
+            "display_order": 3,
+            "unemployment_rate": Decimal("4.5"),
+            "gdp_current_dollars": Decimal("1818000000000"),
+            "population": 20200000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "FL",
+            "state_name": "Florida",
+            "display_order": 4,
+            "unemployment_rate": Decimal("3.3"),
+            "gdp_current_dollars": Decimal("1221000000000"),
+            "population": 22200000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "IL",
+            "state_name": "Illinois",
+            "display_order": 5,
+            "unemployment_rate": Decimal("4.8"),
+            "gdp_current_dollars": Decimal("921600000000"),
+            "population": 12800000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "PA",
+            "state_name": "Pennsylvania",
+            "display_order": 6,
+            "unemployment_rate": Decimal("4.1"),
+            "gdp_current_dollars": Decimal("819000000000"),
+            "population": 13000000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "OH",
+            "state_name": "Ohio",
+            "display_order": 7,
+            "unemployment_rate": Decimal("3.9"),
+            "gdp_current_dollars": Decimal("684400000000"),
+            "population": 11800000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "CO",
+            "state_name": "Colorado",
+            "display_order": 8,
+            "unemployment_rate": Decimal("3.2"),
+            "gdp_current_dollars": Decimal("435000000000"),
+            "population": 5800000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "WA",
+            "state_name": "Washington",
+            "display_order": 9,
+            "unemployment_rate": Decimal("3.8"),
+            "gdp_current_dollars": Decimal("616000000000"),
+            "population": 7700000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "MA",
+            "state_name": "Massachusetts",
+            "display_order": 10,
+            "unemployment_rate": Decimal("3.5"),
+            "gdp_current_dollars": Decimal("665000000000"),
+            "population": 7000000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "NV",
+            "state_name": "Nevada",
+            "display_order": 11,
+            "unemployment_rate": Decimal("5.5"),
+            "gdp_current_dollars": Decimal("161200000000"),
+            "population": 3100000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+        {
+            "snapshot_date": date(2025, 1, 1),
+            "period_label": "2025",
+            "state_code": "MI",
+            "state_name": "Michigan",
+            "display_order": 12,
+            "unemployment_rate": Decimal("4.3"),
+            "gdp_current_dollars": Decimal("540000000000"),
+            "population": 10000000,
+            "source_providers": ["BLS", "BEA", "Census Population Estimates Program"],
+            "source_datasets": ["LAUS", "GDP by State", "Population Estimates"],
+            "source_metadata": {"year": 2025},
+            "collected_at": None,
+        },
+    ]
+
     resp = await c.get("/api/v1/states/comparison")
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data["data"]) == 1  # One group
-    assert len(data["data"][0]["data"]) == 12  # 12 states
-    assert data["source"] == "Source: Illustrative placeholder"
-    assert data["methodology_type"] == "illustrative"
-    assert "static illustrative sample values" in data["methodology_note"]
+    assert len(data["data"]) == 1
+    assert len(data["data"][0]["data"]) == 12
+    assert data["data"][0]["id"] == "states"
+    assert data["data"][0]["data"][0]["label"] == "California"
+    assert data["data"][0]["data"][0]["x"] == 5.1
+    assert data["data"][0]["data"][0]["y"] == 82_000.0
+    assert data["data"][0]["data"][0]["size"] == 39.5
+    colorado = next(item for item in data["data"][0]["data"] if item["label"] == "Colorado")
+    assert colorado["highlighted"] is True
+    assert colorado["y"] == 75_000.0
+    assert data["source"] == "Source: BLS, BEA, Census · 2025"
+    assert data["methodology_type"] == "derived"
+    assert data["latest_observation_date"] == "2025-01-01"
+    assert data["latest_month"] == "2025"
+    assert data["source_dataset"] == (
+        "Local Area Unemployment Statistics annual average unemployment rate by state; "
+        "Annual current-dollar GDP by state; Annual state population estimates"
+    )
+    assert "GDP per capita is computed" in data["methodology_note"]
+    assert data["source_series_ids"] is None
+
+
+async def test_states_comparison_empty_snapshot_keeps_curated_group(client):
+    c, mock_conn = client
+    mock_conn.fetch.return_value = []
+
+    resp = await c.get("/api/v1/states/comparison")
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["data"] == [{"id": "states", "data": []}]
+    assert data["source"] == "Source: BLS, BEA, Census"
+    assert data["methodology_type"] == "derived"
+    assert data["latest_observation_date"] is None
+    assert data["latest_month"] is None
+    assert "GDP per capita is computed" in data["methodology_note"]
 
 
 async def test_rates_history(client):
@@ -458,7 +660,6 @@ async def test_overview(client):
 @pytest.mark.parametrize(
     ("path", "note_fragment"),
     [
-        ("/api/v1/states/comparison", "static illustrative sample values"),
         ("/api/v1/sectors/gdp", "static illustrative tree"),
     ],
 )
