@@ -112,7 +112,7 @@ describe("CpiHeatmap", () => {
 });
 
 describe("CpiCalendar", () => {
-  it("renders without horizontal scroll and provides contextual tooltip content", async () => {
+  it("renders without clipping chart overflow and provides contextual tooltip content", async () => {
     mockApi.getCpiCalendar.mockResolvedValue({
       data: [
         { day: "2024-01-01", value: 3.4 },
@@ -129,7 +129,7 @@ describe("CpiCalendar", () => {
       expect(screen.getByTestId("nivo-calendar")).toBeTruthy();
     });
 
-    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-x-hidden");
+    expect(screen.getByTestId("chart-card-scroll-container")).toHaveClass("overflow-visible");
 
     const calendarProps = mockResponsiveCalendar.mock.calls[0]?.[0] as {
       tooltip: (props: { day: string; value: string; color: string }) => React.JSX.Element | null;

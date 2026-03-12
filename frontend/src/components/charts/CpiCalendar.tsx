@@ -146,7 +146,7 @@ export default function CpiCalendar() {
       insight="Monthly price increases clustered in Jan–Mar seasonally — watch Q1 2026"
       source="Source: BLS · Jan 2026"
       height={height}
-      horizontalOverflow="hidden"
+      horizontalOverflow="visible"
     >
       {/* Year navigation */}
       <div
