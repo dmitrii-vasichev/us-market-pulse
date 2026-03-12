@@ -23,7 +23,10 @@ jest.mock("@/lib/nivo-theme", () => ({
   },
 }));
 
-import GdpWaterfall, { getGdpWaterfallValueScale } from "@/components/charts/GdpWaterfall";
+import GdpWaterfall, {
+  getGdpWaterfallValueScale,
+  splitGdpWaterfallAxisLabel,
+} from "@/components/charts/GdpWaterfall";
 
 describe("getGdpWaterfallValueScale", () => {
   it("adds lower breathing room when negative contributions are present", () => {
@@ -39,6 +42,18 @@ describe("getGdpWaterfallValueScale", () => {
 
     expect(scale.min).toBe(0);
     expect(scale.max).toBeGreaterThan(0.63);
+  });
+});
+
+describe("splitGdpWaterfallAxisLabel", () => {
+  it("keeps single-word labels on one line", () => {
+    expect(splitGdpWaterfallAxisLabel("Government")).toEqual(["Government"]);
+  });
+
+  it("balances multi-word labels across two lines", () => {
+    expect(splitGdpWaterfallAxisLabel("Consumer Spending")).toEqual(["Consumer", "Spending"]);
+    expect(splitGdpWaterfallAxisLabel("Business Investment")).toEqual(["Business", "Investment"]);
+    expect(splitGdpWaterfallAxisLabel("Inventory Change")).toEqual(["Inventory", "Change"]);
   });
 });
 
@@ -70,8 +85,8 @@ describe("GdpWaterfall", () => {
     });
 
     expect(latestBarProps).toMatchObject({
-      margin: { bottom: 110 },
-      axisBottom: { tickPadding: 24 },
+      margin: { bottom: 78 },
+      axisBottom: { tickPadding: 14, renderTick: expect.any(Function) },
     });
 
     expect(latestBarProps?.valueScale).toMatchObject({

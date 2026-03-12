@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 import type { BarCustomLayerProps } from "@nivo/bar";
+import type { AxisTickProps } from "@nivo/axes";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
 import type { GdpComponentsResponse } from "@/lib/types";
@@ -12,8 +13,65 @@ import ChartErrorFallback from "../ChartErrorFallback";
 
 type BarDatum = { id: string; value: number; color: string };
 
-const GDP_WATERFALL_BOTTOM_MARGIN = 110;
-const GDP_WATERFALL_X_AXIS_TICK_PADDING = 24;
+const GDP_WATERFALL_BOTTOM_MARGIN = 78;
+const GDP_WATERFALL_X_AXIS_TICK_PADDING = 14;
+const GDP_WATERFALL_TICK_LINE_HEIGHT = 14;
+
+export function splitGdpWaterfallAxisLabel(label: string) {
+  const words = label.split(/\s+/).filter(Boolean);
+
+  if (words.length <= 1) return [label];
+
+  let bestSplitIndex = 1;
+  let smallestLengthDifference = Number.POSITIVE_INFINITY;
+
+  for (let index = 1; index < words.length; index += 1) {
+    const firstLine = words.slice(0, index).join(" ");
+    const secondLine = words.slice(index).join(" ");
+    const lengthDifference = Math.abs(firstLine.length - secondLine.length);
+
+    if (lengthDifference < smallestLengthDifference) {
+      bestSplitIndex = index;
+      smallestLengthDifference = lengthDifference;
+    }
+  }
+
+  return [
+    words.slice(0, bestSplitIndex).join(" "),
+    words.slice(bestSplitIndex).join(" "),
+  ];
+}
+
+function WaterfallAxisTick({
+  value,
+  lineX,
+  lineY,
+  x,
+  y,
+  textX,
+  textY,
+  theme,
+}: AxisTickProps<string>) {
+  const lines = splitGdpWaterfallAxisLabel(String(value));
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <line x1={0} x2={lineX} y1={0} y2={lineY} style={theme.line} />
+      <text
+        transform={`translate(${textX},${textY})`}
+        dominantBaseline="text-before-edge"
+        textAnchor="middle"
+        style={theme.text}
+      >
+        {lines.map((line, index) => (
+          <tspan key={`${line}-${index}`} x={0} dy={index === 0 ? 0 : GDP_WATERFALL_TICK_LINE_HEIGHT}>
+            {line}
+          </tspan>
+        ))}
+      </text>
+    </g>
+  );
+}
 
 export function getGdpWaterfallValueScale(values: number[]) {
   const minValue = Math.min(...values, 0);
@@ -105,9 +163,9 @@ export default function GdpWaterfall() {
         padding={0.4}
         valueScale={valueScale}
         axisBottom={{
-          tickRotation: -45,
           tickSize: 0,
           tickPadding: GDP_WATERFALL_X_AXIS_TICK_PADDING,
+          renderTick: WaterfallAxisTick,
         }}
         axisLeft={{
           tickSize: 0,
