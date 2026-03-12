@@ -8,6 +8,7 @@ import type { SectorsGdpResponse, TreeNode } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
+import ChartUnavailableState from "../ChartUnavailableState";
 
 function flattenTree(node: TreeNode): { id: string; label: string; value: number }[] {
   if (node.children) {
@@ -30,9 +31,19 @@ export default function GdpWaffle() {
     api.getSectorsGdp().then(setResponse).catch(() => setError(true));
   }, []);
 
-  const data = response ? flattenTree(response.tree) : [];
-
   if (error) return <ChartErrorFallback title="GDP by Sector" />;
+  if (!response) return <ChartCardSkeleton />;
+  if (response.methodology_type === "illustrative") {
+    return (
+      <ChartUnavailableState
+        insight="Services sectors dominate at 78% of GDP; manufacturing leads goods"
+        provenance={response}
+        reason="This GDP waffle is temporarily unavailable while we replace an illustrative sector share tree with a source-backed sector dataset."
+      />
+    );
+  }
+
+  const data = response ? flattenTree(response.tree) : [];
   if (!data.length) return <ChartCardSkeleton />;
 
   const services = data.find((d) => d.id.toLowerCase().includes("service"));
@@ -43,8 +54,7 @@ export default function GdpWaffle() {
   return (
     <ChartCard
       insight={insight}
-      source={response?.source}
-      contextualNote={response?.methodology_note ?? undefined}
+      provenance={response}
     >
       <ResponsiveWaffle
         data={data}

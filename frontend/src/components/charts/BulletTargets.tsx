@@ -53,8 +53,7 @@ export default function BulletTargets() {
   return (
     <ChartCard
       insight={insight}
-      source={response?.source}
-      contextualNote={response?.methodology_note ?? undefined}
+      provenance={response ?? undefined}
       height={220}
     >
       <ResponsiveBullet
