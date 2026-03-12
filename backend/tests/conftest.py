@@ -40,6 +40,7 @@ async def mock_db():
         "app.api.v1.cpi",
         "app.api.v1.labor",
         "app.api.v1.states",
+        "app.api.v1.sectors",
         "app.api.v1.rates",
         "app.api.v1.sentiment",
         "app.api.v1.overview",
