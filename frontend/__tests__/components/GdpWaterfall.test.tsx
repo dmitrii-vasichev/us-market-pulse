@@ -100,18 +100,17 @@ describe("GdpWaterfall", () => {
     expect(valueScale.max).toBeGreaterThan(0.63);
   });
 
-  it("renders payload-driven provenance for derived waterfall data", async () => {
+  it("renders payload-driven provenance for source-backed waterfall data", async () => {
     mockApi.getGdpComponents.mockResolvedValue({
-      source: "Source: FRED · Q4 2025",
-      methodology_type: "derived",
-      methodology_note: "Derived from stored GDP growth inputs and fixed backend share assumptions.",
-      quarter: "2025-Q4",
+      source: "Source: BEA Contributions to Real GDP Growth · Q4 2025",
+      methodology_type: "source_backed",
+      quarter: "2025-10-01",
       total_growth: 1.4,
       components: [
         { id: "consumer", label: "Consumer Spending", value: 0.63 },
         { id: "business", label: "Business Investment", value: 0.35 },
         { id: "government", label: "Government", value: 0.21 },
-        { id: "exports", label: "Net Exports", value: -0.07 },
+        { id: "net_exports", label: "Net Exports", value: -0.07 },
         { id: "inventory", label: "Inventory Change", value: 0.28 },
       ],
     });
@@ -124,10 +123,8 @@ describe("GdpWaterfall", () => {
       expect(screen.getByTestId("nivo-bar")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Source: FRED · Q4 2025")).toBeInTheDocument();
-    expect(screen.getByText("Derived")).toBeInTheDocument();
-    expect(
-      screen.getByText("Derived from stored GDP growth inputs and fixed backend share assumptions."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Source: BEA Contributions to Real GDP Growth · Q4 2025")).toBeInTheDocument();
+    expect(screen.getByText("Source-backed")).toBeInTheDocument();
+    expect(screen.getByText("Consumer spending drove 45% of Q4 2025 growth (1.4% total)")).toBeInTheDocument();
   });
 });
