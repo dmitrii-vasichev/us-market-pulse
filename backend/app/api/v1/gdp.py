@@ -3,6 +3,9 @@
 from fastapi import APIRouter
 
 from app.db.database import get_pool
+from app.db.queries import get_series_metadata
+from app.models.schemas import GdpQuarterlyResponse
+from app.services.provenance import build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/gdp", tags=["GDP"])
 
@@ -40,11 +43,12 @@ async def gdp_components():
         }
 
 
-@router.get("/quarterly")
+@router.get("/quarterly", response_model=GdpQuarterlyResponse)
 async def gdp_quarterly():
     """GDP quarterly growth rate for bar chart."""
     pool = await get_pool()
     async with pool.acquire() as conn:
+        meta = await get_series_metadata(conn, "A191RL1Q225SBEA")
         rows = await conn.fetch(
             """
             SELECT date, value FROM economic_series
@@ -56,4 +60,17 @@ async def gdp_quarterly():
             {"quarter": str(r["date"]), "value": float(r["value"])}
             for r in reversed(rows)
         ]
-        return {"data": data}
+        latest_date = rows[0]["date"] if rows else None
+        provenance = build_metadata_provenance(
+            [meta] if meta else [],
+            methodology_type="source_backed",
+            latest_date=latest_date,
+            period_kind="quarter",
+            fallback_source_name="BEA",
+            fallback_dataset="Real GDP Growth Rate (Contributions by Component)",
+            source_series_ids=["A191RL1Q225SBEA"],
+        )
+        return GdpQuarterlyResponse(
+            data=data,
+            **provenance.model_dump(),
+        )
