@@ -4,6 +4,7 @@ import httpx
 from fastapi import APIRouter
 
 from app.db.database import get_pool
+from app.models.schemas import LaborRankingResponse
 from app.services.labor_ranking import (
     STATE_UNEMPLOYMENT_SERIES_IDS,
     build_labor_ranking_response,
@@ -35,7 +36,7 @@ async def labor_funnel():
         return {"stages": stages}
 
 
-@router.get("/ranking")
+@router.get("/ranking", response_model=LaborRankingResponse)
 async def labor_ranking():
     """State unemployment rankings over time for bump chart.
     Shows top 8-10 states ranked by unemployment rate over 12 months.

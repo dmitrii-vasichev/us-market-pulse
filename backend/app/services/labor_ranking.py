@@ -8,6 +8,8 @@ from typing import Any, Iterable, Mapping
 
 import httpx
 
+from app.services.provenance import build_provenance
+
 BLS_TIMESERIES_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 
 STATE_UNEMPLOYMENT_SERIES = [
@@ -33,12 +35,6 @@ def get_bls_year_range(observation_start: str | None = None) -> tuple[str, str]:
     current_year = datetime.now(timezone.utc).year
     start_year = date.fromisoformat(observation_start).year if observation_start else current_year - 2
     return str(start_year), str(current_year)
-
-
-def format_labor_ranking_source(latest_date: date | None) -> str:
-    if latest_date is None:
-        return "Source: BLS"
-    return f"Source: BLS · {latest_date.strftime('%b %Y')}"
 
 
 def _coerce_date(value: Any) -> date | None:
@@ -142,10 +138,17 @@ def build_labor_ranking_response(
         if series_data[state]
     ]
     latest_date = complete_dates[-1] if complete_dates else None
+    provenance = build_provenance(
+        source_name="BLS",
+        methodology_type="source_backed",
+        latest_date=latest_date,
+        period_kind="month",
+        source_dataset="BLS State Unemployment Rates",
+        source_series_ids=STATE_UNEMPLOYMENT_SERIES_IDS,
+    )
 
     return {
         "data": data,
         "states": STATE_UNEMPLOYMENT_STATES,
-        "source": format_labor_ranking_source(latest_date),
-        "latest_month": latest_date.isoformat() if latest_date else None,
+        **provenance.model_dump(),
     }
