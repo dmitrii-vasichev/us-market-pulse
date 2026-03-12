@@ -95,9 +95,12 @@ def _serialize_methodology_input(
 ) -> MethodologyInput:
     dataset = definition.dataset
     source = definition.source
+    unit = definition.unit
     if metadata_row is not None:
         dataset = str(metadata_row["title"]) if metadata_row.get("title") else dataset
         source = str(metadata_row["source"]) if metadata_row.get("source") else source
+        if unit is None and metadata_row.get("units"):
+            unit = str(metadata_row["units"])
 
     return MethodologyInput(
         key=definition.key,
@@ -105,6 +108,7 @@ def _serialize_methodology_input(
         source=source,
         dataset=dataset,
         series_id=definition.series_id,
+        unit=unit,
         kind=definition.kind,
         role=definition.role,
     )

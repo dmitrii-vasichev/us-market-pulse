@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 from app.models.schemas import KpiTargetPolicy, MethodologyInputKind, MethodologyType
+
+LaborFunnelValueTransform = Literal["identity", "thousands_to_millions"]
 
 
 @dataclass(frozen=True)
@@ -14,6 +17,7 @@ class MethodologyInputDefinition:
     source: str
     dataset: str
     series_id: str | None = None
+    unit: str | None = None
     kind: MethodologyInputKind = "stored_series"
     role: str | None = None
 
@@ -30,10 +34,14 @@ class ChartMethodologyDefinition:
 
 
 @dataclass(frozen=True)
-class ComponentShareDefinition:
+class LaborFunnelStageDefinition:
     id: str
     label: str
-    share: float
+    input_key: str
+    source_series_id: str
+    unit: str
+    description: str
+    value_transform: LaborFunnelValueTransform = "identity"
 
 
 @dataclass(frozen=True)
@@ -89,12 +97,43 @@ GDP_WATERFALL_COMPONENTS: tuple[GdpWaterfallComponentDefinition, ...] = (
     ),
 )
 
-LABOR_FUNNEL_STAGE_SHARES: tuple[ComponentShareDefinition, ...] = (
-    ComponentShareDefinition("total_gdp", "Total GDP", 1.0),
-    ComponentShareDefinition("consumer", "Consumer Spending", 0.68),
-    ComponentShareDefinition("business", "Business Investment", 0.18),
-    ComponentShareDefinition("government", "Government Spending", 0.17),
-    ComponentShareDefinition("net_exports", "Net Exports", 0.03),
+LABOR_FUNNEL_STAGE_DEFINITIONS: tuple[LaborFunnelStageDefinition, ...] = (
+    LaborFunnelStageDefinition(
+        id="gross_domestic_product",
+        label="Gross Domestic Product",
+        input_key="gross_domestic_product",
+        source_series_id="GDP",
+        unit="billions_usd",
+        description="Latest stored quarterly GDP level used as the top-of-funnel output stage.",
+    ),
+    LaborFunnelStageDefinition(
+        id="gross_national_income",
+        label="Gross National Income",
+        input_key="gross_national_income",
+        source_series_id="A023RC1Q027SBEA",
+        unit="billions_usd",
+        description="Latest stored quarterly GNI level aligned to the same quarter as GDP.",
+    ),
+    LaborFunnelStageDefinition(
+        id="employee_compensation",
+        label="Employee Compensation",
+        input_key="employee_compensation",
+        source_series_id="COE",
+        unit="billions_usd",
+        description="Quarterly compensation of employees taken from the same aligned income quarter.",
+    ),
+    LaborFunnelStageDefinition(
+        id="nonfarm_payroll_employment",
+        label="Nonfarm Payroll Employment",
+        input_key="nonfarm_payroll_employment",
+        source_series_id="PAYEMS",
+        unit="millions_persons",
+        description=(
+            "Latest stored payroll employment month within the aligned quarter, normalized from "
+            "thousands to millions of persons."
+        ),
+        value_transform="thousands_to_millions",
+    ),
 )
 
 
@@ -233,32 +272,66 @@ GDP_WATERFALL_SOURCE_BACKED_METHODOLOGY = ChartMethodologyDefinition(
     ),
 )
 
-LABOR_FUNNEL_CURRENT_METHODOLOGY = ChartMethodologyDefinition(
-    key="labor_funnel_current_share_split",
+LABOR_FUNNEL_DOCUMENTED_METHODOLOGY = ChartMethodologyDefinition(
+    key="labor_funnel_multi_input_alignment",
     methodology_type="derived",
     methodology_note=(
-        "Funnel stage values are derived by applying fixed backend shares to the latest stored GDP "
-        "level; there is no stored funnel dataset behind this chart."
+        "Funnel stages are built from stored GDP, gross national income, compensation of "
+        "employees, and payroll inputs. GDP, GNI, and compensation use the latest quarter with "
+        "all BEA series present, while payroll employment uses the latest PAYEMS month inside "
+        "that same quarter and is converted from thousands to millions of persons for the final "
+        "stage."
     ),
-    fallback_source_name="FRED",
-    fallback_dataset="Gross Domestic Product",
-    source_series_ids=("GDP",),
+    fallback_source_name="BEA, BLS",
+    fallback_dataset=(
+        "Gross Domestic Product; Gross National Income; Compensation of employees; "
+        "All Employees, Total Nonfarm"
+    ),
+    source_series_ids=LABOR_FUNNEL_TARGET_SERIES_IDS,
     inputs=(
         MethodologyInputDefinition(
             key="gross_domestic_product",
             label="Gross Domestic Product",
-            source="FRED",
+            source="BEA via FRED",
             dataset="Gross Domestic Product",
             series_id="GDP",
-            role="base_level_input",
+            unit="Billions of Dollars",
+            role="stage_input",
         ),
         MethodologyInputDefinition(
-            key="funnel_share_policy",
-            label="Backend funnel share policy",
+            key="gross_national_income",
+            label="Gross National Income",
+            source="BEA via FRED",
+            dataset="Gross National Income",
+            series_id="A023RC1Q027SBEA",
+            unit="Billions of Dollars",
+            role="stage_input",
+        ),
+        MethodologyInputDefinition(
+            key="employee_compensation",
+            label="Compensation of Employees",
+            source="BEA via FRED",
+            dataset="National Income: Compensation of Employees, Paid",
+            series_id="COE",
+            unit="Billions of Dollars",
+            role="stage_input",
+        ),
+        MethodologyInputDefinition(
+            key="nonfarm_payroll_employment",
+            label="Nonfarm Payroll Employment",
+            source="BLS via FRED",
+            dataset="All Employees, Total Nonfarm",
+            series_id="PAYEMS",
+            unit="Thousands of Persons",
+            role="stage_input",
+        ),
+        MethodologyInputDefinition(
+            key="aligned_stage_mapping_policy",
+            label="Quarterly stage alignment policy",
             source="Backend policy",
-            dataset="Current economic funnel stage share mapping",
+            dataset="Align quarterly GDP, GNI, and compensation inputs, then map the latest PAYEMS month in that quarter to a workforce stage after unit normalization",
             kind="derived_policy",
-            role="stage_mapping",
+            role="stage_alignment",
         ),
     ),
 )

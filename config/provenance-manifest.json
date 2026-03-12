@@ -141,30 +141,36 @@
       "current_runtime_visibility": "public",
       "public": true,
       "methodology_type": "derived",
-      "freshness_cadence": "quarterly",
+      "freshness_cadence": "mixed",
       "methodology_note_required": true,
       "phase_1_requirement": "dynamic_payload_attribution",
       "remediation_status": "phase_3_methodology_note",
       "upstream_sources": [
         {
           "provider": "BEA via FRED",
-          "dataset": "GDP",
+          "dataset": "Gross Domestic Product; Gross National Income; Compensation of employees",
           "kind": "stored_series",
-          "notes": "Backend multiplies the stored GDP level by fixed stage shares; there is no stored funnel dataset."
+          "notes": "Stored quarterly GDP, GNI, and compensation series define the first three funnel stages directly."
+        },
+        {
+          "provider": "BLS via FRED",
+          "dataset": "All Employees, Total Nonfarm",
+          "kind": "stored_series",
+          "notes": "The final stage uses the latest stored PAYEMS month inside the aligned quarter and converts thousands of persons into millions."
         }
       ],
       "storage_locations": [
         {
           "layer": "postgres.economic_series",
-          "reference": "GDP observations"
+          "reference": "Quarterly GDP/GNI/compensation observations plus monthly PAYEMS observations used to build aligned funnel stages"
         },
         {
           "layer": "postgres.series_metadata",
-          "reference": "GDP metadata row"
+          "reference": "Metadata rows for GDP, A023RC1Q027SBEA, COE, and PAYEMS"
         },
         {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/labor.py"
+          "layer": "backend_service",
+          "reference": "backend/app/services/labor_funnel.py"
         }
       ],
       "phase_3_target_contract": {
@@ -508,30 +514,36 @@
       "current_runtime_visibility": "public",
       "public": true,
       "methodology_type": "derived",
-      "freshness_cadence": "quarterly",
+      "freshness_cadence": "mixed",
       "methodology_note_required": true,
       "phase_1_requirement": "dynamic_payload_attribution",
       "remediation_status": "phase_3_methodology_note",
       "upstream_sources": [
         {
           "provider": "BEA via FRED",
-          "dataset": "GDP",
+          "dataset": "Gross Domestic Product; Gross National Income; Compensation of employees",
           "kind": "stored_series",
-          "notes": "Same derived funnel logic as overview placement; stage values are synthesized in backend code."
+          "notes": "Stored quarterly GDP, GNI, and compensation series define the first three funnel stages directly."
+        },
+        {
+          "provider": "BLS via FRED",
+          "dataset": "All Employees, Total Nonfarm",
+          "kind": "stored_series",
+          "notes": "The final stage uses the latest stored PAYEMS month inside the aligned quarter and converts thousands of persons into millions."
         }
       ],
       "storage_locations": [
         {
           "layer": "postgres.economic_series",
-          "reference": "GDP observations"
+          "reference": "Quarterly GDP/GNI/compensation observations plus monthly PAYEMS observations used to build aligned funnel stages"
         },
         {
           "layer": "postgres.series_metadata",
-          "reference": "GDP metadata row"
+          "reference": "Metadata rows for GDP, A023RC1Q027SBEA, COE, and PAYEMS"
         },
         {
-          "layer": "backend_inline",
-          "reference": "backend/app/api/v1/labor.py"
+          "layer": "backend_service",
+          "reference": "backend/app/services/labor_funnel.py"
         }
       ],
       "phase_3_target_contract": {
