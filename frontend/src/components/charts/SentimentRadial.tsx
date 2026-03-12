@@ -38,7 +38,7 @@ export default function SentimentRadial() {
       insight={response.current
         ? `Consumer sentiment at ${response.current} — recovering from 2022 lows`
         : "Consumer sentiment has recovered 23% from its 2022 low"}
-      source="Source: University of Michigan · Mar 2026"
+      provenance={response}
     >
       <ResponsiveRadar
         data={radarData}
