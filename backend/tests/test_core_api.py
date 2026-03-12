@@ -26,14 +26,14 @@ async def test_kpi_summary_empty(client):
     data = resp.json()
     assert "kpis" in data
     assert isinstance(data["kpis"], list)
-    assert data["source"] == "Source: FRED"
+    assert data["source"] == "Source: BEA, BLS, Federal Reserve"
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] is None
     assert data["latest_month"] is None
     assert data["methodology_key"] == "kpi_summary_current_threshold_policy"
     assert len(data["methodology_inputs"]) == 5
     assert data["methodology_inputs"][-1]["kind"] == "derived_policy"
-    assert "stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS observations" in data["methodology_note"]
+    assert "backend-selected measures against backend-owned target bands" in data["methodology_note"]
 
 
 async def test_kpi_summary_with_provenance(client):
@@ -62,7 +62,19 @@ async def test_kpi_summary_with_provenance(client):
             "positive_is_good": True,
             "format": "trillions",
             "sparkline": [{"date": "2025-10-01", "value": 28000.0}],
-        }
+        },
+        {
+            "key": "fed_rate",
+            "label": "Fed Funds Rate",
+            "current_value": 4.5,
+            "previous_value": 4.25,
+            "change_absolute": 0.25,
+            "change_percent": 5.88,
+            "period_label": "YTD",
+            "positive_is_good": False,
+            "format": "percent",
+            "sparkline": [{"date": "2026-03-10", "value": 4.5}],
+        },
     ]
 
     with patch("app.api.v1.kpi.compute_all_kpis", new=AsyncMock(return_value=sample_kpis)):
@@ -70,7 +82,7 @@ async def test_kpi_summary_with_provenance(client):
 
     assert resp.status_code == 200
     data = resp.json()
-    assert data["source"] == "Source: FRED · Mar 10, 2026"
+    assert data["source"] == "Source: BEA, BLS, Federal Reserve · Mar 10, 2026"
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] == "2026-03-10"
     assert data["latest_month"] is None
@@ -83,8 +95,23 @@ async def test_kpi_summary_with_provenance(client):
         "target": 3.0,
         "max": 5.0,
         "ranges": [0.0, 2.5, 3.75, 5.0],
+        "markers": [3.0],
+        "measure": 0.72,
+        "measure_field": "change_percent",
+        "measure_label": "QoQ GDP growth",
+        "policy_note": "Compare quarterly GDP growth against a 3.0% expansion target on a 0-5% dashboard scale.",
     }
-    assert "backend-owned threshold bands" in data["methodology_note"]
+    assert data["kpis"][1]["target_policy"] == {
+        "target": 3.0,
+        "max": 6.0,
+        "ranges": [0.0, 3.0, 4.5, 6.0],
+        "markers": [3.0],
+        "measure": 4.5,
+        "measure_field": "current_value",
+        "measure_label": "Current fed funds rate",
+        "policy_note": "Compare the latest effective fed funds rate against a 3.0% dashboard policy target on a 0-6% scale.",
+    }
+    assert "backend-selected measures against backend-owned target bands" in data["methodology_note"]
 
 
 async def test_meta_series_empty(client):
