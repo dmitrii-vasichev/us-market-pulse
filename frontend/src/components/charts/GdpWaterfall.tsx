@@ -78,11 +78,11 @@ export default function GdpWaterfall() {
         indexBy="id"
         theme={nivoTheme}
         colors={({ data }) => (data as { color: string }).color}
-        margin={{ top: 10, right: 20, bottom: 60, left: 50 }}
+        margin={{ top: 10, right: 20, bottom: 80, left: 50 }}
         padding={0.4}
         valueScale={{ type: "linear" }}
         axisBottom={{
-          tickRotation: -30,
+          tickRotation: -45,
           tickSize: 0,
           tickPadding: 8,
         }}
