@@ -3,17 +3,35 @@ import path from "node:path";
 
 type MethodologyType = "source_backed" | "derived" | "illustrative";
 type RuntimeVisibility = "public" | "hidden" | "internal";
+type UpstreamSourceKind =
+  | "stored_series"
+  | "stored_snapshot"
+  | "live_api_fallback"
+  | "inline_approximation"
+  | "frontend_assumption";
+type Phase2MethodologyType = Exclude<MethodologyType, "illustrative">;
 
 interface ManifestUpstreamSource {
   provider: string;
   dataset: string;
-  kind: "stored_series" | "live_api_fallback" | "inline_approximation" | "frontend_assumption";
+  kind: UpstreamSourceKind;
   notes?: string;
 }
 
 interface ManifestStorageLocation {
   layer: string;
   reference: string;
+}
+
+interface ManifestPhase2TargetContract {
+  public: boolean;
+  methodology_type: Phase2MethodologyType;
+  freshness_cadence: string;
+  methodology_note_required: boolean;
+  source_claim_template: string;
+  transformation_summary?: string;
+  upstream_sources: ManifestUpstreamSource[];
+  storage_locations: ManifestStorageLocation[];
 }
 
 interface ManifestChartEntry {
@@ -33,6 +51,7 @@ interface ManifestChartEntry {
   remediation_status: "phase_1_dynamic_attribution" | "phase_2_replace_or_hide" | "phase_3_methodology_note";
   upstream_sources: ManifestUpstreamSource[];
   storage_locations: ManifestStorageLocation[];
+  phase_2_target_contract?: ManifestPhase2TargetContract;
 }
 
 interface ProvenanceManifest {
@@ -47,6 +66,17 @@ type ChartRuntimeExpectation = Pick<
   ManifestChartEntry,
   "id" | "page" | "route" | "component" | "endpoint" | "methodology_type" | "public"
 >;
+
+interface Phase2TargetExpectation {
+  id: string;
+  methodology_type: Phase2MethodologyType;
+  freshness_cadence: string;
+  methodology_note_required: boolean;
+  source_claim_template: string;
+  transformation_summary?: string;
+  upstream_datasets: string[];
+  storage_layers: string[];
+}
 
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const MANIFEST_PATH = path.join(REPO_ROOT, "config", "provenance-manifest.json");
@@ -72,6 +102,66 @@ const CHART_RUNTIME_EXPECTATIONS: ChartRuntimeExpectation[] = [
   { id: "markets.gdp-waffle", page: "markets", route: "/markets", component: "GdpWaffle", endpoint: "/api/v1/sectors/gdp", methodology_type: "illustrative", public: false },
 ];
 
+const PHASE_2_TARGET_EXPECTATIONS: Phase2TargetExpectation[] = [
+  {
+    id: "overview.gdp-waffle",
+    methodology_type: "derived",
+    freshness_cadence: "quarterly",
+    methodology_note_required: true,
+    source_claim_template: "Source: BEA GDP by Industry · Q<quarter> <year>",
+    transformation_summary:
+      "Map official BEA current-dollar value-added industries into one shared sector hierarchy used by both the treemap and waffle without introducing handcrafted percentage assumptions.",
+    upstream_datasets: ["GDP by Industry, current-dollar value added by industry"],
+    storage_layers: ["postgres.sector_gdp_snapshots"],
+  },
+  {
+    id: "labor.cpi-heatmap",
+    methodology_type: "source_backed",
+    freshness_cadence: "annual",
+    methodology_note_required: false,
+    source_claim_template: "Source: BLS CPI Relative Importance · Dec <year>",
+    upstream_datasets: ["Consumer Price Index Relative Importance tables, U.S. city average, major groups"],
+    storage_layers: ["postgres.cpi_category_snapshots"],
+  },
+  {
+    id: "labor.state-scatter",
+    methodology_type: "derived",
+    freshness_cadence: "annual",
+    methodology_note_required: true,
+    source_claim_template: "Source: BLS, BEA, Census · <year>",
+    transformation_summary:
+      "Compute GDP per capita as annual current-dollar GDP by state divided by the matching annual Census population estimate, while keeping unemployment as the same-year annual average rate for a curated state universe.",
+    upstream_datasets: [
+      "Local Area Unemployment Statistics annual average unemployment rate by state",
+      "Annual current-dollar GDP by state",
+      "Annual state population estimates",
+    ],
+    storage_layers: ["postgres.state_indicator_snapshots"],
+  },
+  {
+    id: "markets.sector-treemap",
+    methodology_type: "derived",
+    freshness_cadence: "quarterly",
+    methodology_note_required: true,
+    source_claim_template: "Source: BEA GDP by Industry · Q<quarter> <year>",
+    transformation_summary:
+      "Map official BEA current-dollar value-added industries into one shared sector hierarchy used by both the treemap and waffle without introducing handcrafted percentage assumptions.",
+    upstream_datasets: ["GDP by Industry, current-dollar value added by industry"],
+    storage_layers: ["postgres.sector_gdp_snapshots"],
+  },
+  {
+    id: "markets.gdp-waffle",
+    methodology_type: "derived",
+    freshness_cadence: "quarterly",
+    methodology_note_required: true,
+    source_claim_template: "Source: BEA GDP by Industry · Q<quarter> <year>",
+    transformation_summary:
+      "Map official BEA current-dollar value-added industries into one shared sector hierarchy used by both the treemap and waffle without introducing handcrafted percentage assumptions.",
+    upstream_datasets: ["GDP by Industry, current-dollar value added by industry"],
+    storage_layers: ["postgres.sector_gdp_snapshots"],
+  },
+];
+
 function readJson<T>(targetPath: string): T {
   return JSON.parse(fs.readFileSync(targetPath, "utf8")) as T;
 }
@@ -83,6 +173,88 @@ function cloneManifest(manifest: ProvenanceManifest): ProvenanceManifest {
 function expectNonEmptyString(value: unknown, fieldName: string, chartId?: string) {
   if (typeof value !== "string" || value.length === 0) {
     throw new Error(`${chartId ?? "manifest"}:${fieldName} must be a non-empty string`);
+  }
+}
+
+function validateUpstreamSources(
+  upstreamSources: ManifestUpstreamSource[],
+  chartId: string,
+  allowedSourceKinds: Set<UpstreamSourceKind>,
+  fieldName = "upstream_sources",
+) {
+  if (!Array.isArray(upstreamSources) || upstreamSources.length === 0) {
+    throw new Error(`${chartId}: ${fieldName} must contain at least one entry`);
+  }
+
+  for (const source of upstreamSources) {
+    expectNonEmptyString(source.provider, `${fieldName}.provider`, chartId);
+    expectNonEmptyString(source.dataset, `${fieldName}.dataset`, chartId);
+    if (!allowedSourceKinds.has(source.kind)) {
+      throw new Error(`${chartId}: invalid ${fieldName} kind`);
+    }
+  }
+}
+
+function validateStorageLocations(
+  storageLocations: ManifestStorageLocation[],
+  chartId: string,
+  fieldName = "storage_locations",
+) {
+  if (!Array.isArray(storageLocations) || storageLocations.length === 0) {
+    throw new Error(`${chartId}: ${fieldName} must contain at least one entry`);
+  }
+
+  for (const location of storageLocations) {
+    expectNonEmptyString(location.layer, `${fieldName}.layer`, chartId);
+    expectNonEmptyString(location.reference, `${fieldName}.reference`, chartId);
+  }
+}
+
+function validatePhase2TargetContract(
+  chart: ManifestChartEntry,
+  allowedSourceKinds: Set<UpstreamSourceKind>,
+) {
+  const contract = chart.phase_2_target_contract;
+  if (!contract) {
+    throw new Error(`${chart.id}: phase_2_target_contract is required for phase_2_replace_or_hide charts`);
+  }
+
+  if (contract.public !== true) {
+    throw new Error(`${chart.id}: phase_2_target_contract public must be true`);
+  }
+
+  if (!["source_backed", "derived"].includes(contract.methodology_type)) {
+    throw new Error(`${chart.id}: invalid phase_2_target_contract methodology type`);
+  }
+
+  if (typeof contract.methodology_note_required !== "boolean") {
+    throw new Error(`${chart.id}: phase_2_target_contract methodology_note_required must be boolean`);
+  }
+
+  expectNonEmptyString(contract.freshness_cadence, "phase_2_target_contract.freshness_cadence", chart.id);
+  expectNonEmptyString(contract.source_claim_template, "phase_2_target_contract.source_claim_template", chart.id);
+
+  validateUpstreamSources(
+    contract.upstream_sources,
+    chart.id,
+    allowedSourceKinds,
+    "phase_2_target_contract.upstream_sources",
+  );
+  validateStorageLocations(
+    contract.storage_locations,
+    chart.id,
+    "phase_2_target_contract.storage_locations",
+  );
+
+  if (contract.methodology_type === "derived") {
+    if (!contract.methodology_note_required) {
+      throw new Error(`${chart.id}: derived phase_2_target_contract charts must require methodology notes`);
+    }
+    expectNonEmptyString(
+      contract.transformation_summary,
+      "phase_2_target_contract.transformation_summary",
+      chart.id,
+    );
   }
 }
 
@@ -105,7 +277,13 @@ function validateManifest(manifest: ProvenanceManifest) {
   const allowedMethodologies = new Set(["source_backed", "derived", "illustrative"]);
   const allowedRequirements = new Set(["dynamic_payload_attribution", "unavailable_state"]);
   const allowedStatuses = new Set(["phase_1_dynamic_attribution", "phase_2_replace_or_hide", "phase_3_methodology_note"]);
-  const allowedSourceKinds = new Set(["stored_series", "live_api_fallback", "inline_approximation", "frontend_assumption"]);
+  const allowedSourceKinds = new Set<UpstreamSourceKind>([
+    "stored_series",
+    "stored_snapshot",
+    "live_api_fallback",
+    "inline_approximation",
+    "frontend_assumption",
+  ]);
 
   const byId = new Map<string, ManifestChartEntry>();
 
@@ -164,25 +342,9 @@ function validateManifest(manifest: ProvenanceManifest) {
     if (!allowedStatuses.has(chart.remediation_status)) {
       throw new Error(`${chart.id}: invalid remediation_status`);
     }
-    if (!Array.isArray(chart.upstream_sources) || chart.upstream_sources.length === 0) {
-      throw new Error(`${chart.id}: upstream_sources must contain at least one entry`);
-    }
-    if (!Array.isArray(chart.storage_locations) || chart.storage_locations.length === 0) {
-      throw new Error(`${chart.id}: storage_locations must contain at least one entry`);
-    }
 
-    for (const source of chart.upstream_sources) {
-      expectNonEmptyString(source.provider, "upstream_sources.provider", chart.id);
-      expectNonEmptyString(source.dataset, "upstream_sources.dataset", chart.id);
-      if (!allowedSourceKinds.has(source.kind)) {
-        throw new Error(`${chart.id}: invalid upstream source kind`);
-      }
-    }
-
-    for (const location of chart.storage_locations) {
-      expectNonEmptyString(location.layer, "storage_locations.layer", chart.id);
-      expectNonEmptyString(location.reference, "storage_locations.reference", chart.id);
-    }
+    validateUpstreamSources(chart.upstream_sources, chart.id, allowedSourceKinds);
+    validateStorageLocations(chart.storage_locations, chart.id);
 
     if (chart.methodology_type === "illustrative") {
       if (chart.public) {
@@ -205,6 +367,12 @@ function validateManifest(manifest: ProvenanceManifest) {
 
     if (!chart.public && chart.phase_1_requirement !== "unavailable_state") {
       throw new Error(`${chart.id}: non-public charts must use unavailable_state`);
+    }
+
+    if (chart.remediation_status === "phase_2_replace_or_hide") {
+      validatePhase2TargetContract(chart, allowedSourceKinds);
+    } else if (chart.phase_2_target_contract) {
+      throw new Error(`${chart.id}: only phase_2_replace_or_hide charts may define phase_2_target_contract`);
     }
   }
 
@@ -241,6 +409,11 @@ describe("provenance manifest enforcement", () => {
   const chartEntry = ((schema.$defs as Record<string, unknown>)?.chartEntry ?? {}) as Record<string, unknown>;
   const chartEntryProperties = ((chartEntry.properties as Record<string, unknown>) ?? {}) as Record<string, unknown>;
   const chartEntryAllOf = (chartEntry.allOf as Array<Record<string, unknown>> | undefined) ?? [];
+  const phase2TargetContract = ((schema.$defs as Record<string, unknown>)?.phase2TargetContract ?? {}) as Record<
+    string,
+    unknown
+  >;
+  const upstreamSource = ((schema.$defs as Record<string, unknown>)?.upstreamSource ?? {}) as Record<string, unknown>;
 
   it("keeps schema invariants for remediation policy", () => {
     expect(schema.required).toEqual(
@@ -267,11 +440,38 @@ describe("provenance manifest enforcement", () => {
       "derived",
       "illustrative",
     ]);
+    expect((upstreamSource.properties as { kind?: { enum?: string[] } }).kind?.enum).toEqual([
+      "stored_series",
+      "stored_snapshot",
+      "live_api_fallback",
+      "inline_approximation",
+      "frontend_assumption",
+    ]);
+    expect(chartEntryProperties.phase_2_target_contract).toEqual({
+      $ref: "#/$defs/phase2TargetContract",
+    });
+    expect((phase2TargetContract.required as string[])).toEqual(
+      expect.arrayContaining([
+        "public",
+        "methodology_type",
+        "freshness_cadence",
+        "methodology_note_required",
+        "source_claim_template",
+        "upstream_sources",
+        "storage_locations",
+      ]),
+    );
 
     const illustrativePolicy = chartEntryAllOf.find(
       (rule) => (rule.if as { properties?: { methodology_type?: { const?: string } } })?.properties?.methodology_type?.const === "illustrative",
     );
     const derivedPolicy = chartEntryAllOf.find(
+      (rule) => (rule.if as { properties?: { methodology_type?: { const?: string } } })?.properties?.methodology_type?.const === "derived",
+    );
+    const phase2Policy = chartEntryAllOf.find(
+      (rule) => (rule.if as { properties?: { remediation_status?: { const?: string } } })?.properties?.remediation_status?.const === "phase_2_replace_or_hide",
+    );
+    const phase2DerivedPolicy = ((phase2TargetContract.allOf as Array<Record<string, unknown>> | undefined) ?? []).find(
       (rule) => (rule.if as { properties?: { methodology_type?: { const?: string } } })?.properties?.methodology_type?.const === "derived",
     );
 
@@ -284,11 +484,48 @@ describe("provenance manifest enforcement", () => {
     expect(
       ((derivedPolicy?.then as { properties?: { methodology_note_required?: { const?: boolean } } })?.properties?.methodology_note_required?.const),
     ).toBe(true);
+    expect((phase2Policy?.then as { required?: string[] })?.required).toEqual(
+      expect.arrayContaining(["phase_2_target_contract"]),
+    );
+    expect((phase2DerivedPolicy?.then as { required?: string[] })?.required).toEqual(
+      expect.arrayContaining(["transformation_summary"]),
+    );
   });
 
   it("validates the manifest against runtime chart expectations", () => {
     expect(() => validateManifest(manifest)).not.toThrow();
     expect(manifest.charts).toHaveLength(CHART_RUNTIME_EXPECTATIONS.length);
+  });
+
+  it("captures approved phase 2 target contracts for every replacement chart", () => {
+    const byId = new Map(manifest.charts.map((chart) => [chart.id, chart] as const));
+
+    expect(
+      manifest.charts
+        .filter(({ remediation_status }) => remediation_status === "phase_2_replace_or_hide")
+        .map(({ id }) => id)
+        .sort(),
+    ).toEqual(PHASE_2_TARGET_EXPECTATIONS.map(({ id }) => id).sort());
+
+    for (const expectation of PHASE_2_TARGET_EXPECTATIONS) {
+      const chart = byId.get(expectation.id);
+      if (!chart?.phase_2_target_contract) {
+        throw new Error(`${expectation.id} missing phase_2_target_contract`);
+      }
+
+      expect(chart.phase_2_target_contract.public).toBe(true);
+      expect(chart.phase_2_target_contract.methodology_type).toBe(expectation.methodology_type);
+      expect(chart.phase_2_target_contract.freshness_cadence).toBe(expectation.freshness_cadence);
+      expect(chart.phase_2_target_contract.methodology_note_required).toBe(expectation.methodology_note_required);
+      expect(chart.phase_2_target_contract.source_claim_template).toBe(expectation.source_claim_template);
+      expect(chart.phase_2_target_contract.transformation_summary).toBe(expectation.transformation_summary);
+      expect(chart.phase_2_target_contract.upstream_sources.map(({ dataset }) => dataset)).toEqual(
+        expectation.upstream_datasets,
+      );
+      expect(chart.phase_2_target_contract.storage_locations.map(({ layer }) => layer)).toEqual(
+        expectation.storage_layers,
+      );
+    }
   });
 
   it("fails validation when a visible chart is missing from the manifest", () => {
@@ -312,6 +549,35 @@ describe("provenance manifest enforcement", () => {
 
     expect(() => validateManifest(nextManifest)).toThrow(
       "manifest classification mismatch for overview.gdp-waterfall",
+    );
+  });
+
+  it("fails validation when a phase 2 chart loses its target contract", () => {
+    const nextManifest = cloneManifest(manifest);
+    const chart = nextManifest.charts.find(({ id }) => id === "labor.state-scatter");
+    if (!chart) {
+      throw new Error("labor.state-scatter missing from fixture manifest");
+    }
+
+    delete chart.phase_2_target_contract;
+
+    expect(() => validateManifest(nextManifest)).toThrow(
+      "labor.state-scatter: phase_2_target_contract is required for phase_2_replace_or_hide charts",
+    );
+  });
+
+  it("fails validation when a derived phase 2 contract omits its deterministic transformation", () => {
+    const nextManifest = cloneManifest(manifest);
+    const chart = nextManifest.charts.find(({ id }) => id === "markets.sector-treemap");
+    if (!chart?.phase_2_target_contract) {
+      throw new Error("markets.sector-treemap missing from fixture manifest");
+    }
+
+    chart.phase_2_target_contract.methodology_note_required = false;
+    delete chart.phase_2_target_contract.transformation_summary;
+
+    expect(() => validateManifest(nextManifest)).toThrow(
+      "markets.sector-treemap: derived phase_2_target_contract charts must require methodology notes",
     );
   });
 
