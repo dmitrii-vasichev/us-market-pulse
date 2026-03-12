@@ -14,18 +14,16 @@ interface BumpData extends LaborRankingSeries {
 }
 
 export default function UnemploymentBump() {
-  const [data, setData] = useState<BumpData[]>([]);
-  const [source, setSource] = useState("Source: BLS");
+  const [response, setResponse] = useState<LaborRankingResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     api.getLaborRanking()
-      .then((response: LaborRankingResponse) => {
-        setData(response.data as BumpData[]);
-        setSource(response.source || "Source: BLS");
-      })
+      .then((nextResponse: LaborRankingResponse) => setResponse(nextResponse))
       .catch(() => setError(true));
   }, []);
+
+  const data: BumpData[] = (response?.data as BumpData[] | undefined) ?? [];
 
   if (error) return <ChartErrorFallback title="Unemployment Ranking" height={400} />;
   if (!data.length) return <ChartCardSkeleton height={400} />;
@@ -33,7 +31,7 @@ export default function UnemploymentBump() {
   return (
     <ChartCard
       insight="State unemployment rankings have shifted as labor market tightened"
-      source={source}
+      provenance={response ?? undefined}
       height={400}
     >
       <ResponsiveBump
