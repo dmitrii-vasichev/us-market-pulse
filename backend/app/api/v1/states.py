@@ -2,10 +2,13 @@
 
 from fastapi import APIRouter
 
+from app.models.schemas import StatesComparisonResponse
+from app.services.provenance import build_provenance
+
 router = APIRouter(prefix="/api/v1/states", tags=["States"])
 
 
-@router.get("/comparison")
+@router.get("/comparison", response_model=StatesComparisonResponse)
 async def states_comparison():
     """State-level GDP vs unemployment for scatter plot.
     X: unemployment rate, Y: GDP per capita, Size: population.
@@ -37,4 +40,16 @@ async def states_comparison():
         ]
     }]
 
-    return {"data": data}
+    provenance = build_provenance(
+        source_name="Illustrative placeholder",
+        methodology_type="illustrative",
+        methodology_note=(
+            "State rows are static illustrative sample values for unemployment, GDP per capita, and "
+            "population until sourced state datasets are integrated."
+        ),
+        source_dataset="Static state comparison sample",
+    )
+    return StatesComparisonResponse(
+        data=data,
+        **provenance.model_dump(),
+    )

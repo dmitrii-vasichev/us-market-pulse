@@ -4,24 +4,27 @@ import httpx
 from fastapi import APIRouter
 
 from app.db.database import get_pool
-from app.models.schemas import LaborRankingResponse
+from app.db.queries import get_series_metadata
+from app.models.schemas import LaborFunnelResponse, LaborRankingResponse
 from app.services.labor_ranking import (
     STATE_UNEMPLOYMENT_SERIES_IDS,
     build_labor_ranking_response,
     fetch_bls_series,
     get_bls_year_range,
 )
+from app.services.provenance import build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/labor", tags=["Labor"])
 
 
-@router.get("/funnel")
+@router.get("/funnel", response_model=LaborFunnelResponse)
 async def labor_funnel():
     """Economic flow funnel: GDP → Consumer → Business → Government → Net Exports."""
     pool = await get_pool()
     async with pool.acquire() as conn:
+        meta = await get_series_metadata(conn, "GDP")
         gdp_row = await conn.fetchrow(
-            "SELECT value FROM economic_series WHERE series_id = 'GDP' AND value IS NOT NULL ORDER BY date DESC LIMIT 1"
+            "SELECT date, value FROM economic_series WHERE series_id = 'GDP' AND value IS NOT NULL ORDER BY date DESC LIMIT 1"
         )
         gdp_val = float(gdp_row["value"]) if gdp_row else 28000
 
@@ -33,7 +36,23 @@ async def labor_funnel():
             {"id": "government", "label": "Government Spending", "value": round(gdp_val * 0.17)},
             {"id": "net_exports", "label": "Net Exports", "value": round(gdp_val * 0.03)},
         ]
-        return {"stages": stages}
+        provenance = build_metadata_provenance(
+            [meta] if meta else [],
+            methodology_type="derived",
+            latest_date=gdp_row["date"] if gdp_row else None,
+            period_kind="quarter",
+            methodology_note=(
+                "Funnel stage values are derived by applying fixed backend shares to the latest stored GDP "
+                "level; there is no stored funnel dataset behind this chart."
+            ),
+            fallback_source_name="BEA",
+            fallback_dataset="Gross Domestic Product",
+            source_series_ids=["GDP"],
+        )
+        return LaborFunnelResponse(
+            stages=stages,
+            **provenance.model_dump(),
+        )
 
 
 @router.get("/ranking", response_model=LaborRankingResponse)

@@ -4,8 +4,8 @@ from fastapi import APIRouter
 
 from app.db.database import get_pool
 from app.db.queries import get_series_metadata
-from app.models.schemas import CpiCalendarResponse
-from app.services.provenance import build_metadata_provenance
+from app.models.schemas import CpiCalendarResponse, CpiCategoriesResponse
+from app.services.provenance import build_metadata_provenance, build_provenance
 
 router = APIRouter(prefix="/api/v1/cpi", tags=["CPI"])
 
@@ -62,7 +62,7 @@ async def cpi_calendar():
         )
 
 
-@router.get("/categories")
+@router.get("/categories", response_model=CpiCategoriesResponse)
 async def cpi_categories():
     """CPI breakdown by category for waffle chart."""
     # BLS CPI categories — using approximate weights
@@ -77,4 +77,17 @@ async def cpi_categories():
         {"id": "apparel", "label": "Apparel", "value": 2.6},
         {"id": "other", "label": "Other", "value": 10.9},
     ]
-    return {"categories": categories, "total": 100.0}
+    provenance = build_provenance(
+        source_name="Illustrative placeholder",
+        methodology_type="illustrative",
+        methodology_note=(
+            "Category weights are static illustrative values maintained in backend code until a "
+            "source-backed BLS category dataset is integrated."
+        ),
+        source_dataset="Static CPI category weight approximation",
+    )
+    return CpiCategoriesResponse(
+        categories=categories,
+        total=100.0,
+        **provenance.model_dump(),
+    )

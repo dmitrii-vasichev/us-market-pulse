@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ResponsiveBullet } from "@nivo/bullet";
 import { api } from "@/lib/api";
 import { nivoTheme, chartColors } from "@/lib/nivo-theme";
-import type { KpiItem } from "@/lib/types";
+import type { KpiItem, KpiSummaryResponse } from "@/lib/types";
 import ChartCard from "../ChartCard";
 import ChartCardSkeleton from "../ChartCardSkeleton";
 import ChartErrorFallback from "../ChartErrorFallback";
@@ -17,12 +17,14 @@ const targets: Record<string, { target: number; max: number }> = {
 };
 
 export default function BulletTargets() {
-  const [kpis, setKpis] = useState<KpiItem[]>([]);
+  const [response, setResponse] = useState<KpiSummaryResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.getKpiSummary().then((d) => setKpis(d.kpis)).catch(() => setError(true));
+    api.getKpiSummary().then(setResponse).catch(() => setError(true));
   }, []);
+
+  const kpis: KpiItem[] = response?.kpis ?? [];
 
   if (error) return <ChartErrorFallback title="KPI Targets" height={220} />;
   if (!kpis.length) return <ChartCardSkeleton height={220} />;
@@ -49,7 +51,12 @@ export default function BulletTargets() {
       : "Fed hits rate target; inflation still 35% above 2% goal";
 
   return (
-    <ChartCard insight={insight} source="Source: Federal Reserve · Mar 2026" height={220}>
+    <ChartCard
+      insight={insight}
+      source={response?.source}
+      contextualNote={response?.methodology_note ?? undefined}
+      height={220}
+    >
       <ResponsiveBullet
         data={bulletData}
         theme={nivoTheme}

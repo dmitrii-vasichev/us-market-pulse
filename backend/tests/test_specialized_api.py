@@ -6,7 +6,18 @@ from datetime import date
 
 async def test_gdp_components(client):
     c, mock_conn = client
-    mock_conn.fetchrow.return_value = {"date": date(2026, 1, 1), "value": Decimal("2.5")}
+    mock_conn.fetchrow.side_effect = [
+        {
+            "series_id": "A191RL1Q225SBEA",
+            "title": "Real GDP Growth Rate (Contributions by Component)",
+            "units": "Percent",
+            "frequency": "Quarterly",
+            "source": "FRED",
+            "category": "gdp",
+            "last_updated": None,
+        },
+        {"date": date(2026, 1, 1), "value": Decimal("2.5")},
+    ]
 
     resp = await c.get("/api/v1/gdp/components")
     assert resp.status_code == 200
@@ -14,6 +25,12 @@ async def test_gdp_components(client):
     assert "components" in data
     assert len(data["components"]) == 5
     assert data["total_growth"] == 2.5
+    assert data["source"] == "Source: FRED · Q1 2026"
+    assert data["methodology_type"] == "derived"
+    assert data["latest_observation_date"] == "2026-01-01"
+    assert data["latest_month"] == "Q1 2026"
+    assert data["source_series_ids"] == ["A191RL1Q225SBEA"]
+    assert "fixed backend share assumptions" in data["methodology_note"]
 
 
 async def test_gdp_quarterly(client):
@@ -81,17 +98,38 @@ async def test_cpi_categories(client):
     data = resp.json()
     assert len(data["categories"]) == 8
     assert data["total"] == 100.0
+    assert data["source"] == "Source: Illustrative placeholder"
+    assert data["methodology_type"] == "illustrative"
+    assert data["latest_observation_date"] is None
+    assert "static illustrative values" in data["methodology_note"]
 
 
 async def test_labor_funnel(client):
     c, mock_conn = client
-    mock_conn.fetchrow.return_value = {"value": Decimal("28000")}
+    mock_conn.fetchrow.side_effect = [
+        {
+            "series_id": "GDP",
+            "title": "Gross Domestic Product",
+            "units": "Billions of Dollars",
+            "frequency": "Quarterly",
+            "source": "FRED",
+            "category": "gdp",
+            "last_updated": None,
+        },
+        {"date": date(2025, 10, 1), "value": Decimal("28000")},
+    ]
 
     resp = await c.get("/api/v1/labor/funnel")
     assert resp.status_code == 200
     data = resp.json()
     assert len(data["stages"]) == 5
     assert data["stages"][0]["label"] == "Total GDP"
+    assert data["source"] == "Source: FRED · Q4 2025"
+    assert data["methodology_type"] == "derived"
+    assert data["latest_observation_date"] == "2025-10-01"
+    assert data["latest_month"] == "Q4 2025"
+    assert data["source_series_ids"] == ["GDP"]
+    assert "fixed backend shares" in data["methodology_note"]
 
 
 async def test_labor_ranking(client):
@@ -148,6 +186,9 @@ async def test_states_comparison(client):
     data = resp.json()
     assert len(data["data"]) == 1  # One group
     assert len(data["data"][0]["data"]) == 12  # 12 states
+    assert data["source"] == "Source: Illustrative placeholder"
+    assert data["methodology_type"] == "illustrative"
+    assert "static illustrative sample values" in data["methodology_note"]
 
 
 async def test_rates_history(client):
@@ -216,6 +257,9 @@ async def test_sectors_gdp(client):
     assert "tree" in data
     assert data["tree"]["name"] == "US GDP"
     assert len(data["tree"]["children"]) == 4
+    assert data["source"] == "Source: Illustrative placeholder"
+    assert data["methodology_type"] == "illustrative"
+    assert "static illustrative tree" in data["methodology_note"]
 
 
 async def test_sentiment_radial_empty(client):
