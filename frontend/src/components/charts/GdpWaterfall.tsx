@@ -12,6 +12,27 @@ import ChartErrorFallback from "../ChartErrorFallback";
 
 type BarDatum = { id: string; value: number; color: string };
 
+const GDP_WATERFALL_BOTTOM_MARGIN = 110;
+const GDP_WATERFALL_X_AXIS_TICK_PADDING = 24;
+
+export function getGdpWaterfallValueScale(values: number[]) {
+  const minValue = Math.min(...values, 0);
+  const maxValue = Math.max(...values, 0);
+  const valueRange = maxValue - minValue || 1;
+  const positiveHeadroom = Math.max(maxValue * 0.08, valueRange * 0.06, 0.04);
+  const negativeFootroom =
+    minValue < 0
+      ? Math.max(Math.abs(minValue) * 0.75, valueRange * 0.1, 0.04)
+      : 0;
+
+  return {
+    type: "linear" as const,
+    min: minValue < 0 ? minValue - negativeFootroom : 0,
+    max: maxValue + positiveHeadroom,
+    nice: false,
+  };
+}
+
 // Annotation: callout on Net Exports bar
 // Hidden on mobile (innerWidth < 400 ~ viewport < 640px)
 function NetExportsAnnotation({ bars, innerWidth }: BarCustomLayerProps<BarDatum>) {
@@ -54,6 +75,7 @@ export default function GdpWaterfall() {
     value: c.value,
     color: c.value >= 0 ? chartColors.teal : chartColors.coral,
   }));
+  const valueScale = getGdpWaterfallValueScale(barData.map((item) => item.value));
 
   const consumer = data.components.find((c) =>
     c.label.toLowerCase().includes("consumer") || c.label.toLowerCase().includes("personal"),
@@ -79,13 +101,13 @@ export default function GdpWaterfall() {
         indexBy="id"
         theme={nivoTheme}
         colors={({ data }) => (data as { color: string }).color}
-        margin={{ top: 10, right: 20, bottom: 100, left: 50 }}
+        margin={{ top: 10, right: 20, bottom: GDP_WATERFALL_BOTTOM_MARGIN, left: 50 }}
         padding={0.4}
-        valueScale={{ type: "linear" }}
+        valueScale={valueScale}
         axisBottom={{
           tickRotation: -45,
           tickSize: 0,
-          tickPadding: 20,
+          tickPadding: GDP_WATERFALL_X_AXIS_TICK_PADDING,
         }}
         axisLeft={{
           tickSize: 0,
