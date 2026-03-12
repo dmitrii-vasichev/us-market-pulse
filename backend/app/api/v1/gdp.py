@@ -5,7 +5,11 @@ from fastapi import APIRouter
 from app.db.database import get_pool
 from app.db.queries import get_series_metadata
 from app.models.schemas import GdpComponentsResponse, GdpQuarterlyResponse
-from app.services.provenance import build_metadata_provenance
+from app.services.methodology import (
+    GDP_COMPONENT_SHARES,
+    GDP_WATERFALL_CURRENT_METHODOLOGY,
+)
+from app.services.provenance import build_chart_methodology_provenance, build_metadata_provenance
 
 router = APIRouter(prefix="/api/v1/gdp", tags=["GDP"])
 
@@ -27,28 +31,20 @@ async def gdp_components():
         )
         total_growth = float(row["value"]) if row else 0
 
-        # Typical GDP components breakdown (proportional to total)
-        # In production, we'd have separate series for each component
         components = [
-            {"id": "consumer", "label": "Consumer Spending", "value": round(total_growth * 0.45, 2)},
-            {"id": "business", "label": "Business Investment", "value": round(total_growth * 0.25, 2)},
-            {"id": "government", "label": "Government", "value": round(total_growth * 0.15, 2)},
-            {"id": "net_exports", "label": "Net Exports", "value": round(total_growth * -0.05, 2)},
-            {"id": "inventory", "label": "Inventory Change", "value": round(total_growth * 0.20, 2)},
+            {
+                "id": component.id,
+                "label": component.label,
+                "value": round(total_growth * component.share, 2),
+            }
+            for component in GDP_COMPONENT_SHARES
         ]
 
-        provenance = build_metadata_provenance(
+        provenance = build_chart_methodology_provenance(
+            GDP_WATERFALL_CURRENT_METHODOLOGY,
             [meta] if meta else [],
-            methodology_type="derived",
             latest_date=row["date"] if row else None,
             period_kind="quarter",
-            methodology_note=(
-                "Component contributions are derived by redistributing the latest stored GDP growth "
-                "reading across fixed backend share assumptions rather than a stored component dataset."
-            ),
-            fallback_source_name="BEA",
-            fallback_dataset="Real GDP Growth Rate (Contributions by Component)",
-            source_series_ids=["A191RL1Q225SBEA"],
         )
 
         return GdpComponentsResponse(

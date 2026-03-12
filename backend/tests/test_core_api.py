@@ -30,6 +30,9 @@ async def test_kpi_summary_empty(client):
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] is None
     assert data["latest_month"] is None
+    assert data["methodology_key"] == "kpi_summary_current_threshold_policy"
+    assert len(data["methodology_inputs"]) == 5
+    assert data["methodology_inputs"][-1]["kind"] == "derived_policy"
     assert "stored GDP, CPIAUCSL, UNRATE, and FEDFUNDS observations" in data["methodology_note"]
 
 
@@ -73,7 +76,15 @@ async def test_kpi_summary_with_provenance(client):
     assert data["latest_month"] is None
     assert data["source_series_ids"] == ["GDP", "CPIAUCSL", "UNRATE", "FEDFUNDS"]
     assert "Real Gross Domestic Product" in data["source_dataset"]
-    assert "static dashboard thresholds" in data["methodology_note"]
+    assert data["methodology_key"] == "kpi_summary_current_threshold_policy"
+    assert len(data["methodology_inputs"]) == 5
+    assert data["methodology_inputs"][-1]["role"] == "target_policy"
+    assert data["kpis"][0]["target_policy"] == {
+        "target": 3.0,
+        "max": 5.0,
+        "ranges": [0.0, 2.5, 3.75, 5.0],
+    }
+    assert "backend-owned threshold bands" in data["methodology_note"]
 
 
 async def test_meta_series_empty(client):

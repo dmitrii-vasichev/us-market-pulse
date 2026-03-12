@@ -12,7 +12,11 @@ from app.services.labor_ranking import (
     fetch_bls_series,
     get_bls_year_range,
 )
-from app.services.provenance import build_metadata_provenance
+from app.services.methodology import (
+    LABOR_FUNNEL_CURRENT_METHODOLOGY,
+    LABOR_FUNNEL_STAGE_SHARES,
+)
+from app.services.provenance import build_chart_methodology_provenance
 
 router = APIRouter(prefix="/api/v1/labor", tags=["Labor"])
 
@@ -28,26 +32,19 @@ async def labor_funnel():
         )
         gdp_val = float(gdp_row["value"]) if gdp_row else 28000
 
-        # GDP components as funnel stages (approximate shares)
         stages = [
-            {"id": "total_gdp", "label": "Total GDP", "value": round(gdp_val)},
-            {"id": "consumer", "label": "Consumer Spending", "value": round(gdp_val * 0.68)},
-            {"id": "business", "label": "Business Investment", "value": round(gdp_val * 0.18)},
-            {"id": "government", "label": "Government Spending", "value": round(gdp_val * 0.17)},
-            {"id": "net_exports", "label": "Net Exports", "value": round(gdp_val * 0.03)},
+            {
+                "id": stage.id,
+                "label": stage.label,
+                "value": round(gdp_val * stage.share),
+            }
+            for stage in LABOR_FUNNEL_STAGE_SHARES
         ]
-        provenance = build_metadata_provenance(
+        provenance = build_chart_methodology_provenance(
+            LABOR_FUNNEL_CURRENT_METHODOLOGY,
             [meta] if meta else [],
-            methodology_type="derived",
             latest_date=gdp_row["date"] if gdp_row else None,
             period_kind="quarter",
-            methodology_note=(
-                "Funnel stage values are derived by applying fixed backend shares to the latest stored GDP "
-                "level; there is no stored funnel dataset behind this chart."
-            ),
-            fallback_source_name="BEA",
-            fallback_dataset="Gross Domestic Product",
-            source_series_ids=["GDP"],
         )
         return LaborFunnelResponse(
             stages=stages,
