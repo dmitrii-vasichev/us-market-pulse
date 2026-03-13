@@ -93,6 +93,11 @@ const RESTORED_PHASE_2_COMPONENTS = [
   "SectorTreemap.tsx",
   "GdpWaffle.tsx",
 ];
+const PHASE_3_RUNTIME_COMPONENTS = [
+  "GdpWaterfall.tsx",
+  "EconomicFunnel.tsx",
+  "BulletTargets.tsx",
+];
 
 const CHART_RUNTIME_EXPECTATIONS: ChartRuntimeExpectation[] = [
   { id: "overview.gdp-waterfall", page: "overview", route: "/", component: "GdpWaterfall", endpoint: "/api/v1/gdp/components", methodology_type: "source_backed", public: true },
@@ -680,6 +685,31 @@ describe("provenance manifest enforcement", () => {
     }
   });
 
+  it("locks the current runtime to the approved post-phase-3 methodology baseline", () => {
+    const byId = new Map(manifest.charts.map((chart) => [chart.id, chart] as const));
+
+    expect(manifest.policy_note).toContain(
+      "phase_3_target_contract captures the approved post-remediation methodology contract for charts that required Phase 3 methodology remediation",
+    );
+    expect(manifest.policy_note).not.toContain("unresolved after Phase 2");
+
+    for (const expectation of PHASE_3_TARGET_EXPECTATIONS) {
+      const chart = byId.get(expectation.id);
+      if (!chart?.phase_3_target_contract) {
+        throw new Error(`${expectation.id} missing phase_3_target_contract`);
+      }
+
+      expect(chart.public).toBe(true);
+      expect(chart.current_runtime_visibility).toBe("public");
+      expect(chart.methodology_type).toBe(expectation.methodology_type);
+      expect(chart.freshness_cadence).toBe(expectation.freshness_cadence);
+      expect(chart.methodology_note_required).toBe(expectation.methodology_note_required);
+      expect(chart.upstream_sources.map(({ kind }) => kind)).not.toContain("frontend_assumption");
+      expect(chart.upstream_sources.map(({ kind }) => kind)).not.toContain("inline_approximation");
+      expect(chart.storage_locations.map(({ layer }) => layer)).not.toContain("frontend_inline");
+    }
+  });
+
   it("fails validation when a visible chart is missing from the manifest", () => {
     const nextManifest = cloneManifest(manifest);
     nextManifest.charts = nextManifest.charts.filter(({ id }) => id !== "markets.sp500-area");
@@ -788,6 +818,31 @@ describe("provenance manifest enforcement", () => {
       }
       if (/methodology_type\s*===\s*["']illustrative["']/.test(content)) {
         violations.push(`${fileName}: illustrative methodology gating reintroduced`);
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
+  it("keeps phase 3 charts payload-driven and free of illustrative gating", () => {
+    const violations: string[] = [];
+
+    for (const fileName of PHASE_3_RUNTIME_COMPONENTS) {
+      const content = fs.readFileSync(path.join(CHART_COMPONENTS_DIR, fileName), "utf8");
+      if (content.includes("ChartUnavailableState")) {
+        violations.push(`${fileName}: ChartUnavailableState import or usage reintroduced`);
+      }
+      if (/methodology_type\s*===\s*["']illustrative["']/.test(content)) {
+        violations.push(`${fileName}: illustrative methodology gating reintroduced`);
+      }
+      if (fileName !== "BulletTargets.tsx" && !content.includes("methodology_inputs")) {
+        violations.push(`${fileName}: payload methodology_inputs usage missing`);
+      }
+      if (fileName === "BulletTargets.tsx" && !content.includes("target_policy")) {
+        violations.push(`${fileName}: payload target_policy usage missing`);
+      }
+      if (fileName === "BulletTargets.tsx" && !content.includes("policy_note")) {
+        violations.push(`${fileName}: payload policy_note usage missing`);
       }
     }
 
