@@ -1,4 +1,4 @@
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react";
 
 const mockResponsiveCalendar = jest.fn(() => <div data-testid="nivo-calendar" />);
 const mockResponsiveBullet = jest.fn(() => <div data-testid="nivo-bullet" />);
@@ -425,6 +425,13 @@ describe("BulletTargets", () => {
     expect(
       screen.getByText("Inputs: Gross Domestic Product • Consumer Price Index • Unemployment Rate • Federal Funds Rate • Backend KPI target policy"),
     ).toBeInTheDocument();
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("What this means"));
+
+    expect(screen.getByRole("tooltip")).toHaveTextContent(
+      "Compare quarterly GDP growth against a 3.0% expansion target on a 0-5% dashboard scale. Compare year-over-year CPI inflation against the 2.0% price-stability goal on a 0-10% dashboard scale.",
+    );
 
     const bulletProps = mockResponsiveBullet.mock.calls[0]?.[0] as {
       data: Array<{ id: string; ranges: number[]; measures: number[]; markers: number[] }>;
