@@ -18,6 +18,16 @@ from app.services.methodology import (
 )
 
 PeriodKind = Literal["date", "month", "quarter", "year"]
+FreshnessCadence = Literal["daily", "weekly", "monthly", "quarterly", "annual", "mixed"]
+
+FRESHNESS_WINDOWS_DAYS: dict[FreshnessCadence, int] = {
+    "daily": 14,
+    "weekly": 28,
+    "monthly": 120,
+    "quarterly": 190,
+    "annual": 550,
+    "mixed": 120,
+}
 
 
 def format_display_period(
@@ -67,6 +77,24 @@ def infer_period_kind_from_frequency(frequency: str | None) -> PeriodKind:
     return "date"
 
 
+def infer_freshness_cadence_from_frequency(
+    frequency: str | None,
+) -> FreshnessCadence:
+    if not frequency:
+        return "monthly"
+
+    normalized = frequency.strip().lower()
+    if "quarter" in normalized:
+        return "quarterly"
+    if "month" in normalized:
+        return "monthly"
+    if "week" in normalized:
+        return "weekly"
+    if "annual" in normalized or "year" in normalized:
+        return "annual"
+    return "daily"
+
+
 def infer_period_kind_from_frequencies(frequencies: Sequence[str | None]) -> PeriodKind:
     kinds = {infer_period_kind_from_frequency(frequency) for frequency in frequencies if frequency}
     if "date" in kinds:
@@ -76,6 +104,49 @@ def infer_period_kind_from_frequencies(frequencies: Sequence[str | None]) -> Per
     if "quarter" in kinds:
         return "quarter"
     return "month"
+
+
+def infer_freshness_cadence_from_frequencies(
+    frequencies: Sequence[str | None],
+) -> FreshnessCadence:
+    cadences = {
+        infer_freshness_cadence_from_frequency(frequency)
+        for frequency in frequencies
+        if frequency
+    }
+    if not cadences:
+        return "monthly"
+    if len(cadences) > 1:
+        return "mixed"
+    return next(iter(cadences))
+
+
+def infer_freshness_cadence_from_period_kind(
+    period_kind: PeriodKind,
+) -> FreshnessCadence:
+    if period_kind == "quarter":
+        return "quarterly"
+    if period_kind == "year":
+        return "annual"
+    if period_kind == "month":
+        return "monthly"
+    return "daily"
+
+
+def classify_freshness_status(
+    latest_date: date | None,
+    freshness_cadence: FreshnessCadence,
+    *,
+    reference_date: date | None = None,
+) -> FreshnessStatus:
+    if latest_date is None:
+        return "unknown"
+
+    current_date = reference_date or date.today()
+    age_days = max((current_date - latest_date).days, 0)
+    if age_days <= FRESHNESS_WINDOWS_DAYS[freshness_cadence]:
+        return "current"
+    return "stale"
 
 
 def _dedupe_preserve(values: Sequence[str]) -> list[str]:
@@ -142,6 +213,7 @@ def build_metadata_provenance(
     methodology_note: str | None = None,
     methodology_key: str | None = None,
     methodology_inputs: list[MethodologyInput] | None = None,
+    freshness_cadence: FreshnessCadence | None = None,
     freshness_status: FreshnessStatus | None = None,
     fallback_source_name: str = "Unknown",
     fallback_dataset: str | None = None,
@@ -166,6 +238,10 @@ def build_metadata_provenance(
         period_kind = infer_period_kind_from_frequencies(
             [row.get("frequency") for row in metadata_rows]
         )
+    if freshness_cadence is None:
+        freshness_cadence = infer_freshness_cadence_from_frequencies(
+            [row.get("frequency") for row in metadata_rows]
+        )
 
     return build_provenance(
         source_name=source_name,
@@ -177,6 +253,7 @@ def build_metadata_provenance(
         methodology_inputs=methodology_inputs,
         source_dataset=source_dataset,
         source_series_ids=source_series_ids or None,
+        freshness_cadence=freshness_cadence,
         freshness_status=freshness_status,
     )
 
@@ -187,6 +264,7 @@ def build_chart_methodology_provenance(
     *,
     latest_date: date | None = None,
     period_kind: PeriodKind | None = None,
+    freshness_cadence: FreshnessCadence | None = None,
     freshness_status: FreshnessStatus | None = None,
 ) -> ProvenancePayload:
     return build_metadata_provenance(
@@ -197,6 +275,7 @@ def build_chart_methodology_provenance(
         methodology_note=methodology.methodology_note,
         methodology_key=methodology.key,
         methodology_inputs=build_methodology_inputs(methodology, metadata_rows),
+        freshness_cadence=freshness_cadence,
         freshness_status=freshness_status,
         fallback_source_name=methodology.fallback_source_name,
         fallback_dataset=methodology.fallback_dataset,
@@ -215,6 +294,7 @@ def build_provenance(
     methodology_inputs: list[MethodologyInput] | None = None,
     source_dataset: str | None = None,
     source_series_ids: list[str] | None = None,
+    freshness_cadence: FreshnessCadence | None = None,
     freshness_status: FreshnessStatus | None = None,
 ) -> ProvenancePayload:
     """Build the normalized provenance payload shared across chart responses."""
@@ -222,6 +302,12 @@ def build_provenance(
     latest_month = None
     if latest_date and period_kind in {"month", "quarter", "year"}:
         latest_month = format_display_period(latest_date, period_kind)
+    resolved_freshness_status = freshness_status
+    if resolved_freshness_status is None:
+        resolved_freshness_status = classify_freshness_status(
+            latest_date,
+            freshness_cadence or infer_freshness_cadence_from_period_kind(period_kind),
+        )
 
     return ProvenancePayload(
         source=build_source_label(source_name, latest_date, period_kind),
@@ -233,5 +319,5 @@ def build_provenance(
         methodology_inputs=methodology_inputs or None,
         source_dataset=source_dataset,
         source_series_ids=source_series_ids or None,
-        freshness_status=freshness_status,
+        freshness_status=resolved_freshness_status,
     )

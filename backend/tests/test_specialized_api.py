@@ -444,7 +444,7 @@ async def test_labor_ranking(client):
     assert data["latest_month"] == "Dec 2025"
     assert data["source_dataset"] == "BLS State Unemployment Rates"
     assert len(data["source_series_ids"]) == 10
-    assert data["freshness_status"] is None
+    assert data["freshness_status"] == "current"
     december_ranks = {
         item["id"]: item["data"][-1]["y"]
         for item in data["data"]
@@ -649,6 +649,7 @@ async def test_states_comparison(client):
         "Local Area Unemployment Statistics annual average unemployment rate by state; "
         "Annual current-dollar GDP by state; Annual state population estimates"
     )
+    assert data["freshness_status"] == "current"
     assert "GDP per capita is computed" in data["methodology_note"]
     assert data["source_series_ids"] is None
 
@@ -666,6 +667,7 @@ async def test_states_comparison_empty_snapshot_keeps_curated_group(client):
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] is None
     assert data["latest_month"] is None
+    assert data["freshness_status"] == "unknown"
     assert "GDP per capita is computed" in data["methodology_note"]
 
 
@@ -941,6 +943,7 @@ async def test_sectors_gdp(client):
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] == "2025-10-01"
     assert data["latest_month"] == "Q4 2025"
+    assert data["freshness_status"] == "current"
     assert data["source_dataset"] == "GDP by Industry, current-dollar value added by industry"
     assert "percent shares" in data["methodology_note"]
 
@@ -958,6 +961,7 @@ async def test_sectors_gdp_empty_snapshot(client):
     assert data["methodology_type"] == "derived"
     assert data["latest_observation_date"] is None
     assert data["latest_month"] is None
+    assert data["freshness_status"] == "unknown"
     assert "percent shares" in data["methodology_note"]
 
 

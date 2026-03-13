@@ -118,6 +118,7 @@ def build_labor_funnel_response(
         methodology_type="derived",
         latest_date=latest_date,
         period_kind="quarter",
+        freshness_cadence="mixed",
         methodology_note=LABOR_FUNNEL_DOCUMENTED_METHODOLOGY.methodology_note,
         methodology_key=LABOR_FUNNEL_DOCUMENTED_METHODOLOGY.key,
         methodology_inputs=build_methodology_inputs(

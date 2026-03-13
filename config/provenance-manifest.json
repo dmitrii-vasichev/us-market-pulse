@@ -2,7 +2,7 @@
   "$schema": "./provenance-manifest.schema.json",
   "version": 3,
   "inventory_source": "docs/provenance/source-backed-inventory.md",
-  "policy_note": "The public field represents allowed public visibility under the remediation policy. current_runtime_visibility records whether a chart is still rendered on the public site before remediation changes are applied. phase_2_target_contract captures the approved replacement dataset contract for charts that remained illustrative at runtime after Phase 1. phase_3_target_contract captures the approved post-remediation methodology contract for charts that required Phase 3 methodology remediation, and the current runtime rows now serve as the regression baseline for that contract.",
+  "policy_note": "The public field represents allowed public visibility under the remediation policy. current_runtime_visibility records whether a chart is still rendered on the public site before remediation changes are applied. phase_2_target_contract captures the approved replacement dataset contract for charts that remained illustrative at runtime after Phase 1. phase_3_target_contract captures the approved post-remediation methodology contract for charts that required Phase 3 methodology remediation, and the current runtime rows now serve as the regression baseline for that contract. Phase 4 operational hardening binds those public runtime rows to explicit coverage and freshness expectations in config/provenance-operations.json.",
   "charts": [
     {
       "id": "overview.gdp-waterfall",

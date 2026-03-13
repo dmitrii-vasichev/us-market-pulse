@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "policy_note": "This registry declares the operational ingestion and freshness coverage expected for every public chart ID in the provenance manifest. Phase 4 audits and regression tests use it to prove that public charts remain tied to an explicit collector path or stored snapshot family.",
+  "charts": [
+    {
+      "id": "overview.gdp-waterfall",
+      "endpoint": "/api/v1/gdp/components",
+      "freshness_cadence": "quarterly",
+      "coverage_type": "series",
+      "required_series_ids": ["DPCERY2Q224SBEA", "A007RY2Q224SBEA", "A822RY2Q224SBEA", "A019RY2Q224SBEA", "A014RY2Q224SBEA"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "overview.gdp-quarterly",
+      "endpoint": "/api/v1/gdp/quarterly",
+      "freshness_cadence": "quarterly",
+      "coverage_type": "series",
+      "required_series_ids": ["A191RL1Q225SBEA"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "overview.cpi-calendar",
+      "endpoint": "/api/v1/cpi/calendar",
+      "freshness_cadence": "monthly",
+      "coverage_type": "series",
+      "required_series_ids": ["CPIAUCSL"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "overview.economic-funnel",
+      "endpoint": "/api/v1/labor/funnel",
+      "freshness_cadence": "mixed",
+      "coverage_type": "series",
+      "required_series_ids": ["GDP", "A023RC1Q027SBEA", "COE", "PAYEMS"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "overview.bullet-targets",
+      "endpoint": "/api/v1/kpi/summary",
+      "freshness_cadence": "mixed",
+      "coverage_type": "series",
+      "required_series_ids": ["GDP", "CPIAUCSL", "UNRATE", "FEDFUNDS"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "overview.gdp-waffle",
+      "endpoint": "/api/v1/sectors/gdp",
+      "freshness_cadence": "quarterly",
+      "coverage_type": "snapshot",
+      "required_series_ids": [],
+      "required_snapshot_tables": ["sector_gdp_snapshots"],
+      "collector_artifacts": ["scripts/collectors/sector_gdp.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "labor.unemployment-bump",
+      "endpoint": "/api/v1/labor/ranking",
+      "freshness_cadence": "monthly",
+      "coverage_type": "series",
+      "required_series_ids": [
+        "LASST060000000000003",
+        "LASST360000000000003",
+        "LASST480000000000003",
+        "LASST120000000000003",
+        "LASST170000000000003",
+        "LASST420000000000003",
+        "LASST390000000000003",
+        "LASST080000000000003",
+        "LASST320000000000003",
+        "LASST260000000000003"
+      ],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py", "backend/app/services/labor_ranking.py"]
+    },
+    {
+      "id": "labor.cpi-heatmap",
+      "endpoint": "/api/v1/cpi/categories",
+      "freshness_cadence": "annual",
+      "coverage_type": "snapshot",
+      "required_series_ids": [],
+      "required_snapshot_tables": ["cpi_category_snapshots"],
+      "collector_artifacts": ["scripts/collectors/cpi_categories.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "labor.state-scatter",
+      "endpoint": "/api/v1/states/comparison",
+      "freshness_cadence": "annual",
+      "coverage_type": "snapshot",
+      "required_series_ids": [],
+      "required_snapshot_tables": ["state_indicator_snapshots"],
+      "collector_artifacts": ["scripts/collectors/state_indicators.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "labor.economic-funnel",
+      "endpoint": "/api/v1/labor/funnel",
+      "freshness_cadence": "mixed",
+      "coverage_type": "series",
+      "required_series_ids": ["GDP", "A023RC1Q027SBEA", "COE", "PAYEMS"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "labor.cpi-calendar",
+      "endpoint": "/api/v1/cpi/calendar",
+      "freshness_cadence": "monthly",
+      "coverage_type": "series",
+      "required_series_ids": ["CPIAUCSL"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "markets.rates-line",
+      "endpoint": "/api/v1/rates/history",
+      "freshness_cadence": "mixed",
+      "coverage_type": "series",
+      "required_series_ids": ["FEDFUNDS", "MORTGAGE30US", "DGS10"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "markets.sector-treemap",
+      "endpoint": "/api/v1/sectors/gdp",
+      "freshness_cadence": "quarterly",
+      "coverage_type": "snapshot",
+      "required_series_ids": [],
+      "required_snapshot_tables": ["sector_gdp_snapshots"],
+      "collector_artifacts": ["scripts/collectors/sector_gdp.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "markets.sentiment-radial",
+      "endpoint": "/api/v1/sentiment/radial",
+      "freshness_cadence": "monthly",
+      "coverage_type": "series",
+      "required_series_ids": ["UMCSENT"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "markets.sp500-area",
+      "endpoint": "/api/v1/series/SP500",
+      "freshness_cadence": "daily",
+      "coverage_type": "series",
+      "required_series_ids": ["SP500"],
+      "required_snapshot_tables": [],
+      "collector_artifacts": ["scripts/seed_metadata.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    },
+    {
+      "id": "markets.gdp-waffle",
+      "endpoint": "/api/v1/sectors/gdp",
+      "freshness_cadence": "quarterly",
+      "coverage_type": "snapshot",
+      "required_series_ids": [],
+      "required_snapshot_tables": ["sector_gdp_snapshots"],
+      "collector_artifacts": ["scripts/collectors/sector_gdp.py", "scripts/data_collector.py", "scripts/backfill.py"]
+    }
+  ]
+}
