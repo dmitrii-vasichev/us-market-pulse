@@ -1,8 +1,8 @@
 # Source-Backed Dashboard Provenance Inventory
 
 **Date:** 2026-03-12  
-**Status:** Active baseline with Phase 2 rollout and Phase 3 contract addendum  
-**Phase:** Source-Backed Remediation baseline, updated through Phase 3 / Task 1  
+**Status:** Active baseline with Phase 2 rollout and Phase 3 verification complete  
+**Phase:** Source-Backed Remediation baseline, verified through Phase 3 / Task 8  
 **Reference PRD:** `docs/prd-source-backed-dashboard-remediation.md`
 
 ## Scope
@@ -91,7 +91,7 @@ The goal is to document, for each placement:
 ## Recommended Follow-On Mapping
 
 - Use the chart IDs in this document as the canonical IDs for `config/provenance-manifest.json` in Task 2.
-- Use the methodology classifications and `phase_3_target_contract` entries here to drive Phase 3 backend contract work for the unresolved derived charts.
+- Use the methodology classifications and `phase_3_target_contract` entries here as the locked post-Phase-3 regression baseline for future provenance changes.
 - No public chart placement remains on an `illustrative` methodology after Phase 2 Task 7.
 - Treat every row marked `derived` as requiring methodology note support before public provenance work is considered complete.
 
@@ -113,7 +113,7 @@ These contracts lock the production-source mapping for every chart that remains 
 
 ## Approved Phase 3 Methodology Contracts
 
-These contracts lock the post-Phase-3 target state for the remaining charts whose current runtime implementation is still methodologically unresolved after Phase 2. Runtime classification remains unchanged until the actual endpoint and UI work ships in later Phase 3 tasks.
+These contracts lock the post-Phase-3 target state for the charts that required methodology remediation during Phase 3. The runtime implementation now matches these contracts, so they act as the approved regression baseline for future endpoint or UI changes.
 
 | Chart IDs | Target production methodology | Approved upstream datasets | Freshness cadence | Deterministic transformation or policy that remains part of the contract | Planned storage | Assumptions removed in Phase 3 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -123,6 +123,6 @@ These contracts lock the post-Phase-3 target state for the remaining charts whos
 
 ### Manifest Alignment Notes
 
-- `config/provenance-manifest.json` now records `phase_3_target_contract` for `overview.gdp-waterfall`, `overview.economic-funnel`, `labor.economic-funnel`, and `overview.bullet-targets`.
-- `phase_3_target_contract` still captures the approved post-remediation methodology contract for the remaining unresolved charts, while `overview.gdp-waterfall` already matches its locked runtime state.
+- `config/provenance-manifest.json` records `phase_3_target_contract` for `overview.gdp-waterfall`, `overview.economic-funnel`, `labor.economic-funnel`, and `overview.bullet-targets`.
+- The current runtime rows for those charts now match their approved post-remediation methodology contracts and should stay aligned under test enforcement.
 - The approved target source claims are `Source: BEA Contributions to Real GDP Growth · Q<quarter> <year>` for `overview.gdp-waterfall`, `Source: BEA, BLS · <latest aligned period>` for both `EconomicFunnel` placements, and `Source: BEA, BLS, Federal Reserve · <latest aligned period>` for `overview.bullet-targets`.
