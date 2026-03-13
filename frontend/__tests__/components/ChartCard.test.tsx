@@ -84,6 +84,23 @@ describe("ChartCard", () => {
     expect(screen.getByText("Release window lagging")).toBeInTheDocument();
   });
 
+  it("renders freshness microcopy for unknown provenance freshness", () => {
+    render(
+      <ChartCard
+        insight="Test"
+        provenance={{
+          source: "Source: FRED · Jan 2026",
+          methodology_type: "source_backed",
+          freshness_status: "unknown",
+        }}
+      >
+        <div>chart</div>
+      </ChartCard>
+    );
+
+    expect(screen.getByText("Freshness unverified")).toBeInTheDocument();
+  });
+
   it("renders a custom freshness indicator when provided", () => {
     render(
       <ChartCard

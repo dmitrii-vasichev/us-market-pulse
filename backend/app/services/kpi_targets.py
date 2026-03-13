@@ -75,6 +75,7 @@ def build_kpi_summary_provenance(
         methodology_type=KPI_SUMMARY_CURRENT_METHODOLOGY.methodology_type,
         latest_date=latest_date,
         period_kind="date",
+        freshness_cadence="mixed",
         methodology_note=KPI_SUMMARY_CURRENT_METHODOLOGY.methodology_note,
         methodology_key=KPI_SUMMARY_CURRENT_METHODOLOGY.key,
         methodology_inputs=build_methodology_inputs(

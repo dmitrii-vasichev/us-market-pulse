@@ -8,6 +8,7 @@ from app.services.provenance import (
     build_chart_methodology_provenance,
     build_provenance,
     build_source_label,
+    classify_freshness_status,
     format_display_period,
 )
 
@@ -70,6 +71,39 @@ def test_build_provenance_omits_latest_fields_when_date_missing():
     assert provenance.source == "Source: BLS"
     assert provenance.latest_observation_date is None
     assert provenance.latest_month is None
+
+
+def test_classify_freshness_status_marks_recent_monthly_data_current():
+    assert (
+        classify_freshness_status(
+            date(2026, 1, 1),
+            "monthly",
+            reference_date=date(2026, 3, 12),
+        )
+        == "current"
+    )
+
+
+def test_classify_freshness_status_marks_old_daily_data_stale():
+    assert (
+        classify_freshness_status(
+            date(2025, 12, 1),
+            "daily",
+            reference_date=date(2026, 3, 12),
+        )
+        == "stale"
+    )
+
+
+def test_classify_freshness_status_returns_unknown_when_latest_date_missing():
+    assert (
+        classify_freshness_status(
+            None,
+            "quarterly",
+            reference_date=date(2026, 3, 12),
+        )
+        == "unknown"
+    )
 
 
 def test_build_source_label_formats_full_dates_consistently():

@@ -65,6 +65,22 @@ interface ProvenanceManifest {
   charts: ManifestChartEntry[];
 }
 
+interface OperationsChartEntry {
+  id: string;
+  endpoint: string;
+  freshness_cadence: string;
+  coverage_type: "series" | "snapshot";
+  required_series_ids: string[];
+  required_snapshot_tables: string[];
+  collector_artifacts: string[];
+}
+
+interface ProvenanceOperationsRegistry {
+  version: number;
+  policy_note: string;
+  charts: OperationsChartEntry[];
+}
+
 type ChartRuntimeExpectation = Pick<
   ManifestChartEntry,
   "id" | "page" | "route" | "component" | "endpoint" | "methodology_type" | "public"
@@ -86,6 +102,7 @@ type Phase3TargetExpectation = Phase2TargetExpectation;
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const MANIFEST_PATH = path.join(REPO_ROOT, "config", "provenance-manifest.json");
 const SCHEMA_PATH = path.join(REPO_ROOT, "config", "provenance-manifest.schema.json");
+const OPERATIONS_PATH = path.join(REPO_ROOT, "config", "provenance-operations.json");
 const CHART_COMPONENTS_DIR = path.join(REPO_ROOT, "frontend", "src", "components", "charts");
 const RESTORED_PHASE_2_COMPONENTS = [
   "CpiHeatmap.tsx",
@@ -529,6 +546,7 @@ function validateManifest(manifest: ProvenanceManifest) {
 describe("provenance manifest enforcement", () => {
   const manifest = readJson<ProvenanceManifest>(MANIFEST_PATH);
   const schema = readJson<Record<string, unknown>>(SCHEMA_PATH);
+  const operations = readJson<ProvenanceOperationsRegistry>(OPERATIONS_PATH);
   const chartEntry = ((schema.$defs as Record<string, unknown>)?.chartEntry ?? {}) as Record<string, unknown>;
   const chartEntryProperties = ((chartEntry.properties as Record<string, unknown>) ?? {}) as Record<string, unknown>;
   const chartEntryAllOf = (chartEntry.allOf as Array<Record<string, unknown>> | undefined) ?? [];
@@ -707,6 +725,40 @@ describe("provenance manifest enforcement", () => {
       expect(chart.upstream_sources.map(({ kind }) => kind)).not.toContain("frontend_assumption");
       expect(chart.upstream_sources.map(({ kind }) => kind)).not.toContain("inline_approximation");
       expect(chart.storage_locations.map(({ layer }) => layer)).not.toContain("frontend_inline");
+    }
+  });
+
+  it("keeps the operations registry aligned with the public manifest baseline", () => {
+    const publicCharts = manifest.charts.filter(
+      (chart) => chart.public && chart.current_runtime_visibility === "public",
+    );
+    const publicChartIds = publicCharts.map(({ id }) => id).sort();
+    const operationsById = new Map(operations.charts.map((chart) => [chart.id, chart] as const));
+
+    expect(operations.policy_note).toContain("operational ingestion and freshness coverage");
+    expect(operations.charts.map(({ id }) => id).sort()).toEqual(publicChartIds);
+
+    for (const chart of publicCharts) {
+      const opsEntry = operationsById.get(chart.id);
+      if (!opsEntry) {
+        throw new Error(`${chart.id} missing from operations registry`);
+      }
+
+      expect(opsEntry.endpoint).toBe(chart.endpoint);
+      expect(opsEntry.freshness_cadence).toBe(chart.freshness_cadence);
+      expect(opsEntry.collector_artifacts.length).toBeGreaterThan(0);
+
+      for (const artifact of opsEntry.collector_artifacts) {
+        expect(fs.existsSync(path.join(REPO_ROOT, artifact))).toBe(true);
+      }
+
+      if (opsEntry.coverage_type === "series") {
+        expect(opsEntry.required_series_ids.length).toBeGreaterThan(0);
+      }
+
+      if (opsEntry.coverage_type === "snapshot") {
+        expect(opsEntry.required_snapshot_tables.length).toBeGreaterThan(0);
+      }
     }
   });
 

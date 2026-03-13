@@ -15,3 +15,12 @@
 - `overview.economic-funnel` and `labor.economic-funnel` are approved to remain `derived`, but only if the funnel is rebuilt from stored BEA income inputs plus a stored BLS workforce input with documented unit conversions and stage mapping.
 - `overview.bullet-targets` is approved to remain `derived` on top of `/api/v1/kpi/summary`; the chart should keep the shared KPI endpoint and move its target bands, markers, and policy explanation into a backend-owned contract.
 - The manifest now records `phase_3_target_contract` for the unresolved methodology charts so implementation can keep current runtime classifications unchanged while Phase 3 endpoint and UI work is still in progress.
+
+## 2026-03-13
+
+### Source-Backed Remediation Phase 4 Operations Baseline
+
+- Public chart provenance now includes a shared freshness classifier in `backend/app/services/provenance.py`, so runtime payloads emit `current`, `stale`, or `unknown` from one cadence-aware backend policy instead of ad hoc endpoint behavior.
+- `config/provenance-operations.json` is the approved operations registry for the public chart surface. Every public manifest chart ID must declare its endpoint, freshness cadence, collector artifacts, and either required series IDs or required snapshot tables.
+- `scripts/provenance_audit.py` is the standard runtime audit entry point for Phase 4. It validates the public manifest against the operations registry and checks live endpoint payloads for methodology, freshness, and source-series regressions.
+- Phase 4 hardening is intentionally additive: stale or unknown freshness must warn through provenance metadata, not silently hide otherwise valid public charts.

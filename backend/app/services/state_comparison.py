@@ -89,6 +89,7 @@ def build_state_comparison_response(snapshot_rows: Sequence[Mapping[str, Any]]) 
         methodology_type="derived",
         latest_date=latest_date,
         period_kind="year",
+        freshness_cadence="annual",
         methodology_note=METHODOLOGY_NOTE,
         source_dataset=SOURCE_DATASET,
     )

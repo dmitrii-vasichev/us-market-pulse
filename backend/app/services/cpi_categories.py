@@ -65,6 +65,7 @@ def build_cpi_categories_response(snapshot_rows: Sequence[Mapping[str, Any]]) ->
         methodology_type="source_backed",
         latest_date=latest_date,
         period_kind="month",
+        freshness_cadence="annual",
         source_dataset=source_dataset,
     )
 

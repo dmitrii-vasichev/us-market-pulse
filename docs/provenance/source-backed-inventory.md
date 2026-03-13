@@ -1,8 +1,8 @@
 # Source-Backed Dashboard Provenance Inventory
 
-**Date:** 2026-03-12  
-**Status:** Active baseline with Phase 2 rollout and Phase 3 verification complete  
-**Phase:** Source-Backed Remediation baseline, verified through Phase 3 / Task 8  
+**Date:** 2026-03-13  
+**Status:** Final remediation baseline with Phase 4 operations verification complete  
+**Phase:** Source-Backed Remediation final baseline, verified through Phase 4 / Task 4  
 **Reference PRD:** `docs/prd-source-backed-dashboard-remediation.md`
 
 ## Scope
@@ -38,6 +38,7 @@ The goal is to document, for each placement:
 - 0 placements currently qualify as `illustrative`
 - 0 of 16 placements hardcode source/date text in the frontend
 - All current public placements consume backend-provided provenance metadata
+- All 16 public placements now have explicit operational coverage entries in `config/provenance-operations.json`
 
 ## Shared Component Map
 
@@ -86,14 +87,16 @@ The goal is to document, for each placement:
 2. No public chart placement remains on an unresolved Phase 3 methodology gap after Task 6.
 3. `overview.gdp-waterfall`, both `EconomicFunnel` placements, and `overview.bullet-targets` now match their locked Phase 3 contracts at runtime.
 4. The shared provenance footer pattern is now centralized through chart payloads rather than per-component source/date literals.
-5. Shared endpoints such as `/api/v1/sectors/gdp` still require regression coverage because one payload contract powers multiple public surfaces.
+5. Every public chart ID now has explicit operational coverage in `config/provenance-operations.json`, including collector artifacts plus required series IDs or snapshot tables.
+6. Shared endpoints such as `/api/v1/sectors/gdp` remain regression-sensitive because one audited payload contract powers multiple public surfaces.
 
 ## Recommended Follow-On Mapping
 
-- Use the chart IDs in this document as the canonical IDs for `config/provenance-manifest.json` in Task 2.
+- Use the chart IDs in this document as the canonical IDs for both `config/provenance-manifest.json` and `config/provenance-operations.json`.
 - Use the methodology classifications and `phase_3_target_contract` entries here as the locked post-Phase-3 regression baseline for future provenance changes.
+- Use the operations registry and `scripts/provenance_audit.py` as the required post-deploy verification layer for live provenance checks.
 - No public chart placement remains on an `illustrative` methodology after Phase 2 Task 7.
-- Treat every row marked `derived` as requiring methodology note support before public provenance work is considered complete.
+- Treat every row marked `derived` as requiring methodology note support and explicit operational coverage before public provenance work is considered complete.
 
 ## Approved Phase 2 Replacement Contracts
 
@@ -126,3 +129,11 @@ These contracts lock the post-Phase-3 target state for the charts that required 
 - `config/provenance-manifest.json` records `phase_3_target_contract` for `overview.gdp-waterfall`, `overview.economic-funnel`, `labor.economic-funnel`, and `overview.bullet-targets`.
 - The current runtime rows for those charts now match their approved post-remediation methodology contracts and should stay aligned under test enforcement.
 - The approved target source claims are `Source: BEA Contributions to Real GDP Growth · Q<quarter> <year>` for `overview.gdp-waterfall`, `Source: BEA, BLS · <latest aligned period>` for both `EconomicFunnel` placements, and `Source: BEA, BLS, Federal Reserve · <latest aligned period>` for `overview.bullet-targets`.
+
+## Phase 4 Operations Baseline
+
+Phase 4 adds the operational layer that closes the remediation initiative:
+
+- `config/provenance-operations.json` declares coverage for every public chart ID using the same manifest IDs documented above.
+- `scripts/provenance_audit.py` checks live endpoint responses against the manifest and operations registry, including methodology type, freshness status, source labels, and required series coverage.
+- Shared freshness handling now resolves through backend provenance helpers, so runtime payloads emit `current`, `stale`, or `unknown` instead of leaving the field empty on most endpoints.
